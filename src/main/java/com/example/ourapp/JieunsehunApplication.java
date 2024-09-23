@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
 @EntityScan("com.example.ourapp.entity")
-@ComponentScan({"com.example.ourapp.user", "com.example.controller", "com.example.service"})
+@ComponentScan({"com.example.ourapp.user", "com.example.ourapp.main", "com.example.service"})
 public class JieunsehunApplication {
 
 	public static void main(String[] args) {

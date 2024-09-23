@@ -14,12 +14,9 @@ import lombok.RequiredArgsConstructor;
 
 
 @Controller
-
+@RequiredArgsConstructor
 public class MainController {
-
-
-
-    @GetMapping("/login")
+    @GetMapping("/main")
     public String main() {
         return "main.html";
     }
