@@ -9,17 +9,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.ourapp.DTO.UserDTO;
+import com.example.ourapp.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 
-
+@RequiredArgsConstructor
 @Controller
 
 public class MainController {
 
-
-
-    @GetMapping("/login")
+    @GetMapping("/main")
     public String main() {
         return "main.html";
     }
