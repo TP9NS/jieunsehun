@@ -17,7 +17,7 @@ import com.example.ourapp.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 	
 	Optional<User> findByEmail(String Email);
-	Optional<User> findByUsername(String Username);
+	User findByUsername(String Username);
 	User findByUserId(Long UserId);
 	User findByNameAndBirthdateAndEmail(String name, LocalDate birthdate, String email);
 	User findByUsernameAndNameAndBirthdateAndEmail(String Username,String name, LocalDate birthdate, String email);

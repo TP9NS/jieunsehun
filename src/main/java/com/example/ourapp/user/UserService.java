@@ -34,21 +34,17 @@ public class UserService {
     
     // 로그인 검증 로직
     public UserDTO login(String username, String password) {
-        Optional<User> userOpt = userRepository.findByUsername(username);
-
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            // 입력된 비밀번호와 DB의 비밀번호가 일치하는지 확인
+        User user = userRepository.findByUsername(username);
+        System.out.println(user.getUserId());
+       
             if (user.getPassword().equals(password)) {
                 // User 엔티티를 UserDTO로 변환하여 반환
                 return UserDTO.toUserDTO(user);
             } else {
                 throw new IllegalArgumentException("Invalid password");
             }
-        } else {
-            throw new IllegalArgumentException("User not found");
-        }
+        } 
+        
     }
 
 
-}

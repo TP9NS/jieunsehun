@@ -181,7 +181,7 @@
         <div class="col-sm-8 col-md-7 py-4">
           <h4>About</h4>
           <p class="text-body-secondary">안양마켓에 오신것을 환영합니다!!</p>
-          <div th:if="${session.loginUsername != null}">
+          <div th:if="${session.user_id != null}">
 			  <a class="nav-link" href="/logout" >로그아웃</a>
 		  </div>
         </div>
@@ -202,30 +202,35 @@
         <strong>보물 지도</strong>
       </a>
       <ul class="navbar-nav ms-auto">
-    <!-- 로그인 상태인 경우 -->
-<div th:if="${session.loginUsername != null}">
+   <!-- 로그인 상태인 경우 -->
+<div th:if="${session.username != null}">
     <ul class="navbar-nav ms-auto">
+        <!-- 로그아웃 버튼 -->
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/logout}">로그아웃</a>
+        </li>
 
         <!-- 사용자 권한에 따른 동적 네비게이션 링크 -->
-        <li th:if="${session.loginPermission eq 3}" class="nav-item">
+        <li th:if="${session.permission eq 3}" class="nav-item">
             <a class="nav-link" th:href="@{/addProduct}">상품등록하기</a>
         </li>
-        <li th:if="${session.loginPermission eq 3}" class="nav-item">
+        <li th:if="${session.permission eq 3}" class="nav-item">
             <a class="nav-link" th:href="@{/viewOrders}">전체주문보기</a>
         </li>
 
         <!-- 권한이 3이 아닌 경우에만 마이페이지와 장바구니 링크 표시 -->
-        <li th:unless="${session.loginPermission eq 3}" class="nav-item">
-            <a class="nav-link" th:href="@{/viewcart(customer=${session.loginCustomerId})}">장바구니</a>
+        <li th:unless="${session.permission eq 3}" class="nav-item">
+            <a class="nav-link" th:href="@{/viewcart(customer=${session.user_id})}">장바구니</a>
         </li>
-        <li th:unless="${session.loginPermission eq 3}" class="nav-item">
-            <a class="nav-link" th:href="@{/mypage(customer=${session.loginCustomerId})}">마이페이지</a>
+        <li th:unless="${session.permission eq 3}" class="nav-item">
+            <a class="nav-link" th:href="@{/mypage(customer=${session.user_id})}">마이페이지</a>
         </li>
     </ul>
 </div>
 
+
 <!-- 로그인 상태가 아닌 경우 -->
-<div th:unless="${session.loginUsername != null}">
+<div th:unless="${session.user_id != null}">
     <ul class="navbar-nav ms-auto">
         <li class="nav-item">
             <a class="nav-link" href="/user/signup" target="_blank">회원가입</a>
@@ -249,7 +254,15 @@
 </header>
 <div style="margin-top: 20px;"></div>
 <main class="container">
-<div id="map" style="width:1000px ;height:700px;"></div>
+<div style="margin-bottom: 20px;">
+  <label for="category-select" class="form-label">카테고리 선택:</label>
+  <select id="category-select" class="form-select" aria-label="Category select" style="width: 200px;">
+    <option value="friend">친구</option>
+    <option value="family">가족</option>
+    <option value="lover">연인</option>
+  </select>
+</div>
+<div id="map" style="width:900px ;height:700px;"></div>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
 <script>
