@@ -1,32 +1,19 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <html lang="en" data-bs-theme="auto">
-  <head><script src="/docs/5.3/assets/js/color-modes.js"></script>
+  <head>
+    <script src="/docs/5.3/assets/js/color-modes.js"></script>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.118.2">
-    <title>우리의 보물 지도~</title>
+    <title>우리의 보물 지도와 GPT 대화</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/album/">
-
-    
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
-
- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-
-    <!-- Favicons -->
-<link rel="apple-touch-icon" href="/docs/5.3/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" href="/docs/5.3/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="/docs/5.3/assets/img/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-<link rel="manifest" href="/docs/5.3/assets/img/favicons/manifest.json">
-<link rel="mask-icon" href="/docs/5.3/assets/img/favicons/safari-pinned-tab.svg" color="#712cf9">
-<link rel="icon" href="/docs/5.3/assets/img/favicons/favicon.ico">
-<meta name="theme-color" content="#712cf9">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
     <style>
       .bd-placeholder-img {
@@ -105,21 +92,50 @@
       .bd-mode-toggle .dropdown-menu .active .bi {
         display: block !important;
       }
+      
       .category-nav {
-            margin-bottom: 20px;
-        }
+        margin-bottom: 20px;
+      }
 
-        .category-nav .navbar-nav {
-            display: flex;
-            align-items: center;
-        }
+      .category-nav .navbar-nav {
+        display: flex;
+        align-items: center;
+      }
 
-        .category-nav .nav-item {
-            margin-right: 10px;
-        }
+      .category-nav .nav-item {
+        margin-right: 10px;
+      }
+
+      #chatbox {
+        width: 400px;
+        height: 700px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-left: 20px;
+      }
+      
+      #chatbox .messages {
+        height: 600px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+      
+      #chatbox input {
+        width: 100%;
+        padding: 10px;
+      }
+
+      #map {
+        width: 900px;
+        height: 700px;
+      }
+
+      .container {
+        display: flex;
+      }
     </style>
-
-    
   </head>
   <body>
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
@@ -138,172 +154,167 @@
       </symbol>
     </svg>
 
-    <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
-      <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
-              id="bd-theme"
-              type="button"
-              aria-expanded="false"
-              data-bs-toggle="dropdown"
-              aria-label="Toggle theme (auto)">
-        <svg class="bi my-1 theme-icon-active" width="1em" height="1em"><use href="#circle-half"></use></svg>
-        <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
-        <li>
-          <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-            <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em"><use href="#sun-fill"></use></svg>
-            Light
-            <svg class="bi ms-auto d-none" width="1em" height="1em"><use href="#check2"></use></svg>
-          </button>
-        </li>
-        <li>
-          <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-            <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em"><use href="#moon-stars-fill"></use></svg>
-            Dark
-            <svg class="bi ms-auto d-none" width="1em" height="1em"><use href="#check2"></use></svg>
-          </button>
-        </li>
-        <li>
-          <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
-            <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em"><use href="#circle-half"></use></svg>
-            Auto
-            <svg class="bi ms-auto d-none" width="1em" height="1em"><use href="#check2"></use></svg>
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    
-<header data-bs-theme="dark">
-  <div class="collapse text-bg-dark" id="navbarHeader">
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-8 col-md-7 py-4">
-          <h4>About</h4>
-          <p class="text-body-secondary">안양마켓에 오신것을 환영합니다!!</p>
-          <div th:if="${session.user_id != null}">
-			  <a class="nav-link" href="/logout" >로그아웃</a>
-		  </div>
-        </div>
-        <div class="col-sm-4 offset-md-1 py-4">
-          <h4>Contact</h4>
-          <ul class="list-unstyled">
-            <li><a href="#" class="text-white">Follow on Twitter</a></li>
-            <li><a href="#" class="text-white">Like on Facebook</a></li>
-            <li><a href="#" class="text-white">Email me</a></li>
-          </ul>
+    <header data-bs-theme="dark">
+      <div class="collapse text-bg-dark" id="navbarHeader">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-8 col-md-7 py-4">
+              <h4>About</h4>
+              <p class="text-body-secondary">안양마켓에 오신것을 환영합니다!!</p>
+              <div th:if="${session.user_id != null}">
+                <a class="nav-link" href="/logout" >로그아웃</a>
+              </div>
+            </div>
+            <div class="col-sm-4 offset-md-1 py-4">
+              <h4>Contact</h4>
+              <ul class="list-unstyled">
+                <li><a href="#" class="text-white">Follow on Twitter</a></li>
+                <li><a href="#" class="text-white">Like on Facebook</a></li>
+                <li><a href="#" class="text-white">Email me</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-  <div class="navbar navbar-dark bg-dark shadow-sm">
-    <div class="container">
-      <a href="/main2" class="navbar-brand d-flex align-items-center">
-        <strong>보물 지도</strong>
-      </a>
-      <ul class="navbar-nav ms-auto">
-   <!-- 로그인 상태인 경우 -->
-<div th:if="${session.username != null}">
-    <ul class="navbar-nav ms-auto">
-        <!-- 로그아웃 버튼 -->
-        <li class="nav-item">
-            <a class="nav-link" th:href="@{/logout}">로그아웃</a>
-        </li>
-
-        <!-- 사용자 권한에 따른 동적 네비게이션 링크 -->
-        <li th:if="${session.permission eq 3}" class="nav-item">
-            <a class="nav-link" th:href="@{/addProduct}">상품등록하기</a>
-        </li>
-        <li th:if="${session.permission eq 3}" class="nav-item">
-            <a class="nav-link" th:href="@{/viewOrders}">전체주문보기</a>
-        </li>
-
-        <!-- 권한이 3이 아닌 경우에만 마이페이지와 장바구니 링크 표시 -->
-        <li th:unless="${session.permission eq 3}" class="nav-item">
-            <a class="nav-link" th:href="@{/viewcart(customer=${session.user_id})}">장바구니</a>
-        </li>
-        <li th:unless="${session.permission eq 3}" class="nav-item">
-            <a class="nav-link" th:href="@{/mypage(customer=${session.user_id})}">마이페이지</a>
-        </li>
-    </ul>
-</div>
-
-
-<!-- 로그인 상태가 아닌 경우 -->
-<div th:unless="${session.user_id != null}">
-    <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-            <a class="nav-link" href="/user/signup" target="_blank">회원가입</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/user/login" >로그인</a>
-        </li>
-    </ul>
-</div>
-</ul>
-      <div style="margin-left: 20px;"></div>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-    </div>
-  </div>
-  <nav class="navbar navbar-dark bg-dark category-nav">
-            <div class="container">
+      <div class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container">
+          <a href="/main2" class="navbar-brand d-flex align-items-center">
+            <strong>보물 지도</strong>
+          </a>
+          <ul class="navbar-nav ms-auto">
+            <!-- 로그인 상태인 경우 -->
+            <div th:if="${session.username != null}">
+              <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                  <a class="nav-link" th:href="@{/logout}">로그아웃</a>
+                </li>
+                <li th:if="${session.permission eq 3}" class="nav-item">
+                  <a class="nav-link" th:href="@{/addProduct}">상품등록하기</a>
+                </li>
+                <li th:if="${session.permission eq 3}" class="nav-item">
+                  <a class="nav-link" th:href="@{/viewOrders}">전체주문보기</a>
+                </li>
+                <li th:unless="${session.permission eq 3}" class="nav-item">
+                  <a class="nav-link" th:href="@{/viewcart(customer=${session.user_id})}">장바구니</a>
+                </li>
+                <li th:unless="${session.permission eq 3}" class="nav-item">
+                  <a class="nav-link" th:href="@{/mypage(customer=${session.user_id})}">마이페이지</a>
+                </li>
+              </ul>
             </div>
-        </nav>
-</header>
-<div style="margin-top: 20px;"></div>
-<main class="container">
-<div style="margin-bottom: 20px;">
-  <label for="category-select" class="form-label">카테고리 선택:</label>
-  <select id="category-select" class="form-select" aria-label="Category select" style="width: 200px;">
-    <option value="friend">친구</option>
-    <option value="family">가족</option>
-    <option value="lover">연인</option>
-  </select>
-</div>
-<div id="map" style="width:900px ;height:700px;"></div>
 
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
-<script>
-var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
-    mapOption = {
-        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
-        level: 3 // 지도의 확대 레벨
-    };  
+            <!-- 로그인 상태가 아닌 경우 -->
+            <div th:unless="${session.user_id != null}">
+              <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                  <a class="nav-link" href="/user/signup" target="_blank">회원가입</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/user/login" >로그인</a>
+                </li>
+              </ul>
+            </div>
+          </ul>
+          <div style="margin-left: 20px;"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+      <nav class="navbar navbar-dark bg-dark category-nav">
+        <div class="container">
+        </div>
+      </nav>
+    </header>
 
-// 지도를 생성합니다    
-var map = new kakao.maps.Map(mapContainer, mapOption); 
+    <div style="margin-top: 20px;"></div>
+    <main class="container">
+      <div style="margin-bottom: 20px;">
+        <label for="category-select" class="form-label">카테고리 선택:</label>
+        <select id="category-select" class="form-select" aria-label="Category select" style="width: 200px;">
+          <option value="friend">친구</option>
+          <option value="family">가족</option>
+          <option value="lover">연인</option>
+        </select>
+      </div>
+      
+      <div id="map"></div>
 
-// 주소-좌표 변환 객체를 생성합니다
-var geocoder = new kakao.maps.services.Geocoder();
+      <div id="chatbox">
+        <div class="messages" id="messages">
+          <!-- 대화 기록이 여기에 추가됩니다 -->
+        </div>
+        <input type="text" id="user-input" placeholder="GPT와 대화하세요..." onkeypress="sendMessage(event)">
+      </div>
+    </main>
 
-// 주소로 좌표를 검색합니다
-geocoder.addressSearch('경기 안양시 만안구 만안로 232', function(result, status) {
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
+    <script>
+      var mapContainer = document.getElementById('map'), 
+          mapOption = {
+            center: new kakao.maps.LatLng(33.450701, 126.570667),
+            level: 3
+          };
 
-    // 정상적으로 검색이 완료됐으면 
-     if (status === kakao.maps.services.Status.OK) {
+      var map = new kakao.maps.Map(mapContainer, mapOption);
 
-        var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+      var geocoder = new kakao.maps.services.Geocoder();
 
-        // 결과값으로 받은 위치를 마커로 표시합니다
-        var marker = new kakao.maps.Marker({
+      geocoder.addressSearch('경기 안양시 만안구 만안로 232', function(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+          var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+          var marker = new kakao.maps.Marker({
             map: map,
             position: coords
-        });
-
-        // 인포윈도우로 장소에 대한 설명을 표시합니다
-        var infowindow = new kakao.maps.InfoWindow({
+          });
+          var infowindow = new kakao.maps.InfoWindow({
             content: '<div style="width:150px;text-align:center;padding:6px 0;">우리회사</div>'
-        });
-        infowindow.open(map, marker);
+          });
+          infowindow.open(map, marker);
+          map.setCenter(coords);
+        }
+      });
+    </script>
 
-        // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
-        map.setCenter(coords);
-    } 
-});    
-</script>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    </body>
+    <script>
+      async function sendMessage(event) {
+        if (event.key === 'Enter') {
+          const userInput = document.getElementById('user-input').value;
+          if (userInput.trim() === '') return;
+
+          const messagesContainer = document.getElementById('messages');
+          
+          // 사용자 메시지 추가
+          const userMessage = document.createElement('div');
+          userMessage.textContent = 'You: ' + userInput;
+          messagesContainer.appendChild(userMessage);
+
+          // 입력 창 비우기
+          document.getElementById('user-input').value = '';
+
+          // 서버로 요청 전송
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userInput })
+          });
+
+          const data = await response.json();
+          const gptMessage = data.response;
+
+          // GPT 응답 추가
+          const gptResponse = document.createElement('div');
+          gptResponse.textContent = 'GPT: ' + gptMessage;
+          messagesContainer.appendChild(gptResponse);
+
+          // 자동 스크롤
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </body>
 </html>

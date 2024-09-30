@@ -1,0 +1,91 @@
+[33mcommit 1a9c038840873e099b08e1280897a8bbea8716d3[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Mon Sep 30 19:17:06 2024 +0900
+
+    gpt 추가
+
+[33mcommit a9deb3fa358db5f2083c6401610ec9eb0acad206[m
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Mon Sep 30 19:09:47 2024 +0900
+
+    gpt 기능 넣기 완
+
+[33mcommit d37816138399be39585fe2d7f89302ddc302debd[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: nueij0429 <82104@DESKTOP-CMBCKCL>
+Date:   Tue Sep 24 00:40:21 2024 +0900
+
+    제목 바꾸기~
+
+[33mcommit 124c3fb849899dd2b603d350f7bf2eae92719c9e[m
+Author: 82104 <82104@DESKTOP-CMBCKCL>
+Date:   Tue Sep 24 00:38:07 2024 +0900
+
+    로그인 세션 유지, 메인 페이지 수정
+
+[33mcommit dc257aaa509af34645de052e141b1d0928b10c37[m
+Merge: b34768f a85ef4b
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Mon Sep 23 22:25:55 2024 +0900
+
+    깃 꼬인거 다풀기
+
+[33mcommit b34768fabf656263a6974fa676471c3a7c3003fd[m
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Mon Sep 23 22:14:47 2024 +0900
+
+    test
+
+[33mcommit a85ef4be9df49bfbec547eb48e217c0c376c40d0[m
+Author: 82104 <82104@192.168.219.102>
+Date:   Mon Sep 23 22:12:42 2024 +0900
+
+    로그인 추가
+
+[33mcommit 2f81ac31cc3d6fa11c5bc322580ff44d0f6acc30[m
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Mon Sep 23 21:50:26 2024 +0900
+
+    메인 컨트롤러 추가
+
+[33mcommit ff60422a73a86f4b4935d7fabb48f75f76dceaff[m
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Mon Sep 23 21:44:43 2024 +0900
+
+    지도 api 추가
+
+[33mcommit 0e24c52f5fa2284527a5ebff7dcd6077515b3825[m
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Mon Sep 23 20:57:48 2024 +0900
+
+    링크 바꾸기
+
+[33mcommit 386b2fbd305b71d453d6694d48a92ff5a4a1552c[m
+Merge: e72ccf2 f37b0ce
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Mon Sep 23 20:37:04 2024 +0900
+
+    Merge branch 'main' of https://github.com/TP9NS/jieunsehun
+
+[33mcommit e72ccf24ecfbb4709b4521329c97744aa396013c[m
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Mon Sep 23 20:34:47 2024 +0900
+
+    회원가입 추가
+
+[33mcommit f37b0ce085b4b95d2b43ab383e0b2f3f3f807b05[m
+Author: 82104 <82104@DESKTOP-CMBCKCL>
+Date:   Tue Sep 10 20:17:57 2024 +0900
+
+    안녕
+
+[33mcommit 7d3df0811d93a254f70b9d6c5f9d966e4b0bf034[m
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Tue Sep 10 20:05:40 2024 +0900
+
+    asd
+
+[33mcommit 78f79eebcfb1afe4d05c72d66698af1918612f36[m
+Author: TP9NS <ajtwlstpgns@naver.com>
+Date:   Tue Sep 10 19:47:07 2024 +0900
+
+    first commit
