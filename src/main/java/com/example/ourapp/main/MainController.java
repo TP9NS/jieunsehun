@@ -19,7 +19,10 @@ public class MainController {
     public String main() {
         return "main.html";
     }
-
+    @GetMapping("/test")
+    public String test() {
+    	return "map_test.html";
+    }
     // OpenAI GPT와의 대화를 처리하는 엔드포인트
     @PostMapping("/api/chat")
     @ResponseBody
