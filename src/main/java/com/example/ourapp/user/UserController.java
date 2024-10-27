@@ -48,7 +48,12 @@ public class UserController {
             return "redirect:/user/login";
         }
     }
-
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate(); // 세션 무효화
+        System.out.println("세션없어짐");
+        return "redirect:/main"; // 로그아웃 후 리다이렉트할 경로
+    }
 
     @GetMapping("/signup")
     public String signup() {

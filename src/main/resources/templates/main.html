@@ -154,78 +154,77 @@
       </symbol>
     </svg>
 
-    <header data-bs-theme="dark">
-      <div class="collapse text-bg-dark" id="navbarHeader">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-8 col-md-7 py-4">
-              <h4>About</h4>
-              <p class="text-body-secondary">안양마켓에 오신것을 환영합니다!!</p>
-              <div th:if="${session.user_id != null}">
-                <a class="nav-link" href="/logout" >로그아웃</a>
-              </div>
-            </div>
-            <div class="col-sm-4 offset-md-1 py-4">
-              <h4>Contact</h4>
-              <ul class="list-unstyled">
-                <li><a href="#" class="text-white">Follow on Twitter</a></li>
-                <li><a href="#" class="text-white">Like on Facebook</a></li>
-                <li><a href="#" class="text-white">Email me</a></li>
-              </ul>
-            </div>
-          </div>
+<header data-bs-theme="dark">
+  <div class="collapse text-bg-dark" id="navbarHeader">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-8 col-md-7 py-4">
+          <h4>About</h4>
+          <p class="text-body-secondary">우리들의 보물지도에 온 것을 환영합니다!</p>
         </div>
-      </div>
-      <div class="navbar navbar-dark bg-dark shadow-sm">
-        <div class="container">
-          <a href="/main2" class="navbar-brand d-flex align-items-center">
-            <strong>보물 지도</strong>
-          </a>
-          <ul class="navbar-nav ms-auto">
-            <!-- 로그인 상태인 경우 -->
-            <div th:if="${session.username != null}">
-              <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                  <a class="nav-link" th:href="@{/logout}">로그아웃</a>
-                </li>
-                <li th:if="${session.permission eq 3}" class="nav-item">
-                  <a class="nav-link" th:href="@{/addProduct}">상품등록하기</a>
-                </li>
-                <li th:if="${session.permission eq 3}" class="nav-item">
-                  <a class="nav-link" th:href="@{/viewOrders}">전체주문보기</a>
-                </li>
-                <li th:unless="${session.permission eq 3}" class="nav-item">
-                  <a class="nav-link" th:href="@{/viewcart(customer=${session.user_id})}">장바구니</a>
-                </li>
-                <li th:unless="${session.permission eq 3}" class="nav-item">
-                  <a class="nav-link" th:href="@{/mypage(customer=${session.user_id})}">마이페이지</a>
-                </li>
-              </ul>
-            </div>
-
-            <!-- 로그인 상태가 아닌 경우 -->
-            <div th:unless="${session.user_id != null}">
-              <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                  <a class="nav-link" href="/user/signup" target="_blank">회원가입</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/user/login" >로그인</a>
-                </li>
-              </ul>
-            </div>
+        <div class="col-sm-4 offset-md-1 py-4">
+          <h4>Contact</h4>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-white">Follow on Twitter</a></li>
+            <li><a href="#" class="text-white">Like on Facebook</a></li>
+            <li><a href="#" class="text-white">Email me</a></li>
           </ul>
-          <div style="margin-left: 20px;"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
         </div>
       </div>
-      <nav class="navbar navbar-dark bg-dark category-nav">
-        <div class="container">
-        </div>
-      </nav>
-    </header>
+    </div>
+  </div>
+  
+  <div class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container d-flex align-items-center justify-content-between">
+      <!-- 보물 지도 로고를 상단에 고정 -->
+      <a href="/main" class="navbar-brand">
+        <strong>보물 지도</strong>
+      </a>
+
+      <!-- 로고 아래 가로로 메뉴와 버튼 배치 -->
+      <div class="d-flex justify-content-between w-100 mt-2">
+        <ul class="navbar-nav flex-row">
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/photos">사진</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/board">게시판</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/my-map">나만의 지도</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/group-map">그룹 지도</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/friends">친구 목록</a>
+          </li>
+        </ul>
+
+        <!-- 로그인 여부에 따라 버튼 표시 -->
+        <ul class="navbar-nav flex-row">
+          <!-- 로그인이 되어 있을 때(세션에 user_id가 있을 때) -->
+          <li th:if="${session.user_id != null}" class="nav-item me-3">
+            <a class="nav-link" th:href="@{/mypage(customer=${session.user_id})}">마이페이지</a>
+          </li>
+          <li th:if="${session.user_id != null}" class="nav-item">
+            <a class="nav-link" th:href="@{/user/logout}">로그아웃</a>
+          </li>
+
+          <!-- 로그인이 되어 있지 않을 때(세션에 user_id가 없을 때) -->
+          <li th:unless="${session.user_id != null}" class="nav-item me-3">
+            <a class="nav-link" th:href="@{/user/login}">로그인</a>
+          </li>
+          <li th:unless="${session.user_id != null}" class="nav-item">
+            <a class="nav-link" th:href="@{/user/signup}">회원가입</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+
 
     <div style="margin-top: 20px;"></div>
     <main class="container">
