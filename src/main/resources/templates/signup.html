@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.118.2">
-    <title>안양마켓</title>
+    <title>우리의 보물 지도와 GPT 대화</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/album/">
 
@@ -34,7 +34,7 @@
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 0;
-            background-color: lightblue;
+            background-color: white;
             overflow-y: scroll;
         }
 
@@ -50,7 +50,7 @@
 
         /* 아이디, 이메일 입력 칸 */
         .signup-container input[type="text"] {
-            width: calc(56% - 1px);
+            width: calc(61% - 1px);
             padding: 10px;
             margin: 10px 2px;
             border: 1px solid #ccc;
@@ -103,7 +103,7 @@
             border-radius: 5px;
         }
 		.signup-container #sample6_postcode{
-			width: calc(56% - 1px);
+			width: calc(51% - 1px);
             padding: 10px;
             margin: 10px 2px;
             border: 1px solid #ccc;
@@ -111,9 +111,14 @@
 		}
         /* 우편번호 찾기 버튼 스타일 */
         .signup-container #sample6_postcode + input[type="button"] {
-            width: calc(30% - 2px);
-            margin-top: 10px;
-         	font-size: 10px;
+            width: calc(40% - 2px);
+            padding: 10px;
+            margin: 10px 2px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
         }
 
         .signup-button {
@@ -278,7 +283,7 @@
       <div class="row">
         <div class="col-sm-8 col-md-7 py-4">
           <h4>About</h4>
-          <p class="text-body-secondary">안양마켓에 오신것을 환영합니다!!</p>
+          <p class="text-body-secondary">우리들의 보물지도에 온 것을 환영합니다!</p>
           <div th:if="${session.loginUsername != null}">
 			  <a class="nav-link" href="/logout" >로그아웃</a>
 		  </div>

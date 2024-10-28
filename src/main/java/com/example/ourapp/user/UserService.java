@@ -35,16 +35,25 @@ public class UserService {
     
     // 로그인 검증 로직
     public UserDTO login(String username, String password) {
-        User user = userRepository.findByUsername(username);
-        System.out.println(user.getUserId());
-       
-            if (user.getPassword().equals(password)) {
-                // User 엔티티를 UserDTO로 변환하여 반환
-                return UserDTO.toUserDTO(user);
-            } else {
-                throw new IllegalArgumentException("Invalid password");
-            }
-        } 
+        // username으로 사용자 검색
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        
+        // 사용자가 존재하지 않을 경우
+        if (optionalUser.isEmpty()) {
+            throw new IllegalArgumentException("User not found");
+        }
+
+        User user = optionalUser.get(); // 존재하는 사용자 객체 가져오기
+        
+        // 비밀번호 확인
+        if (!user.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+        
+        // User 엔티티를 UserDTO로 변환하여 반환
+        return UserDTO.toUserDTO(user);
+    }
+
     public UserDTO findUserById(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         if (user.isPresent()) {
@@ -68,7 +77,11 @@ public class UserService {
             throw new EntityNotFoundException("User not found with ID: " + userDTO.getUser_id());
         }
     }
-
+    
+    public boolean checkUsernameDuplicate(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        return user.isPresent();
+    }
 }
 
 

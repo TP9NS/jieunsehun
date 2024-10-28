@@ -2,12 +2,16 @@ package com.example.ourapp.user;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -65,6 +69,7 @@ public class UserController {
     	userService.save(userDTO);
         return "main.html";
     }
+    
     @GetMapping("/mypage")
     public String myPage(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("user_id");
@@ -78,10 +83,23 @@ public class UserController {
 
         return "mypage.html";
     }
+    
     @PostMapping("/update")
     public String updateUser(@ModelAttribute UserDTO userDTO, HttpSession session) {
         userService.updateUser(userDTO);
         session.setAttribute("user", userDTO);
         return "redirect:/user/mypage";
     }
+    
+    @PostMapping("/checkid")
+    @ResponseBody
+    public Map<String, String> checkUsernameDuplicate(@RequestBody Map<String, String> request) {
+        String username = request.get("username");
+        boolean isDuplicate = userService.checkUsernameDuplicate(username);
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("message", isDuplicate ? "이미 사용 중인 아이디입니다." : "사용 가능한 아이디입니다.");
+        return response;
+    }
+
 }

@@ -135,6 +135,32 @@
       .container {
         display: flex;
       }
+      .btn-custom {
+    padding: 10px 20px;
+    width: 130px;
+    height: 40px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    justify-content: center;
+}
+     .btn-custom2 {
+    padding: 10px 20px;
+    width: 150px;
+    height: 40px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.btn-custom:hover {
+    background-color: #0056b3; /* Darker background on hover */
+}
     </style>
   </head>
   <body>
@@ -215,67 +241,102 @@
 </header>
 
  <div class="container mt-4">
-  <form th:action="@{/user/update}" method="post">
+ <form th:action="@{/user/update}" method="post">
     <div class="card">
-      <div class="card-header">
-        <h4 class="card-title">내 정보</h4>
-      </div>
-      <div class="card-body">
-        <ul class="list-group">
-          <li class="list-group-item">
-            <strong>이름: </strong>
-            <span th:if="${!editMode}" th:text="${user.name}"></span>
-            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.name}" name="name">
-          </li>
-          <input type="hidden" th:value="${user.User_id}" name="user_id">
-         <li class="list-group-item">
-            <strong>아이디: </strong>
-            <span th:if="${!editMode}" th:text="${user.username}"></span>
-            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.username}" name="username">
-          </li>
-          <li class="list-group-item">
-            <strong>비밀번호: </strong>
-            <span th:if="${!editMode}" th:text="${user.password}"></span>
-            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.password}" name="password">
-          </li>
-          <li class="list-group-item">
-            <strong>이메일: </strong>
-            <span th:if="${!editMode}" th:text="${user.email}"></span>
-            <input th:if="${editMode}" type="email" class="form-control" th:value="${user.email}" name="email">
-          </li>
-          <li class="list-group-item">
-            <strong>전화번호: </strong>
-            <span th:if="${!editMode}" th:text="${user.phone}"></span>
-            <input th:if="${editMode}" type="tel" class="form-control" th:value="${user.phone}" name="phone">
-          </li>
-          <li class="list-group-item">
-            <strong>생년월일: </strong>
-            <span th:if="${!editMode}" th:text="${user.birthdate}"></span>
-            <input th:if="${editMode}" type="date" class="form-control" th:value="${user.birthdate}" name="birthdate">
-          </li>
-          <li class="list-group-item">
-            <strong>주소: </strong>
-            <span th:if="${!editMode}" th:text="${user.address}"></span>
-            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.address}" name="address">
-          </li>
-          <li class="list-group-item">
-            <strong>우편번호: </strong>
-            <span th:if="${!editMode}" th:text="${user.postcode}"></span>
-            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.postcode}" name="postcode">
-          </li>
-        </ul>
-        <div class="mt-4">
-          <button th:if="${!editMode}" class="btn btn-primary" type="button" onclick="toggleEditMode()">정보 수정</button>
-          <button th:if="${editMode}" class="btn btn-success" type="submit">저장</button>
-          <button th:if="${editMode}" class="btn btn-secondary" type="button" onclick="toggleEditMode()">취소</button>
+        <div class="card-header">
+            <h4 class="card-title">내 정보</h4>
         </div>
-      </div>
+        <div class="card-body">
+            <ul class="list-group">
+                    <input type="hidden" th:value="${user.User_id}" name="user_id">
+                    <strong>아이디: </strong>
+                    <span th:if="${!editMode}" th:text="${user.username}"></span>
+                    <input th:if="${editMode}" type="text" id="username" class="form-control" th:value="${user.username}" name="username">
+                    <input type="button" class="btn-custom" onclick="checkDuplicate()" value="중복 확인">
+                <hr>
+                    <strong>비밀번호: </strong>
+                    <span th:if="${!editMode}" th:text="${user.password}"></span>
+                    <input th:if="${editMode}" type="password" class="form-control" th:value="${user.password}" name="password">
+                <hr>
+                    <strong>이름: </strong>
+                    <span th:if="${!editMode}" th:text="${user.name}"></span>
+                    <input th:if="${editMode}" type="text" class="form-control" th:value="${user.name}" name="name">
+                <hr>
+                    <strong>생년월일: </strong>
+                    <span th:if="${!editMode}" th:text="${user.birthdate}"></span>
+                    <input th:if="${editMode}" type="date" class="form-control" th:value="${user.birthdate}" name="birthdate">
+                <hr>
+                    <strong>이메일: </strong>
+                    <span th:if="${!editMode}" th:text="${user.email}"></span>
+                    <input th:if="${editMode}" type="email" class="form-control" th:value="${user.email}" name="email">
+                <hr>
+                    <strong>전화번호: </strong>
+                    <span th:if="${!editMode}" th:text="${user.phone}"></span>
+                    <input th:if="${editMode}" type="tel" class="form-control" th:value="${user.phone}" name="phone">
+                <hr>
+                    <strong>주소: </strong>
+                    <span th:if="${!editMode}" th:text="${user.address}"></span>
+                    <input th:if="${editMode}" type="text" id="sample6_address" class="form-control" th:value="${user.address}" name="address">
+                <hr>
+                    <strong>우편번호: </strong>
+                    <span th:if="${!editMode}" th:text="${user.postcode}"></span>
+                    <input th:if="${editMode}" type="text" id="sample6_postcode" class="form-control" th:value="${user.postcode}" name="postcode">
+                    <input type="button" class="btn-custom2" onclick="sample6_execDaumPostcode()" value="우편번호 찾기">
+                <hr>
+                    <strong>상세주소: </strong>
+                    <input th:if="${editMode}" type="text" id="sample6_detailAddress" class="form-control" th:value="${user.address_1}" name="address_1">
+                    <input type="text" id="sample6_extraAddress" class="form-control" placeholder="참고항목">
+            </ul>
+            <div class="mt-4">
+                <button th:if="${!editMode}" class="btn btn-primary" type="button" onclick="toggleEditMode()">정보 수정</button>
+                <button th:if="${editMode}" class="btn btn-success" type="submit">저장</button>
+                <button th:if="${editMode}" class="btn btn-secondary" type="button" onclick="cancelEdit()">취소</button>
+            </div>
+        </div>
     </div>
-  </form>
-</div>
+</form>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- 우편번호 찾기, 중복 체크 스크립트 추가 -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
+    function sample6_execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                var addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                var extraAddr = data.userSelectedType === 'R' ? data.bname || data.buildingName : '';
+                document.getElementById('sample6_postcode').value = data.zonecode;
+                document.getElementById("sample6_address").value = addr;
+                document.getElementById("sample6_extraAddress").value = extraAddr ? '(' + extraAddr + ')' : '';
+                document.getElementById("sample6_detailAddress").focus();
+            }
+        }).open();
+    }
+
+    function checkDuplicate() {
+        const username = document.getElementById('username').value;
+
+        if (username.trim() === "") {
+            alert("아이디를 입력하세요.");
+            return;
+        }
+
+        fetch('/user/checkid', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username: username }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
   let editMode = false;
   let originalData = {}; // 원래 데이터 저장
 

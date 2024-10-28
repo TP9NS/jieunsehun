@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.118.2">
-    <title>안양마켓</title>
+    <title>우리의 보물 지도와 GPT 대화</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/album/">
 
@@ -34,7 +34,7 @@
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 0;
-            background-color: lightblue;
+            background-color: white;
             overflow-y: scroll;
         }
 
@@ -260,7 +260,7 @@
       <div class="row">
         <div class="col-sm-8 col-md-7 py-4">
           <h4>About</h4>
-          <p class="text-body-secondary">안양마켓에 오신것을 환영합니다!!</p>
+          <p class="text-body-secondary">우리들의 보물지도에 온 것을 환영합니다!</p>
           <div th:if="${session.loginUsername != null}">
 			  <a class="nav-link" href="/logout" >로그아웃</a>
 		  </div>
@@ -332,7 +332,7 @@
             <h2>로그인</h2>
             <input type="id" placeholder="아이디" name="username"><br><br>
             <input type="password" placeholder="비밀번호" name="password"><br>
-            <input type="submit" class="login-button" value="로그인">
+            <input type="submit" class="login-button" value="로그인"><br>
         <a href = "/user/findPass"> 아이디 찾기</a>
         <a href = "/user/findPass"> 비밀번호 찾기</a>
         </div>
