@@ -29,40 +29,35 @@
 
     <style>
 			
-        /* 회원가입 폼 스타일 */
         body {
             font-family: Arial, sans-serif;
+            background-color: #FEE500;
             text-align: center;
             padding: 0;
-            background-color: white;
             overflow-y: scroll;
         }
 
-        .login-container {
+        .signup-container {
             width: 340px;
             margin: 100px auto;
-            margin-top: 100px;
-            border: 2px solid #ccc;
+            border: 2px solid #3C1E1E;
             padding: 20px;
             border-radius: 8px;
-            background-color: white;
+            background-color: #FFFFFF;
         }
 
-        /* 아이디, 이메일 입력 칸 */
-        .login-container input[type="text"] {
-            width: calc(56% - 1px);
-            padding: 10px;
-            margin: 10px 2px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .signup-container h2 {
+            color: #3C1E1E;
+            font-weight: bold;
         }
 
-        /* 변경된 입력 칸 */
+        /* 기본 입력 필드 */
+        .signup-container input[type="name"],
+        .signup-container input[type="text"],
         .signup-container input[type="email"],
         .signup-container input[type="password"],
         .signup-container input[type="address"],
         .signup-container input[type="num"],
-        .signup-container input[type="name"][placeholder="이름"],
         .signup-container input[type="date"] {
             width: calc(100% - 22px);
             padding: 10px;
@@ -71,15 +66,10 @@
             border-radius: 5px;
         }
 
-        /* 도메인 선택 스타일 */
-        .signup-container select {
-            width: calc(100% - 8px);
-            padding: 10px;
-            margin: 10px 2px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        .signup-container input[readonly] {
+            background-color: #f0f0f0;
         }
-/* 주소 입력 칸 스타일 */
+
         .signup-container #sample6_postcode,
         .signup-container #sample6_address,
         .signup-container #sample6_detailAddress,
@@ -90,14 +80,18 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-		.signup-container #sample6_postcode{
-			width: calc(56% - 1px);
+
+        .signup-button {
+            width: calc(50% - 2px);
             padding: 10px;
             margin: 10px 2px;
-            border: 1px solid #ccc;
+            border: 1px solid #3C1E1E;
             border-radius: 5px;
-		}
-
+            background-color: #FEE500;
+            color: #3C1E1E;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
       .bd-placeholder-img {
         font-size: 1.125rem;
@@ -187,36 +181,6 @@
         .category-nav .nav-item {
             margin-right: 10px;
         }
-.kakao-button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px; /* 위쪽 간격 */
-    border-radius: 5px;
-    background-color: #FEE500;
-    color: #3C1E1E;
-    font-weight: bold;
-    text-align: center;
-    text-decoration: none;
-    border: 1px solid #FEE500;
-  }
-
-  .kakao-button:hover {
-    background-color: #E5C700;
-    border-color: #E5C700;
-  }
-
-  /* 로그인 버튼 스타일 */
-  .login-button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border: 1px solid #007bff;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-  }
     </style>
 
     
@@ -303,35 +267,9 @@
       </a>
       <ul class="navbar-nav ms-auto">
     <!-- 로그인 상태인 경우 -->
-<div th:if="${session.loginUsername != null}">
-    <ul class="navbar-nav ms-auto">
 
-        <!-- 사용자 권한에 따른 동적 네비게이션 링크 -->
-        <li th:if="${session.loginPermission eq 3}" class="nav-item">
-            <a class="nav-link" th:href="@{/addProduct}">상품등록하기</a>
-        </li>
-        <li th:if="${session.loginPermission eq 3}" class="nav-item">
-            <a class="nav-link" th:href="@{/viewOrders}">전체주문보기</a>
-        </li>
 
-        <!-- 권한이 3이 아닌 경우에만 마이페이지와 장바구니 링크 표시 -->
-        <li th:unless="${session.loginPermission eq 3}" class="nav-item">
-            <a class="nav-link" th:href="@{/viewcart(customer=${session.loginCustomerId})}">장바구니</a>
-        </li>
-        <li th:unless="${session.loginPermission eq 3}" class="nav-item">
-            <a class="nav-link" th:href="@{/mypage(customer=${session.loginCustomerId})}">마이페이지</a>
-        </li>
-    </ul>
-</div>
 
-<!-- 로그인 상태가 아닌 경우 -->
-<div th:unless="${session.loginUsername != null}">
-    <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-            <a class="nav-link" href="/user/signup" target="_blank">회원가입</a>
-        </li>
-    </ul>
-</div>
 </ul>
       <div style="margin-left: 20px;"></div>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
@@ -346,27 +284,84 @@
 </header>
 <div style="margin-top: 20px;"></div>
 <main class="container">
-  <body>
-    <form action="/user/login" method="post">
-      <div class="login-container">
-        <h2>로그인</h2>
-        <input type="id" placeholder="아이디" name="username"><br><br>
-        <input type="password" placeholder="비밀번호" name="password"><br>
-
-        <!-- 로그인 버튼 -->
-        <input type="submit" class="login-button" value="로그인">
-
-        <!-- 카카오 로그인 버튼 -->
-<a th:href="@{'https://kauth.kakao.com/oauth/authorize?client_id=7324f29455ad0dff17d06c69490caaf1&redirect_uri=http://localhost:8080/oauth/kakao/callback&response_type=code'}" 
-   class="kakao-button">카카오 로그인</a>
-
-
-        <div style="margin-top: 10px;">
-          <a href="/user/findPass">아이디 찾기</a>
-          <a href="/user/findPass" style="margin-left: 10px;">비밀번호 찾기</a>
+<body>
+   <form th:action="@{/user/kakaoSignup}" method="post">
+        <div class="signup-container">
+            <h2>카카오 회원가입</h2>
+            <input type="name" placeholder="이름" name="name" th:value="${nickname}" readonly><br>
+            <input type="date" name="birthdate"><br>
+            <input type="email" placeholder="이메일" name="email">
+            <input type="num" placeholder="전화번호" name="phone"><br>
+            <input type="text" id="sample6_postcode" placeholder="우편번호" name="postcode" >
+            <input type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기"><br>
+            <input type="text" id="sample6_address" placeholder="주소" name="address"><br>
+            <input type="text" id="sample6_detailAddress" placeholder="상세주소" name="address_1">
+            <input type="text" id="sample6_extraAddress" placeholder="참고항목">
+            <input type="submit" class="signup-button" value="회원가입">
         </div>
-      </div>
     </form>
-  </body>
+
+</body>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>	
+    </body>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script>
+        function sample6_execDaumPostcode() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    var addr = '';
+                    var extraAddr = '';
+
+                    if (data.userSelectedType === 'R') {
+                        addr = data.roadAddress;
+                    } else {
+                        addr = data.jibunAddress;
+                    }
+
+                    if (data.userSelectedType === 'R') {
+                        if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+                            extraAddr += data.bname;
+                        }
+                        if (data.buildingName !== '' && data.apartment === 'Y') {
+                            extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                        }
+                        if (extraAddr !== '') {
+                            extraAddr = ' (' + extraAddr + ')';
+                        }
+                        document.getElementById("sample6_extraAddress").value = extraAddr;
+                    } else {
+                        document.getElementById("sample6_extraAddress").value = '';
+                    }
+
+                    document.getElementById('sample6_postcode').value = data.zonecode;
+                    document.getElementById("sample6_address").value = addr;
+                    document.getElementById("sample6_detailAddress").focus();
+                }
+            }).open();
+        }
+         function checkDuplicate() {
+            var id = document.getElementById('id').value;
+			
+            // 서버로 비밀번호 찾기 정보 전송
+            $.ajax({
+        type: 'POST',
+        url: '/checkid',
+        contentType: 'application/json',
+        data: JSON.stringify({ id:id }),
+        success: function(response) {
+            alert(response.message);
+            if (response.check) {
+                alert( response.check);
+            }
+        },
+        error: function(error) {
+            console.log(error);
+            alert("회원가입을 진행해주세요.");
+        }
+    });
+        }
+    </script>
+    
 </html>

@@ -101,5 +101,20 @@ public class UserController {
         response.put("message", isDuplicate ? "이미 사용 중인 아이디입니다." : "사용 가능한 아이디입니다.");
         return response;
     }
-
+    @GetMapping("/kakaoSignup")
+    public String kakaoSignup(HttpSession session, Model model) {
+        // 세션에서 카카오 정보를 가져와 뷰로 전달
+        model.addAttribute("kakaoId", session.getAttribute("kakao_id"));
+        model.addAttribute("nickname", session.getAttribute("nickname"));
+        return "kakaoSignup";  // 카카오 회원가입 페이지
+    }
+    @PostMapping("/kakaoSignup")
+    public String saveKakaoUser(@ModelAttribute UserDTO userDTO, HttpSession session) {
+        userDTO.setUsername(((String)session.getAttribute("kakao_id")));
+        userDTO.setPassword("kakaologinUSER");
+        
+    	userService.save(userDTO);
+        session.invalidate(); // 가입 후 세션 초기화
+        return "redirect:/main";
+    }
 }
