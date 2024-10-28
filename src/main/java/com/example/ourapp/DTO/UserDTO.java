@@ -43,4 +43,26 @@ public class UserDTO { //회원 정보를 필드로 정의
     	UserDTO.setPermission(UserEntitiy.getPermission());
         return UserDTO;
     }
+    public void updateUserEntity(User userEntity) {
+        if (userEntity != null) {
+            if (this.Username != null) {
+                userEntity.setUsername(this.Username);
+            }
+            if (this.Email != null) {
+                userEntity.setEmail(this.Email);
+            }
+            if (this.Password != null) {
+                userEntity.setPassword(this.Password);
+            }
+            userEntity.setName(this.Name);
+            userEntity.setBirthdate(this.birthdate);
+            userEntity.setPhone(this.phone);
+            userEntity.setAddress(this.address);
+            userEntity.setPostcode(this.postcode);
+            userEntity.setAddress_1(this.address_1);
+            if (this.permission != null) {
+                userEntity.setPermission(this.permission);
+            }
+        }
+    }
 }

@@ -25,12 +25,12 @@ public class MainController {
     }
     @GetMapping("/board")
     public String board() {
-        return "board.html";  // 게시판 페이지의 템플릿 파일을 지정
+        return "board.html";
     }
     
     @GetMapping("/post")
     public String post() {
-        return "post.html";  // 게시판 페이지의 템플릿 파일을 지정
+        return "post.html";
     }
     // OpenAI GPT와의 대화를 처리하는 엔드포인트
     @PostMapping("/api/chat")

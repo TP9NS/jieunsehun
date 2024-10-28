@@ -201,20 +201,12 @@
 
         <!-- 로그인 여부에 따라 버튼 표시 -->
         <ul class="navbar-nav flex-row">
-          <!-- 로그인이 되어 있을 때(세션에 user_id가 있을 때) -->
           <li th:if="${session.user_id != null}" class="nav-item me-3">
-            <a class="nav-link" th:href="@{/user/mypage}">마이페이지</a>
+            <a class="nav-link" th:href="@{/main}">메인으로 돌아가기</a>
           </li>
+          
           <li th:if="${session.user_id != null}" class="nav-item">
             <a class="nav-link" th:href="@{/user/logout}">로그아웃</a>
-          </li>
-
-          <!-- 로그인이 되어 있지 않을 때(세션에 user_id가 없을 때) -->
-          <li th:unless="${session.user_id != null}" class="nav-item me-3">
-            <a class="nav-link" th:href="@{/user/login}">로그인</a>
-          </li>
-          <li th:unless="${session.user_id != null}" class="nav-item">
-            <a class="nav-link" th:href="@{/user/signup}">회원가입</a>
           </li>
         </ul>
       </div>
@@ -222,96 +214,129 @@
   </div>
 </header>
 
-
-
-    <div style="margin-top: 20px;"></div>
-    <main class="container">
-      <div style="margin-bottom: 20px;">
-        <label for="category-select" class="form-label">카테고리 선택:</label>
-        <select id="category-select" class="form-select" aria-label="Category select" style="width: 200px;">
-          <option value="friend">친구</option>
-          <option value="family">가족</option>
-          <option value="lover">연인</option>
-        </select>
+ <div class="container mt-4">
+  <form th:action="@{/user/update}" method="post">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">내 정보</h4>
       </div>
-      
-      <div id="map"></div>
-
-      <div id="chatbox">
-        <div class="messages" id="messages">
-          <!-- 대화 기록이 여기에 추가됩니다 -->
+      <div class="card-body">
+        <ul class="list-group">
+          <li class="list-group-item">
+            <strong>이름: </strong>
+            <span th:if="${!editMode}" th:text="${user.name}"></span>
+            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.name}" name="name">
+          </li>
+          <input type="hidden" th:value="${user.User_id}" name="user_id">
+         <li class="list-group-item">
+            <strong>아이디: </strong>
+            <span th:if="${!editMode}" th:text="${user.username}"></span>
+            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.username}" name="username">
+          </li>
+          <li class="list-group-item">
+            <strong>비밀번호: </strong>
+            <span th:if="${!editMode}" th:text="${user.password}"></span>
+            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.password}" name="password">
+          </li>
+          <li class="list-group-item">
+            <strong>이메일: </strong>
+            <span th:if="${!editMode}" th:text="${user.email}"></span>
+            <input th:if="${editMode}" type="email" class="form-control" th:value="${user.email}" name="email">
+          </li>
+          <li class="list-group-item">
+            <strong>전화번호: </strong>
+            <span th:if="${!editMode}" th:text="${user.phone}"></span>
+            <input th:if="${editMode}" type="tel" class="form-control" th:value="${user.phone}" name="phone">
+          </li>
+          <li class="list-group-item">
+            <strong>생년월일: </strong>
+            <span th:if="${!editMode}" th:text="${user.birthdate}"></span>
+            <input th:if="${editMode}" type="date" class="form-control" th:value="${user.birthdate}" name="birthdate">
+          </li>
+          <li class="list-group-item">
+            <strong>주소: </strong>
+            <span th:if="${!editMode}" th:text="${user.address}"></span>
+            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.address}" name="address">
+          </li>
+          <li class="list-group-item">
+            <strong>우편번호: </strong>
+            <span th:if="${!editMode}" th:text="${user.postcode}"></span>
+            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.postcode}" name="postcode">
+          </li>
+        </ul>
+        <div class="mt-4">
+          <button th:if="${!editMode}" class="btn btn-primary" type="button" onclick="toggleEditMode()">정보 수정</button>
+          <button th:if="${editMode}" class="btn btn-success" type="submit">저장</button>
+          <button th:if="${editMode}" class="btn btn-secondary" type="button" onclick="toggleEditMode()">취소</button>
         </div>
-        <input type="text" id="user-input" placeholder="GPT와 대화하세요..." onkeypress="sendMessage(event)">
       </div>
-    </main>
+    </div>
+  </form>
+</div>
 
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
-    <script>
-      var mapContainer = document.getElementById('map'), 
-          mapOption = {
-            center: new kakao.maps.LatLng(33.450701, 126.570667),
-            level: 3
-          };
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let editMode = false;
+  let originalData = {}; // 원래 데이터 저장
 
-      var map = new kakao.maps.Map(mapContainer, mapOption);
+  function toggleEditMode() {
+    editMode = !editMode; // 수정 모드 토글
+    document.querySelectorAll('input').forEach(input => {
+      input.style.display = editMode ? 'block' : 'none';
+    });
+    document.querySelectorAll('.list-group-item span').forEach(span => {
+      span.style.display = editMode ? 'none' : 'inline';
+    });
+    
+    // 버튼 표시/숨기기
+    document.querySelector('.btn-primary').style.display = editMode ? 'none' : 'block';
+    document.querySelector('.btn-success').style.display = editMode ? 'block' : 'none';
+    document.querySelector('.btn-secondary').style.display = editMode ? 'block' : 'none';
 
-      var geocoder = new kakao.maps.services.Geocoder();
+    if (editMode) {
+      saveOriginalData(); // 원래 데이터 저장
+    }
+  }
 
-      geocoder.addressSearch('경기 안양시 만안구 만안로 232', function(result, status) {
-        if (status === kakao.maps.services.Status.OK) {
-          var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-          var marker = new kakao.maps.Marker({
-            map: map,
-            position: coords
-          });
-          var infowindow = new kakao.maps.InfoWindow({
-            content: '<div style="width:150px;text-align:center;padding:6px 0;">우리회사</div>'
-          });
-          infowindow.open(map, marker);
-          map.setCenter(coords);
-        }
-      });
-    </script>
+  function saveOriginalData() {
+    const fields = ['name', 'username', 'email', 'phone', 'birthdate', 'address', 'postcode'];
+    fields.forEach(field => {
+      originalData[field] = document.querySelector(`input[name="${field}"]`).value || document.querySelector(`span[th\\:text="${field}"]`).innerText;
+    });
+  }
 
-    <script>
-      async function sendMessage(event) {
-        if (event.key === 'Enter') {
-          const userInput = document.getElementById('user-input').value;
-          if (userInput.trim() === '') return;
+  function cancelEdit() {
+    // 원래 데이터로 되돌리기
+    Object.keys(originalData).forEach(field => {
+      document.querySelector(`input[name="${field}"]`).value = originalData[field];
+    });
+    toggleEditMode(); // 수정 모드 종료
+  }
 
-          const messagesContainer = document.getElementById('messages');
-          
-          // 사용자 메시지 추가
-          const userMessage = document.createElement('div');
-          userMessage.textContent = 'You: ' + userInput;
-          messagesContainer.appendChild(userMessage);
+  function updateUser() {
+    const form = document.getElementById('userForm');
+    const formData = new FormData(form);
 
-          // 입력 창 비우기
-          document.getElementById('user-input').value = '';
-
-          // 서버로 요청 전송
-          const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: userInput })
-          });
-
-          const data = await response.json();
-          const gptMessage = data.response;
-
-          // GPT 응답 추가
-          const gptResponse = document.createElement('div');
-          gptResponse.textContent = 'GPT: ' + gptMessage;
-          messagesContainer.appendChild(gptResponse);
-
-          // 자동 스크롤
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(response => {
+      if (response.ok) {
+        // 서버 응답이 정상일 경우
+        return response.json();
+      } else {
+        throw new Error('Network response was not ok.');
       }
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-  </body>
+    })
+    .then(data => {
+      toggleEditMode(); // 수정 모드 종료
+      alert('정보가 성공적으로 업데이트되었습니다!'); // 알림
+    })
+    .catch(error => {
+      console.error('There has been a problem with your fetch operation:', error);
+    });
+  }
+</script>
+</body>
 </html>

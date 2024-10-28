@@ -3,6 +3,7 @@ package com.example.ourapp.user;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -52,7 +53,7 @@ public class UserController {
     public String logout(HttpSession session) {
         session.invalidate(); // 세션 무효화
         System.out.println("세션없어짐");
-        return "redirect:/main"; // 로그아웃 후 리다이렉트할 경로
+        return "redirect:/main";
     }
 
     @GetMapping("/signup")
@@ -63,5 +64,24 @@ public class UserController {
     public String save(@ModelAttribute UserDTO userDTO) {
     	userService.save(userDTO);
         return "main.html";
+    }
+    @GetMapping("/mypage")
+    public String myPage(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("user_id");
+        if (userId == null) {
+            return "redirect:/user/login";
+        }
+        // UserDTO를 가져와서 모델에 추가
+        UserDTO userDTO = userService.findUserById(userId);
+        model.addAttribute("user", userDTO);
+        model.addAttribute("editMode", true);
+
+        return "mypage.html";
+    }
+    @PostMapping("/update")
+    public String updateUser(@ModelAttribute UserDTO userDTO, HttpSession session) {
+        userService.updateUser(userDTO);
+        session.setAttribute("user", userDTO);
+        return "redirect:/user/mypage";
     }
 }

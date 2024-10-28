@@ -13,6 +13,7 @@ import com.example.ourapp.DTO.UserDTO;
 
 import com.example.ourapp.entity.*;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 
@@ -44,7 +45,30 @@ public class UserService {
                 throw new IllegalArgumentException("Invalid password");
             }
         } 
-        
+    public UserDTO findUserById(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            return UserDTO.toUserDTO(user.get());
+        } else {
+            throw new IllegalArgumentException("User not found");
+        }
     }
+    public void updateUser(UserDTO userDTO) {
+        if (userDTO.getUser_id() == null) {
+            throw new IllegalArgumentException("User ID must not be null");
+        }
+        Optional<User> userOptional = userRepository.findById(userDTO.getUser_id());
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            // Log values before updating
+            System.out.println("Updating user: " + userDTO);
+            userDTO.updateUserEntity(user);
+            userRepository.save(user);
+        } else {
+            throw new EntityNotFoundException("User not found with ID: " + userDTO.getUser_id());
+        }
+    }
+
+}
 
 
