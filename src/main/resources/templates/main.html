@@ -341,11 +341,50 @@
         }
     });
 
-    // Kakao 지도 Places 객체 생성 (키워드 검색에 필요)
-    const places = new kakao.maps.services.Places();
+    var mapContainer = document.getElementById('map'), 
+    mapOption = {
+        center: new kakao.maps.LatLng(33.450701, 126.570667),
+        level: 3
+    };
 
-    let markers = [];
+var map = new kakao.maps.Map(mapContainer, mapOption);
+var geocoder = new kakao.maps.services.Geocoder();
+const places = new kakao.maps.services.Places();
+let markers = [];
+let selectedLocation = {};
+function confirmSave() {
+    if (selectedLocation.locationName) {
+        const saveType = document.querySelector('input[name="saveType"]:checked').value.toUpperCase();
 
+        fetch('/search-history/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                locationName: selectedLocation.locationName,
+                latitude: selectedLocation.latitude,
+                longitude: selectedLocation.longitude,
+                saveType: saveType
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Location saved successfully!");
+            } else {
+                alert("Failed to save location.");
+            }
+        })
+        .catch(error => {
+            console.error("Error saving location:", error);
+        });
+
+        // 저장 후 버튼 숨기기
+        document.getElementById("save-button").style.display = 'none';
+    } else {
+        alert("저장할 장소를 선택하세요.");
+    }
+}
  // 사용자 저장 장소를 지도에 표시하는 함수
  function displaySavedLocations(saveType) {
      fetch(`/search-history/user?saveType=${saveType}`) // 저장된 장소를 가져오는 API 엔드포인트
@@ -400,19 +439,9 @@
         displaySavedLocations(initialSaveType);
     };
 
-    // saveType이 변경될 때 이벤트 리스너 추가
-    const saveTypeInputs = document.querySelectorAll('input[name="saveType"]');
-    saveTypeInputs.forEach(input => {
-        input.addEventListener('change', onSaveTypeChange);
-    });
 
 
 
-    let selectedLocation = {
-    	    locationName: '',
-    	    latitude: '',
-    	    longitude: ''
-    	};
 
     	// 검색된 위치 정보를 저장하는 함수
     	function saveSearchHistory(locationName, latitude, longitude) {
@@ -436,59 +465,67 @@
     	            console.log("Search history saved successfully.");
     	            alert("Location saved successfully!"); // 저장 성공 알림
     	        } else {
-    	            console.error("Failed to save search history.");
-    	            alert("Failed to save location."); // 저장 실패 알림
+    	            console.error("Failed to save search .");
+    	            alert("로그인이 필요한 서비스 입니다."); // 저장 실패 알림
     	        }
     	    })
     	    .catch(error => {
     	        console.error("Error saving search history:", error);
     	    });
     	}
+function selectLocation(locationName, latitude, longitude) {
+    selectedLocation = {
+        locationName: locationName,
+        latitude: latitude,
+        longitude: longitude
+    };
 
-    	// 검색을 위한 JavaScript 함수
-    	function searchLocation() {
-    	    // 검색창의 입력 값 가져오기
-    	    const locationName = document.getElementById("search-input").value;
+    // 저장 버튼 표시
+    document.getElementById("save-button").style.display = 'inline-block';
+}
+function searchLocation() {
+    const locationName = document.getElementById("search-input").value;
 
-    	    // 장소명을 통해 좌표를 가져오는 함수 (KeywordSearch 사용)
-    	    places.keywordSearch(locationName, function(result, status) {
-    	        if (status === kakao.maps.services.Status.OK) {
-    	            // 결과에서 첫 번째 좌표 추출
-    	            const coords = result[0];
+    places.keywordSearch(locationName, function(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+            // 기존 마커 초기화
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
 
-    	            // 좌표 폼에 위도와 경도 값 설정
-    	            document.getElementById("latitude").value = coords.y;
-    	            document.getElementById("longitude").value = coords.x;
+            result.forEach((place, index) => {
+                const coordsPosition = new kakao.maps.LatLng(place.y, place.x);
 
-    	            // 검색된 위치로 지도 이동 및 마커 표시
-    	            const coordsPosition = new kakao.maps.LatLng(coords.y, coords.x);
-    	            map.setCenter(coordsPosition);
+                // 지도 중심 설정 (첫 번째 장소 기준)
+                if (index === 0) {
+                    map.setCenter(coordsPosition);
+                }
 
-    	            const marker = new kakao.maps.Marker({
-    	                map: map,
-    	                position: coordsPosition
-    	            });
+                // 마커 추가
+                const marker = new kakao.maps.Marker({
+                    map: map,
+                    position: coordsPosition
+                });
+                markers.push(marker);
 
-    	            const infowindow = new kakao.maps.InfoWindow({
-    	                content: `<div style="width:150px;text-align:center;padding:6px 0;">${locationName}</div>`
-    	            });
-    	            infowindow.open(map, marker);
+                // 선택 버튼 포함한 인포윈도우 설정
+                const infowindow = new kakao.maps.InfoWindow({
+                    content: `
+                        <div style="width:200px;text-align:center;padding:10px;">
+                            ${place.place_name}<br>
+                            <button onclick="selectLocation('${place.place_name}', ${place.y}, ${place.x})">선택</button>
+                        </div>`
+                });
 
-    	            // 선택된 위치 저장
-    	            selectedLocation = {
-    	                locationName: locationName,
-    	                latitude: coords.y,
-    	                longitude: coords.x
-    	            };
+                kakao.maps.event.addListener(marker, 'click', function() {
+                    infowindow.open(map, marker);
+                });
+            });
+        } else {
+            alert("위치 검색에 실패했습니다. 정확한 장소명을 입력하세요.");
+        }
+    });
+}
 
-    	            // 저장 버튼 표시
-    	            document.getElementById("save-button").style.display = 'inline-block';
-
-    	        } else {
-    	            alert("위치 검색에 실패했습니다. 정확한 장소명을 입력하세요.");
-    	        }
-    	    });
-    	}
 
     	// 저장 버튼 클릭 시 호출되는 함수
     	function confirmSave() {
@@ -571,6 +608,57 @@
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
       }
+      // 검색창에 입력 후 Enter 키를 누르면 검색이 실행되도록 이벤트 추가
+document.getElementById("search-input").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        searchLocation();
+    }
+});
+function initMapWithCurrentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                var lat = position.coords.latitude;
+                var lon = position.coords.longitude;
+
+                // 현재 위치를 지도 중심으로 설정
+                var currentPosition = new kakao.maps.LatLng(lat, lon);
+                map.setCenter(currentPosition);
+
+                // 현재 위치에 마커 추가
+                var marker = new kakao.maps.Marker({
+                    map: map,
+                    position: currentPosition,
+                    title: "현재 위치"
+                });
+
+                // 위치 정보에 대한 정보창 추가
+                var infowindow = new kakao.maps.InfoWindow({
+                    content: '<div style="padding:5px;">현재 위치</div>'
+                });
+                infowindow.open(map, marker);
+            },
+            function(error) {
+                alert("현재 위치를 가져올 수 없습니다. 위치 권한을 허용해주세요.");
+                console.error("Error fetching location: ", error);
+            }
+        );
+    } else {
+        alert("Geolocation을 지원하지 않는 브라우저입니다.");
+    }
+}
+window.onload = function() {
+    initMapWithCurrentLocation();  // 현재 위치로 지도 초기화
+    const initialSaveType = document.querySelector('input[name="saveType"]:checked').value;
+    displaySavedLocations(initialSaveType);  // 저장된 위치 표시
+};
+
+// 저장 위치 변경 이벤트 리스너 추가
+const saveTypeInputs = document.querySelectorAll('input[name="saveType"]');
+saveTypeInputs.forEach(input => {
+    input.addEventListener('change', onSaveTypeChange);
+});
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>

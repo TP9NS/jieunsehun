@@ -1,8 +1,9 @@
-package com.example.ourapp.entity;
+package com.example.ourapp.user;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.example.ourapp.entity.UserSearchHistory;
 import com.example.ourapp.entity.UserSearchHistory.SaveType;
 
 public interface UserSearchHistoryRepository extends JpaRepository<UserSearchHistory, Long> {

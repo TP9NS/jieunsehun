@@ -49,7 +49,7 @@ public class KakaoController {
                 JSONObject userInfo = new JSONObject(userInfoResponse.getBody());
                 String kakaoId = userInfo.get("id").toString();
                 String nickname = userInfo.getJSONObject("properties").getString("nickname");
-
+                String email = userInfo.getJSONObject("kakao_account").getString("email");
                 return userRepository.findByUsername(kakaoId)
                         .map(user -> {
                             session.setAttribute("user_id", user.getUserId());
@@ -59,6 +59,7 @@ public class KakaoController {
                         .orElseGet(() -> {
                             session.setAttribute("kakao_id", kakaoId);
                             session.setAttribute("nickname", nickname);
+                            session.setAttribute("email", email);
                             return "redirect:/user/kakaoSignup";
                         });
             }

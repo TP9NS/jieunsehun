@@ -106,6 +106,7 @@ public class UserController {
         // 세션에서 카카오 정보를 가져와 뷰로 전달
         model.addAttribute("kakaoId", session.getAttribute("kakao_id"));
         model.addAttribute("nickname", session.getAttribute("nickname"));
+        model.addAttribute("email",session.getAttribute("email"));
         return "kakaoSignup";  // 카카오 회원가입 페이지
     }
     @PostMapping("/kakaoSignup")

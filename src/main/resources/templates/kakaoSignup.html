@@ -290,7 +290,7 @@
             <h2>카카오 회원가입</h2>
             <input type="name" placeholder="이름" name="name" th:value="${nickname}" readonly><br>
             <input type="date" name="birthdate"><br>
-            <input type="email" placeholder="이메일" name="email">
+            <input type="email" placeholder="이메일" name="email"  th:value="${email}" readonly>
             <input type="num" placeholder="전화번호" name="phone"><br>
             <input type="text" id="sample6_postcode" placeholder="우편번호" name="postcode" >
             <input type="button" onclick="sample6_execDaumPostcode()" value="우편번호 찾기"><br>

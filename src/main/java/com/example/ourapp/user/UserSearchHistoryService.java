@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.example.ourapp.DTO.SearchHistoryDTO;
 import com.example.ourapp.entity.UserSearchHistory;
 import com.example.ourapp.entity.UserSearchHistory.SaveType;
-import com.example.ourapp.entity.UserSearchHistoryRepository;
 
 @Service
 public class UserSearchHistoryService {
