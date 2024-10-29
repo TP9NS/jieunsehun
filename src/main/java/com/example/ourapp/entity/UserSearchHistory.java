@@ -1,6 +1,8 @@
 package com.example.ourapp.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,17 +17,33 @@ public class UserSearchHistory {
     private String locationName;
     private Double latitude;
     private Double longitude;
-    
- // Default constructor
-    public UserSearchHistory() {
+
+    @Enumerated(EnumType.STRING)
+    private SaveType saveType;
+
+    public enum SaveType {
+        MY_MAP, GROUP_MAP;
     }
 
-    // Constructors, getters, and setters
-    public UserSearchHistory(Long userId, String locationName, double latitude, double longitude) {
+    // Default constructor
+    public UserSearchHistory() {}
+
+    // Constructor
+    public UserSearchHistory(Long userId, String locationName, double latitude, double longitude, SaveType saveType) {
         this.userId = userId;
         this.locationName = locationName;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.saveType = saveType;
+    }
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getUserId() {
@@ -58,5 +76,13 @@ public class UserSearchHistory {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public SaveType getSaveType() {
+        return saveType;
+    }
+
+    public void setSaveType(SaveType saveType) {
+        this.saveType = saveType;
     }
 }
