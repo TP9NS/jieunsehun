@@ -127,16 +127,32 @@
         padding: 10px;
       }
 
-      #map {
-        width: 900px;
-        height: 700px;
-        margin-top: 20px; /* 지도 위 여백 추가 */
-      }
+      .map-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 900px;
+    height: 700px;
+}
 
-      .search-box {
-        display: flex;
-        margin-bottom: 20px; /* 검색창 아래 여백 추가 */
-      }
+.search-box {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0px;
+    background-color: white; /* Optional: Adds background to make it stand out */
+    z-index: 1;
+}
+
+#map {
+    flex: 1;
+    margin-top: 50px; /* Adjust this if there is any overlap */
+    width: 100%;
+    height: 100%;
+}
+
 
       .search-box input {
         flex: 1;
@@ -241,20 +257,34 @@
   </div>
 </header>
 
-
-
-    <div style="margin-top: 20px;"></div>
     <main class="container">
-      <div style="margin-bottom: 20px;">
-        <label for="category-select" class="form-label">카테고리 선택:</label>
-        <select id="category-select" class="form-select" aria-label="Category select" style="width: 200px;">
-          <option value="friend">친구</option>
-          <option value="family">가족</option>
-          <option value="lover">연인</option>
-        </select>
-      </div>
-      
-      <div id="map"></div>
+        <div class="mb-3">
+            <label for="category-select" class="saved-coordinates">카테고리 선택:</label>
+            <select id="category-select" class="form-select" aria-label="Category select" style="width: 200px;">
+                <option value="friend">친구</option>
+                <option value="family">가족</option>
+                <option value="lover">연인</option>
+            </select>
+           <div class="saved-coordinates" id="saved-coordinates-form">
+            <h7>저장된 좌표:</h7>
+            <form id="coordinates-form">
+    					<input type="text" id="latitude" name="latitude" placeholder="위도" readonly />
+    					<input type="text" id="longitude" name="longitude" placeholder="경도" readonly />
+						</form>
+            </div>
+        </div>
+
+         <div class="map-container">
+        <!-- 검색창을 포함하는 div 추가 -->
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="장소 검색..." aria-label="Location search" />
+            <button onclick="searchLocation()" aria-label="Search for a location">검색</button>
+        </div>
+
+        <!-- 지도 표시 -->
+        <div id="map"></div>
+    </div>
+
 
       <div id="chatbox">
         <div class="messages" id="messages">
@@ -265,32 +295,133 @@
     </main>
 
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
-    <script>
-      var mapContainer = document.getElementById('map'), 
-          mapOption = {
+<script>
+    var mapContainer = document.getElementById('map'), 
+        mapOption = {
             center: new kakao.maps.LatLng(33.450701, 126.570667),
             level: 3
-          };
+        };
 
-      var map = new kakao.maps.Map(mapContainer, mapOption);
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+    var geocoder = new kakao.maps.services.Geocoder();
 
-      var geocoder = new kakao.maps.services.Geocoder();
-
-      geocoder.addressSearch('경기 안양시 만안구 만안로 232', function(result, status) {
+    // 기본 주소 검색 (예시)
+    geocoder.addressSearch('경기 안양시 만안구 만안로 232', function(result, status) {
         if (status === kakao.maps.services.Status.OK) {
-          var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-          var marker = new kakao.maps.Marker({
-            map: map,
-            position: coords
-          });
-          var infowindow = new kakao.maps.InfoWindow({
-            content: '<div style="width:150px;text-align:center;padding:6px 0;">우리회사</div>'
-          });
-          infowindow.open(map, marker);
-          map.setCenter(coords);
+            var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+            var marker = new kakao.maps.Marker({
+                map: map,
+                position: coords
+            });
+            var infowindow = new kakao.maps.InfoWindow({
+                content: '<div style="width:150px;text-align:center;padding:6px 0;">우리회사</div>'
+            });
+            infowindow.open(map, marker);
+            map.setCenter(coords);
         }
-      });
-    </script>
+    });
+
+    // Kakao 지도 Places 객체 생성 (키워드 검색에 필요)
+    const places = new kakao.maps.services.Places();
+    
+    // 사용자 저장 장소를 지도에 표시하는 함수
+    function displaySavedLocations() {
+        fetch('/search-history/user') // 저장된 장소를 가져오는 API 엔드포인트
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(location => {
+                    const coordsPosition = new kakao.maps.LatLng(location.latitude, location.longitude);
+                    const marker = new kakao.maps.Marker({
+                        map: map,
+                        position: coordsPosition
+                    });
+                    const infowindow = new kakao.maps.InfoWindow({
+                        content: `<div style="width:150px;text-align:center;padding:6px 0;">${location.locationName}</div>`
+                    });
+                    infowindow.open(map, marker);
+                });
+            })
+            .catch(error => {
+                console.error("Failed to fetch saved locations:", error);
+            });
+    }
+
+    // 페이지가 로드될 때 저장된 위치를 표시
+    window.onload = function() {
+        displaySavedLocations();
+    };
+
+    // 검색된 위치 정보를 저장하는 함수
+    function saveSearchHistory(locationName, latitude, longitude) {
+        fetch('/search-history/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                locationName: locationName,
+                latitude: latitude,
+                longitude: longitude
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("Search history saved successfully.");
+            } else {
+                console.error("Failed to save search history.");
+            }
+        })
+        .catch(error => {
+            console.error("Error saving search history:", error);
+        });
+    }
+
+    // 검색을 위한 JavaScript 함수
+    function searchLocation() {
+        // 검색창의 입력 값 가져오기
+        const locationName = document.getElementById("search-input").value;
+
+        // 장소명을 통해 좌표를 가져오는 함수 (KeywordSearch 사용)
+        places.keywordSearch(locationName, function(result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                // 결과에서 첫 번째 좌표 추출
+                const coords = result[0];
+
+                // 좌표 폼에 위도와 경도 값 설정
+                document.getElementById("latitude").value = coords.y;
+                document.getElementById("longitude").value = coords.x;
+
+                // 검색된 위치로 지도 이동 및 마커 표시
+                const coordsPosition = new kakao.maps.LatLng(coords.y, coords.x);
+                map.setCenter(coordsPosition);
+
+                const marker = new kakao.maps.Marker({
+                    map: map,
+                    position: coordsPosition
+                });
+
+                const infowindow = new kakao.maps.InfoWindow({
+                    content: `<div style="width:150px;text-align:center;padding:6px 0;">${locationName}</div>`
+                });
+                infowindow.open(map, marker);
+
+                // 검색 기록 저장 호출
+                saveSearchHistory(locationName, coords.y, coords.x);
+            } else {
+                alert("위치 검색에 실패했습니다. 정확한 장소명을 입력하세요.");
+            }
+        });
+    }
+
+    // 검색창에 입력 후 Enter 키를 누르면 검색이 실행되도록 이벤트 추가
+    document.getElementById("search-input").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // 폼 제출 방지
+            searchLocation(); // 위치 검색 함수 호출
+        }
+    });
+</script>
+
 
     <script>
       async function sendMessage(event) {
