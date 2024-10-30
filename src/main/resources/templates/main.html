@@ -119,6 +119,7 @@
     flex-direction: column;
     width: 900px;
     height: 700px;
+    margin-top: 0;
 }
 
 .search-box {
@@ -155,8 +156,9 @@
 
       .container {
         display: flex;
+        
       }
-            .map_wrap, .map_wrap * {margin:0;padding:0;font-family:'Malgun Gothic',dotum,'돋움',sans-serif;font-size:12px;}
+.map_wrap, .map_wrap * {margin:0;padding:0;font-family:'Malgun Gothic',dotum,'돋움',sans-serif;font-size:12px;}
 .map_wrap a, .map_wrap a:hover, .map_wrap a:active{color:#000;text-decoration: none;}
 .map_wrap {position:relative;width:100%;height:500px;}
 #menu_wrap {position:absolute;top:0;left:0;bottom:0;width:250px;margin:50px 0 20px 10px;padding:5px;overflow-y:auto;background:rgba(255, 255, 255, 0.7);z-index: 1;font-size:12px;border-radius: 10px;}
@@ -281,33 +283,34 @@
 
     <main class="container">
     <div class="map-container">
-        <!-- 검색창을 포함하는 div 추가 -->
-        <div class="search-box">
-            <input type="text" id="search-input" placeholder="장소 검색..." aria-label="Location search" />
-            <button onclick="searchLocation()" aria-label="Search for a location">검색</button>
-            <!-- 저장 버튼 (초기 상태에서 비활성화) -->
-            <button id="save-button" style="display: none;" onclick="confirmSave()">저장</button>
-
-            <!-- 위도 및 경도를 위한 숨겨진 입력 필드 -->
-            <input type="hidden" id="latitude" />
-            <input type="hidden" id="longitude" />
-        </div>
-
-        <!-- 새 지도 구조 시작 -->
+        <!-- 지도 및 검색 섹션 -->
         <div class="map_wrap">
-            <div id="map" style="width:900px;height:650px;position:relative;overflow:hidden;"></div>
+            <div id="map" style="width:100%; height:650px; position:relative; overflow:hidden;"></div>
+
+            <div id="menu_wrap" class="bg_white">
+                <div class="option">
+                    <form onsubmit="searchPlaces(); return false;">
+                        <label for="keyword">키워드:</label>
+                        <input type="text" value="이태원 맛집" id="keyword" size="15"> 
+                        <button type="submit">검색하기</button> 
+                    </form>
+                </div>
+                <hr>
+                <ul id="placesList"></ul>
+                <div id="pagination"></div>
+            </div>
         </div>
-        </div>
+    </div>
 
-
-
-      <div id="chatbox">
+    <!-- GPT 채팅 박스 -->
+    <div id="chatbox">
         <div class="messages" id="messages">
-          <!-- 대화 기록이 여기에 추가됩니다 -->
+            <!-- 대화 기록이 여기에 추가됩니다 -->
         </div>
         <input type="text" id="user-input" placeholder="GPT와 대화하세요..." onkeypress="sendMessage(event)">
-      </div>
-    </main>
+    </div>
+</main>
+
 
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
 <script>
