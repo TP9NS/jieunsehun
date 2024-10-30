@@ -92,20 +92,6 @@
       .bd-mode-toggle .dropdown-menu .active .bi {
         display: block !important;
       }
-      
-      .category-nav {
-        margin-bottom: 20px;
-      }
-
-      .category-nav .navbar-nav {
-        display: flex;
-        align-items: center;
-      }
-
-      .category-nav .nav-item {
-        margin-right: 10px;
-      }
-
       #chatbox {
         width: 400px;
         height: 700px;
@@ -170,6 +156,42 @@
       .container {
         display: flex;
       }
+            .map_wrap, .map_wrap * {margin:0;padding:0;font-family:'Malgun Gothic',dotum,'돋움',sans-serif;font-size:12px;}
+.map_wrap a, .map_wrap a:hover, .map_wrap a:active{color:#000;text-decoration: none;}
+.map_wrap {position:relative;width:100%;height:500px;}
+#menu_wrap {position:absolute;top:0;left:0;bottom:0;width:250px;margin:50px 0 20px 10px;padding:5px;overflow-y:auto;background:rgba(255, 255, 255, 0.7);z-index: 1;font-size:12px;border-radius: 10px;}
+.bg_white {background:#fff;}
+#menu_wrap hr {display: block; height: 1px;border: 0; border-top: 2px solid #5F5F5F;margin:3px 0;}
+#menu_wrap .option{text-align: center;}
+#menu_wrap .option p {margin:10px 0;}  
+#menu_wrap .option button {margin-left:5px;}
+#placesList li {list-style: none;}
+#placesList .item {position:relative;border-bottom:1px solid #888;overflow: hidden;cursor: pointer;min-height: 65px;}
+#placesList .item span {display: block;margin-top:4px;}
+#placesList .item h5, #placesList .item .info {text-overflow: ellipsis;overflow: hidden;white-space: nowrap;}
+#placesList .item .info{padding:10px 0 10px 55px;}
+#placesList .info .gray {color:#8a8a8a;}
+#placesList .info .jibun {padding-left:26px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_jibun.png) no-repeat;}
+#placesList .info .tel {color:#009900;}
+#placesList .item .markerbg {float:left;position:absolute;width:36px; height:37px;margin:10px 0 0 10px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png) no-repeat;}
+#placesList .item .marker_1 {background-position: 0 -10px;}
+#placesList .item .marker_2 {background-position: 0 -56px;}
+#placesList .item .marker_3 {background-position: 0 -102px}
+#placesList .item .marker_4 {background-position: 0 -148px;}
+#placesList .item .marker_5 {background-position: 0 -194px;}
+#placesList .item .marker_6 {background-position: 0 -240px;}
+#placesList .item .marker_7 {background-position: 0 -286px;}
+#placesList .item .marker_8 {background-position: 0 -332px;}
+#placesList .item .marker_9 {background-position: 0 -378px;}
+#placesList .item .marker_10 {background-position: 0 -423px;}
+#placesList .item .marker_11 {background-position: 0 -470px;}
+#placesList .item .marker_12 {background-position: 0 -516px;}
+#placesList .item .marker_13 {background-position: 0 -562px;}
+#placesList .item .marker_14 {background-position: 0 -608px;}
+#placesList .item .marker_15 {background-position: 0 -654px;}
+#pagination {margin:10px auto;text-align: center;}
+#pagination a {display:inline-block;margin-right:10px;}
+#pagination .on {font-weight: bold; cursor: default;color:#777;}
     </style>
   </head>
   <body>
@@ -258,52 +280,25 @@
 </header>
 
     <main class="container">
-        <div class="mb-3">
-            <label for="category-select" class="saved-coordinates">카테고리 선택:</label>
-            <select id="category-select" class="form-select" aria-label="Category select" style="width: 200px;">
-                <option value="friend">친구</option>
-                <option value="family">가족</option>
-                <option value="lover">연인</option>
-            </select>
-            
-            <!-- 저장 위치 선택 라디오 버튼 추가 -->
-        <div class="map-choice" style="margin-top: 10px;">
-            <label class="saved-coordinates">저장 위치 선택:</label>
-            <div>
-                <input type="radio" id="MY_MAP" name="saveType" value="MY_MAP" checked>
-                <label for="MY_MAP">나만의 지도</label>
-            </div>
-            <div>
-                <input type="radio" id="GROUP_MAP" name="saveType" value="GROUP_MAP">
-                <label for="GROUP_MAP">그룹 지도</label>
-            </div>
-        </div>
-            
-           <div class="saved-coordinates" id="saved-coordinates-form">
-            <h7>저장된 좌표:</h7>
-            <form id="coordinates-form">
-    					<input type="text" id="latitude" name="latitude" placeholder="위도" readonly />
-    					<input type="text" id="longitude" name="longitude" placeholder="경도" readonly />
-						</form>
-            </div>
-        </div>
-
-         <div class="map-container">
+    <div class="map-container">
         <!-- 검색창을 포함하는 div 추가 -->
         <div class="search-box">
             <input type="text" id="search-input" placeholder="장소 검색..." aria-label="Location search" />
             <button onclick="searchLocation()" aria-label="Search for a location">검색</button>
             <!-- 저장 버튼 (초기 상태에서 비활성화) -->
-<button id="save-button" style="display: none;" onclick="confirmSave()">저장</button>
+            <button id="save-button" style="display: none;" onclick="confirmSave()">저장</button>
 
-<!-- 위도 및 경도를 위한 숨겨진 입력 필드 -->
-<input type="hidden" id="latitude" />
-<input type="hidden" id="longitude" />
+            <!-- 위도 및 경도를 위한 숨겨진 입력 필드 -->
+            <input type="hidden" id="latitude" />
+            <input type="hidden" id="longitude" />
         </div>
 
-        <!-- 지도 표시 -->
-        <div id="map"></div>
-    </div>
+        <!-- 새 지도 구조 시작 -->
+        <div class="map_wrap">
+            <div id="map" style="width:900px;height:650px;position:relative;overflow:hidden;"></div>
+        </div>
+        </div>
+
 
 
       <div id="chatbox">
@@ -507,17 +502,25 @@ function searchLocation() {
                 });
                 markers.push(marker);
 
-                // 선택 버튼 포함한 인포윈도우 설정
+                // 장소명과 선택 버튼 포함한 인포윈도우 설정
                 const infowindow = new kakao.maps.InfoWindow({
                     content: `
                         <div style="width:200px;text-align:center;padding:10px;">
-                            ${place.place_name}<br>
+                            <strong>${place.place_name}</strong><br>
                             <button onclick="selectLocation('${place.place_name}', ${place.y}, ${place.x})">선택</button>
                         </div>`
                 });
 
+                // 인포윈도우를 기본으로 열어둠
+                infowindow.open(map, marker);
+
+                // 마커 클릭 시 인포윈도우가 토글되도록 설정
                 kakao.maps.event.addListener(marker, 'click', function() {
-                    infowindow.open(map, marker);
+                    if (infowindow.getMap()) {
+                        infowindow.close();
+                    } else {
+                        infowindow.open(map, marker);
+                    }
                 });
             });
         } else {
@@ -525,6 +528,7 @@ function searchLocation() {
         }
     });
 }
+
 
 
     	// 저장 버튼 클릭 시 호출되는 함수
