@@ -23,6 +23,10 @@ public class MainController {
     public String test() {
     	return "map_test.html";
     }
+    @GetMapping("/map")
+    public String map() {
+    	return "map.html";
+    }
     @GetMapping("/board")
     public String board() {
         return "board.html";
