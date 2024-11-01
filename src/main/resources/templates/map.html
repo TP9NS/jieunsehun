@@ -158,15 +158,40 @@
         display: flex;
         
       }
-.map_wrap, .map_wrap * {margin:0;padding:0;font-family:'Malgun Gothic',dotum,'돋움',sans-serif;font-size:12px;}
-.map_wrap a, .map_wrap a:hover, .map_wrap a:active{color:#000;text-decoration: none;}
-.map_wrap {position:relative;width:900px;height:620px;}
-#menu_wrap {position:absolute;top:120px;left:0px;bottom:0;width:300px;height:650px;margin:10px 0 30px 10px;padding:5px;overflow-y:auto;background:rgba(255, 255, 255, 0.7);z-index: 1;font-size:12px;border-radius: 10px;}
-.bg_white {background:#fff;}
-#menu_wrap hr {display: block; height: 1px;border: 0; border-top: 2px solid #5F5F5F;margin:3px 0;}
-#menu_wrap .option{text-align: center;}
-#menu_wrap .option p {margin:10px 0;}  
-#menu_wrap .option button {margin-left:5px;}
+.map_wrap, .map_wrap * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;
+    font-size: 12px;
+}
+
+.map_wrap a, .map_wrap a:hover, .map_wrap a:active {
+    color: #000;
+    text-decoration: none;
+}
+
+.map_wrap {
+    position: relative;
+    width: calc(100% - 80px); /* 메뉴 너비를 뺀 지도 너비 설정 */
+    height: 620px;
+    margin-left: 200px; /* 메뉴와의 간격 확보 */
+}
+
+#menu_wrap {
+    position: absolute;
+    top: 120px;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    height: calc(100% - 150px); /* 상단과 하단 간격 고려 */
+    margin: 10px 0 30px 10px;
+    padding: 5px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 1;
+    font-size: 12px;
+    border-radius: 10px;
+}
 #placesList li {list-style: none;}
 #placesList .item {position:relative;border-bottom:1px solid #888;overflow: hidden;cursor: pointer;min-height: 65px;}
 #placesList .item span {display: block;margin-top:4px;}
@@ -601,7 +626,42 @@ CustomOverlay.prototype.setMap = function(map) {
 CustomOverlay.prototype.setVisible = function(visible) {
     this.overlay.setMap(visible ? map : null);
 };
+async function sendMessage(event) {
+        if (event.key === 'Enter') {
+          const userInput = document.getElementById('user-input').value;
+          if (userInput.trim() === '') return;
 
+          const messagesContainer = document.getElementById('messages');
+          
+          // 사용자 메시지 추가
+          const userMessage = document.createElement('div');
+          userMessage.textContent = 'You: ' + userInput;
+          messagesContainer.appendChild(userMessage);
+
+          // 입력 창 비우기
+          document.getElementById('user-input').value = '';
+
+          // 서버로 요청 전송
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userInput })
+          });
+
+          const data = await response.json();
+          const gptMessage = data.response;
+
+          // GPT 응답 추가
+          const gptResponse = document.createElement('div');
+          gptResponse.textContent = 'GPT: ' + gptMessage;
+          messagesContainer.appendChild(gptResponse);
+
+          // 자동 스크롤
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      }
 </script>
 </body>
 </html>
