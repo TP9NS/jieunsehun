@@ -220,9 +220,9 @@
 #pagination {margin:10px auto;text-align: center;}
 #pagination a {display:inline-block;margin-right:10px;}
 #pagination .on {font-weight: bold; cursor: default;color:#777;}
-.wrap {position: absolute;left: 0;bottom: 40px;width: 400px;height: 200px;margin-left: -144px;text-align: left;overflow: hidden;font-size: 12px;font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;line-height: 1.5;}
+.wrap {position: absolute;left: 0;bottom: 40px;width: 400px;height: 250px;margin-left: -144px;text-align: left;overflow: hidden;font-size: 12px;font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;line-height: 1.5;}
     .wrap * {padding: 0;margin: 0;}
-    .wrap .info {width: 400px;height: 200px;border-radius: 5px;border-bottom: 2px solid #ccc;border-right: 1px solid #ccc;overflow: hidden;background: #fff;}
+    .wrap .info {width: 400px;height: 250px;border-radius: 5px;border-bottom: 2px solid #ccc;border-right: 1px solid #ccc;overflow: hidden;background: #fff;}
     .wrap .info:nth-child(1) {border: 0;box-shadow: 0px 1px 2px #888;}
     .info .title {padding: 5px 0 0 10px;height: 30px;background: #eee;border-bottom: 1px solid #ddd;font-size: 18px;font-weight: bold;}
     .info .close {position: absolute;top: 5px;right: 10px;color: #888;width: 17px;height: 17px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');}
@@ -507,8 +507,8 @@ function addMarker(position, idx, title, place) {
     var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png',
         imageSize = new kakao.maps.Size(36, 37),
         imgOptions = {
-            spriteSize : new kakao.maps.Size(36, 691),
-            spriteOrigin : new kakao.maps.Point(0, (idx*46)+10),
+            spriteSize: new kakao.maps.Size(36, 691),
+            spriteOrigin: new kakao.maps.Point(0, (idx * 46) + 10),
             offset: new kakao.maps.Point(13, 37)
         },
         markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imgOptions),
@@ -522,30 +522,34 @@ function addMarker(position, idx, title, place) {
 
     // 마커 클릭 이벤트 리스너 추가
     kakao.maps.event.addListener(marker, 'click', function() {
+        var latitude = position.getLat();
+        var longitude = position.getLng();
+        
         // 오버레이 내용을 구성합니다
-      var overlayContent = '<div class="wrap">' +
-                     '    <div class="info">' +
-                     '        <div class="title">' + title + 
-                     '            <div class="close" onclick="closeOverlay()"></div>' + // X 버튼 추가
-                     '        </div>' +
-                     '        <div class="body">' +
-                     '            <div class="desc">' +
-                     '                <span>' + (place.road_address_name ? '주소: ' +place.road_address_name : place.address_name) + '</span><br>' +
-                     '                <span class="tel">' + (place.phone ? '전화: ' + place.phone : '') + '</span><br>' +
-                     '                <span class="category">' + '카테고리: ' +(place.category_name ? place.category_name : '') + '</span><br>' +
-                     '                <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>' +
-                     '                <input type="text" placeholder="메모" id="note" class="input"><br>' +
-                     '                <select id="mapType">' +
-                     '                    <option value="MY_MAP">나만의 지도</option>' +
-                     '                    <option value="GROUP1_MAP">그룹1 지도</option>' +
-                     '                    <option value="GROUP2_MAP">그룹2 지도</option>' +
-                     '                </select><br>' +
-                     '                <button onclick="saveLocation()">저장</button>' +
-                     '            </div>' +
-                     '        </div>' +
-                     '    </div>' +
-                     '</div>';
-
+        var overlayContent = '<div class="wrap">' +
+            '    <div class="info">' +
+            '        <div class="title">' + title + 
+            '            <div class="close" onclick="closeOverlay()"></div>' + // X 버튼 추가
+            '        </div>' +
+            '        <div class="body">' +
+            '            <div class="desc">' +
+            '                <span>' + (place.road_address_name ? '주소: ' + place.road_address_name : place.address_name) + '</span><br>' +
+            '                <span class="tel">' + (place.phone ? '전화: ' + place.phone : '') + '</span><br>' +
+            '                <span class="category">' + '카테고리: ' + (place.category_name ? place.category_name : '') + '</span><br>' +
+            '                <span>위도: ' + latitude + '</span><br>' + // 위도 추가
+            '                <span>경도: ' + longitude + '</span><br>' + // 경도 추가
+            '                <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>' +
+            '                <input type="text" placeholder="메모" id="note" class="input"><br>' +
+            '                <select id="mapType">' +
+            '                    <option value="MY_MAP">나만의 지도</option>' +
+            '                    <option value="GROUP1_MAP">그룹1 지도</option>' +
+            '                    <option value="GROUP2_MAP">그룹2 지도</option>' +
+            '                </select><br>' +
+            '                <button onclick="saveLocation(\'' + title + '\', ' + latitude + ', ' + longitude + ', ' + JSON.stringify(place) + ')">저장</button>' +
+            '            </div>' +
+            '        </div>' +
+            '    </div>' +
+            '</div>';
 
         // 커스텀 오버레이를 생성하고 표시합니다
         var customOverlay = new CustomOverlay(position, overlayContent);
@@ -557,6 +561,7 @@ function addMarker(position, idx, title, place) {
 
     return marker;
 }
+
 
 
 // 오버레이를 닫는 함수
@@ -681,6 +686,41 @@ async function sendMessage(event) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   }
+
+function saveLocation(title, latitude, longitude, place) {
+    const alias = document.getElementById("alias").value;
+    const note = document.getElementById("note").value;
+    const mapType = document.getElementById("mapType").value;
+
+    const myMapPoint = {
+        category: '', // You can set this if needed
+        locationName: title,
+        locationAlias: alias,
+        locationDesc: note,
+        latitude: latitude, // Set latitude from the parameter
+        longitude: longitude, // Set longitude from the parameter
+        address: place.road_address_name ? place.road_address_name : place.address_name,
+        phone: place.phone
+    };
+
+    fetch('/saveMyMapPoint', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(myMapPoint)
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message || data.error);
+        closeOverlay(); // Close overlay after saving
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('저장 중 오류가 발생했습니다.');
+    });
+}
+
 
 </script>
 </body>

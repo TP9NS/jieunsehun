@@ -1,9 +1,14 @@
 package com.example.ourapp.main;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import com.example.ourapp.DTO.MyMapPointDTO;
+import com.example.ourapp.map.MyMapPointService;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,6 +19,8 @@ import java.util.Map;
 public class MainController {
 
     private final String OPENAI_API_KEY = "";
+    @Autowired
+    private MyMapPointService myMapPointService;
 
     @GetMapping("/main")
     public String main() {
@@ -69,6 +76,19 @@ public class MainController {
             // 클라이언트에 결과 반환
             return ResponseEntity.ok(Collections.singletonMap("response", gptResponse));
 
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Collections.singletonMap("error", "Error: " + e.getMessage()));
+        }
+    }
+ // 새로운 저장 메서드 추가
+    @PostMapping("/saveMyMapPoint")
+    @ResponseBody
+    public ResponseEntity<?> saveMyMapPoint(@RequestBody MyMapPointDTO myMapPointDTO) {
+        try {
+            // MyMapPointDTO를 서비스로 전달하여 저장
+            myMapPointService.saveMyMapPoint(myMapPointDTO);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Location saved successfully."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(Collections.singletonMap("error", "Error: " + e.getMessage()));
