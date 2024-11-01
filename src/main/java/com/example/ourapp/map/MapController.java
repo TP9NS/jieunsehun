@@ -28,11 +28,13 @@ public class MapController {
     @ResponseBody
     public List<MyMapPoint> getMyMapPoints(HttpSession session) {
     	Long user_id = (Long)session.getAttribute("user_id");
-    	System.out.println(user_id);
+    	System.out.println(user_id+"asasd");
     	List <MyMapPoint> a = mapRepository.findByUserId(user_id);
     	for (MyMapPoint point : a) {
             System.out.println(point.getLocationDesc());
         }
         return mapRepository.findByUserId(user_id);
     }
+    
+   
 }
