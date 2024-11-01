@@ -2,7 +2,7 @@ package com.example.ourapp.DTO;
 
 import lombok.Getter;
 import lombok.Setter;
-
+import java.time.LocalDateTime;
 @Getter
 @Setter
 public class MyMapPointDTO {
@@ -15,4 +15,5 @@ public class MyMapPointDTO {
     private Double longitude;
     private String address;
     private String phone;
+    private LocalDateTime searchTime;
 }

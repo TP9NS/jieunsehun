@@ -27,7 +27,7 @@ public class MyMapPointService {
         myMapPoint.setLongitude(myMapPointDTO.getLongitude());
         myMapPoint.setAddress(myMapPointDTO.getAddress());
         myMapPoint.setPhone(myMapPointDTO.getPhone());
-
+        myMapPoint.setSearchTime(myMapPointDTO.getSearchTime());
         myMapPointRepository.save(myMapPoint);
     }
 }

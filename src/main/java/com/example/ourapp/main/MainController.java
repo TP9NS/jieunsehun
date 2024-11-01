@@ -5,9 +5,11 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-
+import java.time.LocalDateTime;	
 import com.example.ourapp.DTO.MyMapPointDTO;
 import com.example.ourapp.map.MyMapPointService;
+
+import jakarta.servlet.http.HttpSession;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -84,9 +86,11 @@ public class MainController {
  // 새로운 저장 메서드 추가
     @PostMapping("/saveMyMapPoint")
     @ResponseBody
-    public ResponseEntity<?> saveMyMapPoint(@RequestBody MyMapPointDTO myMapPointDTO) {
+    public ResponseEntity<?> saveMyMapPoint(@RequestBody MyMapPointDTO myMapPointDTO,HttpSession session) {
         try {
             // MyMapPointDTO를 서비스로 전달하여 저장
+        	myMapPointDTO.setUserId((Long)session.getAttribute("user_id"));
+        	myMapPointDTO.setSearchTime(LocalDateTime.now());
             myMapPointService.saveMyMapPoint(myMapPointDTO);
             return ResponseEntity.ok(Collections.singletonMap("message", "Location saved successfully."));
         } catch (Exception e) {
