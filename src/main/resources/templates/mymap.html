@@ -305,7 +305,7 @@
 	        <div class="option">
 	            <div>
 	                <form onsubmit="searchPlaces(); return false;">
-	                    키워드 : <input type="text" value="이태원 맛집" id="keyword" size="15"> 
+	                    키워드 : <input type="text" value="안양역 맛집" id="keyword" size="15"> 
 	                    <button type="submit">검색하기</button> 
 	                </form>
 	            </div>
@@ -344,38 +344,110 @@ function displayMyMapLocations() {
             return response.json();
         })
         .then(data => {
-            console.log("Data fetched:", data); // 전체 데이터 구조 확인
-
             data.forEach(location => {
-                console.log("Location object:", location); // location 객체의 구조 확인
-
-                // 위치에 대한 마커 생성
                 const coords = new kakao.maps.LatLng(location.latitude, location.longitude);
                 const marker = new kakao.maps.Marker({
                     map: map,
                     position: coords
                 });
-                console.log("Latitude:", location.latitude, "Longitude:", location.longitude); // 위도, 경도 확인
 
-                // 위치에 대한 정보 창 생성
+                const content = `
+                    <div style="padding:10px; max-width:250px; height:230px">
+                        <h5>${location.locationName}</h5>
+                        <p><strong>Phone:</strong> ${location.phone || "N/A"}</p>
+                        <p><strong>Address:</strong> ${location.address || "N/A"}</p>
+                        <p><strong>Alias:</strong> ${location.locationAlias || "N/A"}</p>
+                        <p><strong>Category:</strong> ${location.category || "N/A"}</p>
+                        <p><strong>Description:</strong> ${location.locationDesc || "N/A"}</p>
+                        <p><strong>위도:</strong> ${location.latitude}</p>
+                        <p><strong>경도:</strong> ${location.longitude}</p>
+                        <button onclick="deleteLocation(${location.id})" style="margin-top:10px;">삭제</button>
+                        <button onclick="editLocation(${location.id})" style="margin-top:10px;">수정</button>
+ 												<button onclick="closeInfoWindow()" style="margin-top:10px;">닫기</button>                   
+                    </div>
+                    
+                `;
+
                 const infowindow = new kakao.maps.InfoWindow({
-                    content: `<div style="padding:5px;">${location.locationName}</div>`
+                    content: content
                 });
+                // 닫기 버튼을 위한 전역 변수에 저장
+                window.currentInfoWindow = infowindow;
 
-                // 마커 클릭 시 정보 창 열기
+                // 마커 클릭 시 InfoWindow 열기/닫기
                 kakao.maps.event.addListener(marker, 'click', function() {
-                    infowindow.open(map, marker);
+                    if (infowindow.getMap()) {
+                        infowindow.close();
+                    } else {
+                        infowindow.open(map, marker);
+                        window.currentInfoWindow = infowindow;
+                    }
                 });
             });
         })
         .catch(error => {
             console.error("Error fetching locations:", error);
         });
+        }
+        // 닫기 버튼에 사용할 함수
+function closeInfoWindow() {
+    if (window.currentInfoWindow) {
+        window.currentInfoWindow.close();
+    }
 }
+function deleteLocation(id) {
+    if (confirm("정말로 삭제하시겠습니까?")) {
+        fetch(`/api/mymap/delete?id=${id}`, { method: "DELETE" })  // 수정된 부분
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to delete location");
+                }
+                alert("삭제되었습니다.");
+                window.location.reload(); // 페이지 새로고침하여 업데이트된 정보 반영
+            })
+            .catch(error => {
+                console.error("Error deleting location:", error);
+            });
+    }
+}
+
+// 수정 함수
+function editLocation(id) {
+    const newAlias = prompt("새로운 별칭을 입력하세요:");
+    const newDescription = prompt("새로운 설명을 입력하세요:");
+
+    if (newAlias !== null && newDescription !== null) {
+        fetch(`/api/mymap/update?id=${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                locationAlias: newAlias,
+                locationDesc: newDescription
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to edit location");
+                }
+                alert("수정되었습니다.");
+                window.location.reload(); // 페이지 새로고침하여 업데이트된 정보 반영
+            })
+            .catch(error => {
+                console.error("Error editing location:", error);
+            });
+    }
+}
+
+
 	
-	    // 페이지가 로드될 때 사용자 위치 표시
-	    window.onload = displayMyMapLocations;
-	    console.log('asdasda');
+	    window.onload = function() {
+    displayMyMapLocations();
+    searchPlaces();
+    // 추가할 다른 함수 호출
+};
+
 	// 장소 검색 객체를 생성합니다
 	var ps = new kakao.maps.services.Places();  
 	
