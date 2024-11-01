@@ -27,6 +27,7 @@ public class MainController {
     public String map() {
     	return "map.html";
     }
+    
     @GetMapping("/board")
     public String board() {
         return "board.html";

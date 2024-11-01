@@ -6,5 +6,4 @@ import java.util.List;
 
 public interface MapRepository extends JpaRepository<MyMapPoint, Long> {
     List<MyMapPoint> findByUserId(Long userId);  // 특정 사용자의 위치 데이터를 조회하는 메서드
-   
 }

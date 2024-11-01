@@ -20,11 +20,20 @@ public class MyMapPoint {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "address")
+    private String address;
+    
+    @Column(name = "phone")
+    private String phone;
+    
     @Column(nullable = false)
     private String category;
 
     @Column(name = "location_name", nullable = false)
     private String locationName;
+    
+    @Column(name = "location_alias", nullable = false)
+    private String locationAlias;
 
     @Column(name = "location_desc", nullable = false, length = 500)
     private String locationDesc;
