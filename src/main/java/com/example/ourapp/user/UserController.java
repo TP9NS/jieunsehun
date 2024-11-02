@@ -46,7 +46,7 @@ public class UserController {
             session.setAttribute("permission", userDTO.getPermission());
 
             // 메인 페이지로 리다이렉트
-            return "redirect:/map";  
+            return "redirect:/main";  
         } catch (IllegalArgumentException e) {
             // 로그인 실패 시 에러 메시지와 함께 로그인 페이지로 리다이렉트
             session.setAttribute("error", e.getMessage());
