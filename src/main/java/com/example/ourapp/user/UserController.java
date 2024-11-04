@@ -2,9 +2,13 @@ package com.example.ourapp.user;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.ourapp.DTO.UserDTO;
+import com.example.ourapp.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -101,6 +106,36 @@ public class UserController {
         response.put("message", isDuplicate ? "이미 사용 중인 아이디입니다." : "사용 가능한 아이디입니다.");
         return response;
     }
+    
+    @PostMapping("/findId")
+    public ResponseEntity<String> findIdByNameAndEmail(@RequestBody Map<String, String> request) {
+        String name = request.get("name");
+        String email = request.get("email");
+        Optional<User> user = userService.findByNameAndEmail(name, email);
+        
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get().getUsername());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No matching user found.");
+        }
+    }
+
+    @PostMapping("/findPass")
+    public ResponseEntity<String> findPasswordByDetails(@RequestBody Map<String, String> request) {
+        String username = request.get("username");
+        String name = request.get("name");
+        LocalDate birthdate = LocalDate.parse(request.get("birthdate"));
+        String email = request.get("email");
+        
+        Optional<User> user = userService.findByUsernameAndNameAndBirthdateAndEmail(username, name, birthdate, email);
+        
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get().getPassword()); // Consider security: send a reset link or temporary password instead
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No matching user found.");
+        }
+    }
+    
     @GetMapping("/kakaoSignup")
     public String kakaoSignup(HttpSession session, Model model) {
         // 세션에서 카카오 정보를 가져와 뷰로 전달

@@ -415,27 +415,26 @@
                 }
             }).open();
         }
-         function checkDuplicate() {
+        function checkDuplicate() {
             var id = document.getElementById('id').value;
-			
-            // 서버로 비밀번호 찾기 정보 전송
+
             $.ajax({
-        type: 'POST',
-        url: '/checkid',
-        contentType: 'application/json',
-        data: JSON.stringify({ id:id }),
-        success: function(response) {
-            alert(response.message);
-            if (response.check) {
-                alert( response.check);
-            }
-        },
-        error: function(error) {
-            console.log(error);
-            alert("회원가입을 진행해주세요.");
+                type: 'POST',
+                url: '/user/checkid',
+                contentType: 'application/json',
+                data: JSON.stringify({ username: id }),
+                success: function(response) {
+                    alert(response.message);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log("Error Status:", textStatus);
+                    console.log("Error Thrown:", errorThrown);
+                    console.log("Server Response:", jqXHR.responseText);
+                    alert("회원가입을 진행해주세요.");
+                }
+            });
         }
-    });
-        }
+
     </script>
     
 </html>

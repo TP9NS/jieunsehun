@@ -82,6 +82,14 @@ public class UserService {
         Optional<User> user = userRepository.findByUsername(username);
         return user.isPresent();
     }
+    
+    public Optional<User> findByNameAndEmail(String name, String email) {
+        return userRepository.findByNameAndEmail(name, email);
+    }
+
+    public Optional<User> findByUsernameAndNameAndBirthdateAndEmail(String username, String name, LocalDate birthdate, String email) {
+        return Optional.ofNullable(userRepository.findByUsernameAndNameAndBirthdateAndEmail(username, name, birthdate, email));
+    }
 }
 
 
