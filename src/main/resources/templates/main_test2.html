@@ -344,7 +344,18 @@
         <ul id="placesList"></ul>
         <div id="pagination"></div>
     </div>
-<div class="map_wrap">
+<div class="map_wrap" style="position: relative;">
+  <!-- 카테고리 버튼을 겹쳐서 배치 -->
+  <div class="container mt-3 d-flex justify-content-center" style="position: absolute; top: 10px; width: 100%; z-index: 1;">
+    <button class="btn btn-primary me-2" onclick="searchCategory('음식점')">음식점</button>
+    <button class="btn btn-primary me-2" onclick="searchCategory('카페')">카페</button>
+    <button class="btn btn-primary me-2" onclick="searchCategory('은행')">은행</button>
+    <button class="btn btn-primary me-2" onclick="searchCategory('약국')">약국</button>
+    <button class="btn btn-primary me-2" onclick="searchCategory('주유소')">주유소</button>
+    <button class="btn btn-primary me-2" onclick="searchCategory('편의점')">편의점</button>
+    <button class="btn btn-primary me-2" onclick="searchCategory('마트')">마트</button>
+    <button class="btn btn-primary" onclick="searchCategory('패션')">쇼핑몰</button>
+  </div>
     <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
 </div>
 <!-- GPT 채팅 박스 -->
@@ -379,18 +390,49 @@ var infowindow = new kakao.maps.InfoWindow({zIndex:1});
 // 키워드로 장소를 검색합니다
 searchPlaces();
 
-// 키워드 검색을 요청하는 함수입니다
+//카테고리 코드 매핑
+const categoryCodes = {
+    "음식점": "FD6",
+    "카페": "CE7",
+    "은행": "BK9",
+    "약국": "PM9",
+    "주유소": "OL7",
+    "편의점": "CS2",
+    "마트": "MT1",
+    "패션": "SM1"
+};
+
+//카테고리로 장소 검색 함수
+function searchCategory(categoryName) {
+    const categoryCode = categoryCodes[categoryName];
+    if (!categoryCode) {
+        alert("잘못된 카테고리입니다.");
+        return;
+    }
+
+    var center = map.getCenter(); // 검색 전 현재 지도 중심 좌표를 저장
+    var radius = 3000; // 검색 반경
+
+    // 카테고리 코드로 장소 검색 요청
+    ps.categorySearch(categoryCode, placesSearchCB, {
+        location: center,
+        radius: radius
+    });
+
+    // 검색이 완료된 직후에 지도 중심을 다시 설정하는 딜레이 추가
+    setTimeout(() => {
+        map.setCenter(center);
+    }, 10); // 100ms 지연 후 지도 중심 재설정
+}
+
+// 기존 searchPlaces 함수 유지
 function searchPlaces() {
-
     var keyword = document.getElementById('keyword').value;
-
     if (!keyword.replace(/^\s+|\s+$/g, '')) {
         alert('키워드를 입력해주세요!');
         return false;
     }
-
-    // 장소검색 객체를 통해 키워드로 장소검색을 요청합니다
-    ps.keywordSearch( keyword, placesSearchCB); 
+    ps.keywordSearch(keyword, placesSearchCB);
 }
 
 // 장소검색이 완료됐을 때 호출되는 콜백함수 입니다
@@ -516,18 +558,22 @@ function addMarker(position, idx, title, place) {
 
     // 카테고리별로 다른 이미지 파일을 설정
     if (place.category_name.includes('카페')) {
-        imageSrc = 'https://i.pinimg.com/736x/85/bf/90/85bf90963bde80cc763010c996c1f979.jpg';
+        imageSrc = 'https://i.ibb.co/7WYRffx/2.png';
     } else if (topCategory === '음식점') {
-        imageSrc = 'https://i.pinimg.com/736x/64/89/05/648905424b127846bbf5e2a8a98b5d41.jpg';
+        imageSrc = 'https://i.ibb.co/KVfTjZ3/1.png';
     } else if (place.category_name.includes('은행')) {
-        imageSrc = 'https://i.pinimg.com/736x/27/77/69/2777697c9923e6096a3c88e47678d104.jpg';
+        imageSrc = 'https://i.ibb.co/QXw7w9s/6.png';
     } else if (place.category_name.includes('약국')) {
-        imageSrc = 'https://i.pinimg.com/736x/77/70/46/777046b44c88ce2b8853f87d2ab2ea10.jpg';
+        imageSrc = 'https://i.ibb.co/LzqYJc2/4.png';
     } else if (place.category_name.includes('주유소')) {
-        imageSrc = 'https://i.pinimg.com/736x/76/9a/5f/769a5fc901c1639178cbc6a3cfa02aa1.jpg';
+        imageSrc = 'https://i.ibb.co/dD0NB2J/3.pngs';
     } else if (place.category_name.includes('편의점')) {
-        imageSrc = 'https://i.pinimg.com/736x/85/40/27/854027f6977f2ed71ad17c2963c8e41b.jpg';
-    }else{
+        imageSrc = 'https://i.ibb.co/pPCth4L/9.png';
+    } else if (place.category_name.includes('대형마트') || place.category_name.includes('슈퍼마켓')) {
+        imageSrc = 'https://i.ibb.co/yp4crvZ/8.png';
+    } else if (place.category_name.includes('패션')) {
+        imageSrc = 'https://i.ibb.co/3YnxZyk/7.png';
+    } else {
         imageSrc = 'https://i.pinimg.com/564x/86/89/4b/86894b48abbc5bd42b5f317be9b52934.jpg';
         }
 
