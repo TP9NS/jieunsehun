@@ -5,8 +5,11 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import java.time.LocalDateTime;	
+import java.time.LocalDateTime;
+
+import com.example.ourapp.DTO.AdminMapPointDTO;
 import com.example.ourapp.DTO.MyMapPointDTO;
+import com.example.ourapp.map.AdminMapPointService;
 import com.example.ourapp.map.MyMapPointService;
 
 import jakarta.servlet.http.HttpSession;
@@ -23,6 +26,8 @@ public class MainController {
     private final String OPENAI_API_KEY = "";
     @Autowired
     private MyMapPointService myMapPointService;
+    @Autowired
+    private AdminMapPointService adminMapPointService;
 
     @GetMapping("/main")
     public String main() {
@@ -107,4 +112,19 @@ public class MainController {
                                  .body(Collections.singletonMap("error", "Error: " + e.getMessage()));
         }
     }
+    @PostMapping("/saveAdminMapPoint")
+    @ResponseBody
+    public ResponseEntity<?> saveAdminMapPoint(@RequestBody AdminMapPointDTO adminMapPointDTO, HttpSession session) {
+        try {
+            // AdminMapPointDTO를 서비스로 전달하여 저장
+            adminMapPointDTO.setUserId((Long) session.getAttribute("user_id"));
+            adminMapPointDTO.setSearchTime(LocalDateTime.now());
+            adminMapPointService.saveAdminMapPoint(adminMapPointDTO);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Location saved successfully with topic."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Collections.singletonMap("error", "Error: " + e.getMessage()));
+        }
+    }
+
 }

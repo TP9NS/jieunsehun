@@ -44,20 +44,24 @@ public class UserController {
         try {
             UserDTO userDTO = userService.login(username, password);
 
-            // 로그인 성공 시 세션에 필요한 사용자 정보 저장
-            System.out.println(userDTO.getUser_id());
             session.setAttribute("user_id", userDTO.getUser_id());
             session.setAttribute("username", userDTO.getUsername());
-            session.setAttribute("permission", userDTO.getPermission());
+            session.setAttribute("permission", userDTO.getPermission()); // permission 값 설정
+            
+         // 세션 정보 출력
+            System.out.println("Login successful!");
+            System.out.println("User ID: " + session.getAttribute("user_id"));
+            System.out.println("Username: " + session.getAttribute("username"));
+            System.out.println("Permission: " + session.getAttribute("permission"));
 
-            // 메인 페이지로 리다이렉트
-            return "redirect:/main";  
+            return "redirect:/main";
         } catch (IllegalArgumentException e) {
-            // 로그인 실패 시 에러 메시지와 함께 로그인 페이지로 리다이렉트
             session.setAttribute("error", e.getMessage());
             return "redirect:/user/login";
         }
     }
+
+
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate(); // 세션 무효화
