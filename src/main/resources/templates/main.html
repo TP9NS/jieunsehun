@@ -313,7 +313,7 @@
         <ul class="navbar-nav flex-row">
           <!-- 로그인이 되어 있을 때(세션에 user_id가 있을 때) -->
           <li th:if="${session.user_id != null}" class="nav-item me-3">
-    					<a class="nav-link" th:if="${session.permission == 0}" href="#">관리자님 어서오세요!</a>
+    					<a class="nav-link" th:if="${session.permission == 0}" th:href="@{/user/manage-locations}">관리자님 어서오세요!</a>
     					<a class="nav-link" th:if="${session.permission != 0}" th:href="@{/user/mypage}">마이페이지</a>
  						 </li>
           <li th:if="${session.user_id != null}" class="nav-item">

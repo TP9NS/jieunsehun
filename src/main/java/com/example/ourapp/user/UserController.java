@@ -4,9 +4,11 @@ import jakarta.servlet.http.HttpSession;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,7 +23,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.ourapp.DTO.UserDTO;
+import com.example.ourapp.entity.AdminMapPoint;
 import com.example.ourapp.entity.User;
+import com.example.ourapp.map.AdminMapPointRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +35,8 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
     private final UserService userService;
+    @Autowired
+    private AdminMapPointRepository adminMapPointRepository;
 
 
     @GetMapping("/login")
@@ -99,6 +105,24 @@ public class UserController {
         session.setAttribute("user", userDTO);
         return "redirect:/user/mypage";
     }
+    
+    @GetMapping("/manage-locations")
+    public String manageLocations(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("user_id");
+        Integer permission = (Integer) session.getAttribute("permission");
+
+        // 관리자가 아니라면 접근을 제한
+        if (userId == null || permission == null || permission != 0) {
+            return "redirect:/user/login";
+        }
+
+        // 모든 장소 데이터를 가져와서 모델에 추가
+        List<AdminMapPoint> allLocations = adminMapPointRepository.findAll();
+        model.addAttribute("locations", allLocations);
+
+        return "manageLocations";
+    }
+
     
     @PostMapping("/checkid")
     @ResponseBody

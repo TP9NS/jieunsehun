@@ -34,6 +34,8 @@ public class AdminMapPoint {
     private LocalDateTime searchTime;
     
     private String topic; // 주제 정보
+    @Column(name = "image_url", length = 2048)
+    private String imageUrl;
 
     // 기본 생성자
     public AdminMapPoint() {}

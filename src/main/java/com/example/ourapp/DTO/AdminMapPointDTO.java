@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
+
 @Getter
 @Setter
 public class AdminMapPointDTO {
@@ -18,4 +20,6 @@ public class AdminMapPointDTO {
     private String phone;
     private LocalDateTime searchTime;
     private String topic; // 관리자가 입력한 주제
+    @Column(name = "image_url", length = 2048)
+    private String imageUrl;
 }

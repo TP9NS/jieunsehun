@@ -1,5 +1,6 @@
 package com.example.ourapp.map;
 
+import com.example.ourapp.entity.AdminMapPoint;
 import com.example.ourapp.entity.MyMapPoint;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ public class MapController {
 
     @Autowired
     private MapRepository mapRepository;
+    
+    @Autowired
+    private AdminMapPointRepository adminMapPotinRepository;
 
     @GetMapping("/mymap")
     public String getMyMapPage(HttpSession session) {
@@ -65,4 +69,45 @@ public class MapController {
             return ResponseEntity.status(403).body("Unauthorized to edit this location");
         }
     }
+ // ========== 관리자 엔드포인트 추가 ==========
+
+    // 관리자가 모든 장소 조회
+    @GetMapping("/admin/api/allmap")
+    @ResponseBody
+    public List<AdminMapPoint> getAllMapPoints() {
+        return adminMapPotinRepository.findAll();  // 모든 장소 반환
+    }
+
+    // 관리자 삭제 엔드포인트
+    @DeleteMapping("/admin/api/delete")
+    @ResponseBody
+    public ResponseEntity<String> deleteAnyMapPoint(@RequestParam("id") Long id) {
+        if (adminMapPotinRepository.existsById(id)) {
+        	adminMapPotinRepository.deleteById(id);
+            return ResponseEntity.ok("Location deleted by admin successfully");
+        } else {
+            return ResponseEntity.status(404).body("Location not found");
+        }
+    }
+
+    @PutMapping("/admin/api/update")
+    @ResponseBody
+    public ResponseEntity<String> editAnyMapPoint(@RequestBody AdminMapPoint updatedPoint) {
+        Long id = updatedPoint.getId(); // @RequestBody로 받은 id 사용
+
+        Optional<AdminMapPoint> existingPoint = adminMapPotinRepository.findById(id);
+        if (existingPoint.isPresent()) {
+            AdminMapPoint point = existingPoint.get();
+            point.setTopic(updatedPoint.getTopic());
+            point.setLocationAlias(updatedPoint.getLocationAlias());
+            point.setLocationDesc(updatedPoint.getLocationDesc());
+            point.setImageUrl(updatedPoint.getImageUrl());
+            adminMapPotinRepository.save(point);
+            return ResponseEntity.ok("Location updated by admin successfully");
+        } else {
+            return ResponseEntity.status(404).body("Location not found");
+        }
+    }
+
+
 }
