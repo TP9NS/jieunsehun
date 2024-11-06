@@ -15,15 +15,28 @@ public class MapController {
 
     @Autowired
     private MapRepository mapRepository;
-    
+
     @Autowired
-    private AdminMapPointRepository adminMapPotinRepository;
+    private AdminMapPointRepository adminMapPointRepository;
 
     @GetMapping("/mymap")
     public String getMyMapPage(HttpSession session) {
         System.out.println(session.getAttribute("user_id"));
         return "mymap";  // HTML 파일의 확장자는 생략합니다.
     }
+    
+    @GetMapping("/api/topics")
+    @ResponseBody
+    public List<String> getUniqueTopics() {
+        return adminMapPointRepository.findDistinctTopics();
+    }
+
+    @GetMapping("/api/places")
+    @ResponseBody
+    public List<AdminMapPoint> getPlacesByTopic(@RequestParam String topic) {
+        return adminMapPointRepository.findByTopic(topic);
+    }
+
 
     @GetMapping("/api/mymap")
     @ResponseBody
@@ -75,15 +88,15 @@ public class MapController {
     @GetMapping("/admin/api/allmap")
     @ResponseBody
     public List<AdminMapPoint> getAllMapPoints() {
-        return adminMapPotinRepository.findAll();  // 모든 장소 반환
+        return adminMapPointRepository.findAll();  // 모든 장소 반환
     }
 
     // 관리자 삭제 엔드포인트
     @DeleteMapping("/admin/api/delete")
     @ResponseBody
     public ResponseEntity<String> deleteAnyMapPoint(@RequestParam("id") Long id) {
-        if (adminMapPotinRepository.existsById(id)) {
-        	adminMapPotinRepository.deleteById(id);
+        if (adminMapPointRepository.existsById(id)) {
+        	adminMapPointRepository.deleteById(id);
             return ResponseEntity.ok("Location deleted by admin successfully");
         } else {
             return ResponseEntity.status(404).body("Location not found");
@@ -95,14 +108,14 @@ public class MapController {
     public ResponseEntity<String> editAnyMapPoint(@RequestBody AdminMapPoint updatedPoint) {
         Long id = updatedPoint.getId(); // @RequestBody로 받은 id 사용
 
-        Optional<AdminMapPoint> existingPoint = adminMapPotinRepository.findById(id);
+        Optional<AdminMapPoint> existingPoint = adminMapPointRepository.findById(id);
         if (existingPoint.isPresent()) {
             AdminMapPoint point = existingPoint.get();
             point.setTopic(updatedPoint.getTopic());
             point.setLocationAlias(updatedPoint.getLocationAlias());
             point.setLocationDesc(updatedPoint.getLocationDesc());
             point.setImageUrl(updatedPoint.getImageUrl());
-            adminMapPotinRepository.save(point);
+            adminMapPointRepository.save(point);
             return ResponseEntity.ok("Location updated by admin successfully");
         } else {
             return ResponseEntity.status(404).body("Location not found");

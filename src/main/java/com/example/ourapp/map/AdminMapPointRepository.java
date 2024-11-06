@@ -1,11 +1,17 @@
 package com.example.ourapp.map;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.example.ourapp.entity.AdminMapPoint;
 
 @Repository
 public interface AdminMapPointRepository extends JpaRepository<AdminMapPoint, Long> {
-    // 추가적인 커스텀 쿼리가 필요하다면 여기에 메서드를 정의할 수 있습니다.
+    @Query("SELECT DISTINCT topic FROM AdminMapPoint WHERE topic IS NOT NULL")
+    List<String> findDistinctTopics();
+
+    List<AdminMapPoint> findByTopic(String topic);
 }
