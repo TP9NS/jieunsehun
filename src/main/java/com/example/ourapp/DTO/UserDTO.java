@@ -27,7 +27,11 @@ public class UserDTO { //회원 정보를 필드로 정의
     private String address_1;
     private Integer permission;
     //lombok 어노테이션으로 getter,setter,생성자,toString 메서드 생략 가능
-    
+    public UserDTO(Long id, String name, String email) {
+        this.User_id = id;
+        this.Name = name;
+        this.Email = email;
+    }
     public static UserDTO toUserDTO(User UserEntitiy){
     	UserDTO UserDTO = new UserDTO();
     	UserDTO.setUser_id (UserEntitiy.getUserId());

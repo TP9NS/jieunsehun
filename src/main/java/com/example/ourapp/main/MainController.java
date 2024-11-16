@@ -71,8 +71,13 @@ public class MainController {
     
     @GetMapping("/board")
     public String board(
+<<<<<<< HEAD
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Long categoryId,
+=======
+            @RequestParam(required = false, defaultValue = "") String search,
+            @RequestParam(required = false) Long categoryId, // Long 타입으로 변경
+>>>>>>> branch 'main' of https://github.com/TP9NS/jieunsehun
             Model model) {
         // 1. 계층형 카테고리 데이터 추가
         List<CategoryDTO> categories = categoryService.getAllCategoryHierarchy();
