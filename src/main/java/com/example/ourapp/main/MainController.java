@@ -53,31 +53,26 @@ public class MainController {
     }
     @GetMapping("/test")
     public String test() {
-    	return "map_test.html";
+       return "map_test.html";
     }
     @GetMapping("/map")
     public String map() {
-    	return "map.html";
+       return "map.html";
     }
     
     @GetMapping("/main_test")
     public String main_test() {
-    	return "main_test.html";
+       return "main_test.html";
     }
     @GetMapping("/main_test2")
     public String main_test2() {
-    	return "main_test2.html";
+       return "main_test2.html";
     }
     
     @GetMapping("/board")
     public String board(
-<<<<<<< HEAD
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Long categoryId,
-=======
-            @RequestParam(required = false, defaultValue = "") String search,
-            @RequestParam(required = false) Long categoryId, // Long 타입으로 변경
->>>>>>> branch 'main' of https://github.com/TP9NS/jieunsehun
             Model model) {
         // 1. 계층형 카테고리 데이터 추가
         List<CategoryDTO> categories = categoryService.getAllCategoryHierarchy();
@@ -204,8 +199,8 @@ public class MainController {
     public ResponseEntity<?> saveMyMapPoint(@RequestBody MyMapPointDTO myMapPointDTO,HttpSession session) {
         try {
             // MyMapPointDTO를 서비스로 전달하여 저장
-        	myMapPointDTO.setUserId((Long)session.getAttribute("user_id"));
-        	myMapPointDTO.setSearchTime(LocalDateTime.now());
+           myMapPointDTO.setUserId((Long)session.getAttribute("user_id"));
+           myMapPointDTO.setSearchTime(LocalDateTime.now());
             myMapPointService.saveMyMapPoint(myMapPointDTO);
             return ResponseEntity.ok(Collections.singletonMap("message", "Location saved successfully."));
         } catch (Exception e) {
