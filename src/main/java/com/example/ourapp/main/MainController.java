@@ -71,7 +71,7 @@ public class MainController {
     
     @GetMapping("/board")
     public String board(
-            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "") String search,
             @RequestParam(required = false) Long categoryId, // Long 타입으로 변경
             Model model) {
 

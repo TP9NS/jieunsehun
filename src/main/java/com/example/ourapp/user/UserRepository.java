@@ -3,6 +3,7 @@ package com.example.ourapp.user;
 
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	User findByNameAndBirthdateAndEmail(String name, LocalDate birthdate, String email);
 	User findByUsernameAndNameAndBirthdateAndEmail(String Username,String name, LocalDate birthdate, String email);
 	Optional<User> findByNameAndEmail(String name, String email);
+	 List<User> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String name, String email);
 }
