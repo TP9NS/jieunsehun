@@ -14,10 +14,10 @@ import com.example.ourapp.entity.Category;
 public class CategoryService {
 
     @Autowired
-    private PostRepository postRepository;
+    private CategoryRepository categoryRepository;
 
     public List<CategoryDTO> getAllCategoryHierarchy() {
-        List<Category> categories = postRepository.findAllCategoriesWithHierarchy(); // 계층형 데이터 조회
+        List<Category> categories = categoryRepository.findAll();
         Map<Long, CategoryDTO> categoryMap = new HashMap<>();
 
         // 모든 카테고리를 DTO로 변환
@@ -30,11 +30,11 @@ public class CategoryService {
         List<CategoryDTO> rootCategories = new ArrayList<>();
         categoryMap.values().forEach(dto -> {
             if (dto.getParentId() == null) {
-                rootCategories.add(dto); // 상위 카테고리
+                rootCategories.add(dto);
             } else {
                 CategoryDTO parent = categoryMap.get(dto.getParentId());
                 if (parent != null) {
-                    parent.addSubCategory(dto); // 하위 카테고리를 상위 카테고리에 추가
+                    parent.addSubCategory(dto);
                 }
             }
         });
@@ -42,3 +42,4 @@ public class CategoryService {
         return rootCategories;
     }
 }
+

@@ -153,19 +153,11 @@
         <div class="d-flex justify-content-between mb-3">
             <div class="mb-3">
     <label for="parentCategoryFilter" class="form-label">상위 카테고리</label>
-    <select class="form-control" id="parentCategoryFilter" name="parentCategory" onchange="updateSubCategoryFilter()">
+    <select class="form-control" id="parentCategoryFilter" name="parentCategory">
         <option value="">전체</option>
         <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
     </select>
 </div>
-
-<div class="mb-3" id="subCategoryFilterContainer" style="display: none;">
-    <label for="subCategoryFilter" class="form-label">하위 카테고리</label>
-    <select class="form-control" id="subCategoryFilter" name="subCategory" onchange="filterPosts()">
-        <option value="">전체</option>
-    </select>
-</div>
-
             <div class="input-group w-50">
                 <input type="text" id="searchInput" class="form-control" placeholder="검색어를 입력하세요">
                 <button class="btn btn-primary" onclick="filterBySearch()">검색</button>
@@ -177,15 +169,18 @@
                     <tr>
                         <th>제목</th>
                         <th>작성자</th>
-                        <th>카테고리</th>
+                        <th>카테고리 구조</th>
                         <th>작성일</th>
                     </tr>
                 </thead>
                 <tbody id="postTable">
-                    <tr th:each="post : ${posts}" th:data-category-id="${post.categoryId}">
+                    <tr th:each="post : ${posts}" th:data-category-id="${post.categoryId}" 
+        th:data-parent-category-id="${post.parentCategoryId}">
                         <td><a th:href="@{/board/view/{id}(id=${post.id})}" th:text="${post.title}"></a></td>
                         <td th:text="${post.username}"></td>
-                        <td th:text="${post.categoryName}"></td>
+                        <!-- 카테고리 계층 구조 출력 -->
+        <td th:text="${post.categoryName}"></td>
+
                         <td th:text="${post.formattedCreatedAt}"></td>
                     </tr>
                 </tbody>
@@ -198,75 +193,78 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    // 카테고리 데이터 - 서버에서 JSON으로 렌더링하거나 동적으로 로드
-    const categories = /*[[${categoriesJson}]]*/ {};
-console.log(categories);
+    document.getElementById("parentCategoryFilter").addEventListener("change", function () {
+        const selectedValue = this.value;
+        console.log("Selected Parent Category ID:", selectedValue);
 
-function updateSubCategoryFilter() {
-    const parentCategoryId = document.getElementById("parentCategoryFilter").value;
-    const subCategoryFilter = document.getElementById("subCategoryFilter");
-    const subCategoryFilterContainer = document.getElementById("subCategoryFilterContainer");
+        filterPostsByCategory(selectedValue);
+    });
 
-    // 초기화
-    subCategoryFilter.innerHTML = '<option value="">전체</option>';
-    subCategoryFilterContainer.style.display = "none";
+    function filterPostsByCategory(parentCategoryId) {
+        const rows = document.querySelectorAll("#postTable tr");
 
-    // JSON 데이터가 배열인지 객체인지 확인
-    const parentCategory = Array.isArray(categories)
-        ? categories.find(cat => cat.id == parentCategoryId)
-        : Object.values(categories).find(cat => cat.id == parentCategoryId);
+        rows.forEach(row => {
+            const categoryId = row.getAttribute("data-category-id");
+            const parentCategory = row.getAttribute("data-parent-category-id");
 
-    // 하위 카테고리가 있는 경우 필터에 추가
-    if (parentCategory && parentCategory.subCategories) {
-        parentCategory.subCategories.forEach(subCategory => {
-            const option = document.createElement("option");
-            option.value = subCategory.id;
-            option.textContent = subCategory.name;
-            subCategoryFilter.appendChild(option);
+            // 조건에 맞는 글만 표시
+            if (!parentCategoryId || parentCategory === parentCategoryId) {
+                row.style.display = ""; // 표시
+            } else {
+                row.style.display = "none"; // 숨김
+            }
         });
-        subCategoryFilterContainer.style.display = "block";
+
+        console.log("Filtered posts by parent category:", parentCategoryId);
     }
-}
+</script>
+<script>
+    const categories = /*[[${categoriesJson}]]*/ {}; // 서버에서 받은 JSON 데이터
+    console.log("Loaded categories:", categories);
 
-function updateSubSubCategoryFilter() {
-    const subCategoryId = document.getElementById("subCategoryFilter").value;
-    const subSubCategoryFilter = document.getElementById("subSubCategoryFilter");
-    const subSubCategoryFilterContainer = document.getElementById("subSubCategoryFilterContainer");
+    document.getElementById("parentCategoryFilter").addEventListener("change", function () {
+        const selectedValue = this.value;
+        console.log("Selected Parent Category ID:", selectedValue);
+        filterPostsByCategory(selectedValue);
+    });
 
-    // 초기화
-    subSubCategoryFilter.innerHTML = '<option value="">전체</option>';
-    subSubCategoryFilterContainer.style.display = "none";
+    function filterPostsByCategory(parentCategoryId) {
+        const rows = document.querySelectorAll("#postTable tr");
 
-    // JSON 데이터가 배열인지 객체인지 확인
-    const parentSubCategories = Array.isArray(categories)
-        ? categories.flatMap(cat => cat.subCategories || [])
-        : Object.values(categories).flatMap(cat => Object.values(cat.subCategories || {}));
+        rows.forEach(row => {
+            const categoryId = row.getAttribute("data-category-id");
 
-    const subCategory = parentSubCategories.find(cat => cat.id == subCategoryId);
-
-    // 세부 카테고리가 있는 경우 필터에 추가
-    if (subCategory && subCategory.subCategories) {
-        subCategory.subCategories.forEach(subSubCategory => {
-            const option = document.createElement("option");
-            option.value = subSubCategory.id;
-            option.textContent = subSubCategory.name;
-            subSubCategoryFilter.appendChild(option);
+            // Match parent category
+            const matchesCategory = !parentCategoryId || isMatchingParentCategory(categoryId, parentCategoryId);
+            row.style.display = matchesCategory ? "" : "none";
         });
-        subSubCategoryFilterContainer.style.display = "block";
+
+        console.log("Filtered posts by parent category:", parentCategoryId);
     }
+
+    function isMatchingParentCategory(categoryId, parentCategoryFilter) {
+        const parentCategory = Object.values(categories).find(cat => cat.id == parentCategoryFilter);
+        if (!parentCategory) return false;
+
+        return parentCategory.subCategories.some(subCategory => subCategory.id == categoryId);
+    }
+
+</script>
+<script>
+
+// 검색어를 통해 게시글 필터링
+function filterBySearch() {
+    const searchInput = document.getElementById("searchInput").value.toLowerCase(); // 검색어
+    const rows = document.querySelectorAll("#postTable tr");
+
+    rows.forEach(row => {
+        const title = row.querySelector("td:nth-child(1)").innerText.toLowerCase(); // 테이블의 제목 값
+        row.style.display = !searchInput || title.includes(searchInput) ? "" : "none"; // 검색 조건
+    });
 }
+</script>
 
-
-        function filterBySearch() {
-            const searchInput = document.getElementById("searchInput").value.toLowerCase(); // 검색어
-            const rows = document.querySelectorAll("#postTable tr");
-
-            rows.forEach(row => {
-                const title = row.querySelector("td:nth-child(1)").innerText.toLowerCase(); // 테이블의 제목 값
-                row.style.display = !searchInput || title.includes(searchInput) ? "" : "none"; // 검색 조건
-            });
-        }
-    </script>
 </body>
 </html>

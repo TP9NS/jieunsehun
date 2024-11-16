@@ -72,53 +72,57 @@ public class MainController {
     @GetMapping("/board")
     public String board(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) Long categoryId, // Long 타입으로 변경
+            @RequestParam(required = false) Long categoryId,
             Model model) {
+        // 1. 계층형 카테고리 데이터 추가
+        List<CategoryDTO> categories = categoryService.getAllCategoryHierarchy();
+        model.addAttribute("categories", categories);
 
-        // 모든 게시글 가져오기
-        List<PostDTO> posts = postService.getAllPosts();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String categoriesJson = objectMapper.writeValueAsString(categories);
+            model.addAttribute("categoriesJson", categoriesJson); // JavaScript에서 사용할 JSON 데이터로 변환
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            model.addAttribute("categoriesJson", "[]"); // 변환 실패 시 기본 빈 배열 설정
+        }
 
-        // 카테고리 필터
+        // 2. 게시글 데이터 처리
+        List<PostDTO> posts = postService.getPostsWithCategoryDetails();
+
+        // 2-1. 카테고리 필터링
         if (categoryId != null) {
             posts = posts.stream()
                     .filter(post -> post.getCategoryId() != null && post.getCategoryId().equals(categoryId))
                     .collect(Collectors.toList());
         }
 
-        // 검색어 필터
+        // 2-2. 검색어 필터링
         if (search != null && !search.isEmpty()) {
             posts = posts.stream()
                     .filter(post -> post.getTitle().toLowerCase().contains(search.toLowerCase()) ||
-                            post.getContent().toLowerCase().contains(search.toLowerCase()))
+                            (post.getContent() != null && post.getContent().toLowerCase().contains(search.toLowerCase())))
                     .collect(Collectors.toList());
         }
 
-     // 계층형 카테고리 데이터 추가
-        List<CategoryDTO> categories = categoryService.getAllCategoryHierarchy();
-        model.addAttribute("categories", categories);
-
-        // JavaScript용 JSON 변환
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String categoriesJson = objectMapper.writeValueAsString(categories); // JSON 변환
-            model.addAttribute("categoriesJson", categoriesJson);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace(); // 예외 처리
-            model.addAttribute("categoriesJson", "[]"); // 기본 빈 배열 설정
-        }
+        // 3. 모델에 게시글 데이터 추가
         model.addAttribute("posts", posts);
+
         return "board.html";
     }
-
-
 
 
     @GetMapping("/board/view/{id}")
     public String viewPost(@PathVariable Long id, Model model) {
         PostDTO post = postService.getPostById(id); // 게시글 조회
-        model.addAttribute("post", post); // 모델에 게시글 데이터 추가
-        return "view.html"; // 확장자 제외한 템플릿 이름
+        if (post == null) {
+            throw new IllegalArgumentException("Post not found");
+        }
+        model.addAttribute("post", post); // 모델에 추가
+        System.out.println("Post data sent to view: " + post);
+        return "view.html"; // 템플릿 이름 반환
     }
+
     
     @GetMapping("/post")
     public String postForm(Model model) {
@@ -140,7 +144,7 @@ public class MainController {
                 return "redirect:/post?error=upload";
             }
         }
-
+        System.out.println("Received PostDTO: " + postDTO);
         postService.savePost(postDTO);
         return "redirect:/board";
     }
