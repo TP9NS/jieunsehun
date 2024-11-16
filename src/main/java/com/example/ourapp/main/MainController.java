@@ -3,22 +3,36 @@ package com.example.ourapp.main;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import com.example.ourapp.DTO.AdminMapPointDTO;
+import com.example.ourapp.DTO.CategoryDTO;
 import com.example.ourapp.DTO.MyMapPointDTO;
+import com.example.ourapp.DTO.PostDTO;
 import com.example.ourapp.map.AdminMapPointService;
 import com.example.ourapp.map.MyMapPointService;
+import com.example.ourapp.post.CategoryService;
+import com.example.ourapp.post.PostService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpSession;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class MainController {
@@ -28,6 +42,10 @@ public class MainController {
     private MyMapPointService myMapPointService;
     @Autowired
     private AdminMapPointService adminMapPointService;
+    @Autowired
+    private PostService postService;
+    @Autowired
+    private CategoryService categoryService;
 
     @GetMapping("/main")
     public String main() {
@@ -52,14 +70,88 @@ public class MainController {
     }
     
     @GetMapping("/board")
-    public String board() {
+    public String board(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long categoryId, // Long 타입으로 변경
+            Model model) {
+
+        // 모든 게시글 가져오기
+        List<PostDTO> posts = postService.getAllPosts();
+
+        // 카테고리 필터
+        if (categoryId != null) {
+            posts = posts.stream()
+                    .filter(post -> post.getCategoryId() != null && post.getCategoryId().equals(categoryId))
+                    .collect(Collectors.toList());
+        }
+
+        // 검색어 필터
+        if (search != null && !search.isEmpty()) {
+            posts = posts.stream()
+                    .filter(post -> post.getTitle().toLowerCase().contains(search.toLowerCase()) ||
+                            post.getContent().toLowerCase().contains(search.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+     // 계층형 카테고리 데이터 추가
+        List<CategoryDTO> categories = categoryService.getAllCategoryHierarchy();
+        model.addAttribute("categories", categories);
+
+        // JavaScript용 JSON 변환
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String categoriesJson = objectMapper.writeValueAsString(categories); // JSON 변환
+            model.addAttribute("categoriesJson", categoriesJson);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace(); // 예외 처리
+            model.addAttribute("categoriesJson", "[]"); // 기본 빈 배열 설정
+        }
+        model.addAttribute("posts", posts);
         return "board.html";
+    }
+
+
+
+
+    @GetMapping("/board/view/{id}")
+    public String viewPost(@PathVariable Long id, Model model) {
+        PostDTO post = postService.getPostById(id); // 게시글 조회
+        model.addAttribute("post", post); // 모델에 게시글 데이터 추가
+        return "view.html"; // 확장자 제외한 템플릿 이름
     }
     
     @GetMapping("/post")
-    public String post() {
+    public String postForm(Model model) {
+        model.addAttribute("post", new PostDTO()); // 빈 PostDTO 전달
         return "post.html";
     }
+    
+    @PostMapping("/post/save")
+    public String savePost(@ModelAttribute PostDTO postDTO, @RequestParam("image") MultipartFile image) {
+        if (!image.isEmpty()) {
+            try {
+                // 이미지 이름 가져오기
+                String fileName = image.getOriginalFilename();
+
+                // 이미지 이름만 저장
+                postDTO.setImageUrl(fileName); // imageUrl 필드에 이미지 이름 저장
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "redirect:/post?error=upload";
+            }
+        }
+
+        postService.savePost(postDTO);
+        return "redirect:/board";
+    }
+
+    
+    @PostMapping("/post/delete/{id}")
+    public String deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
+        return "redirect:/board";
+    }
+    
     // OpenAI GPT와의 대화를 처리하는 엔드포인트
     @PostMapping("/api/chat")
     @ResponseBody
