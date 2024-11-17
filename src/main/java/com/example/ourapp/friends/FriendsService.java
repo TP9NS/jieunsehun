@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.ourapp.DTO.FriendRequestDTO;
+import com.example.ourapp.DTO.FriendRequestDetailDTO;
 import com.example.ourapp.DTO.FriendsDTO;
 import com.example.ourapp.DTO.UserDTO;
 import com.example.ourapp.entity.FriendRequest;
@@ -57,17 +58,21 @@ public class FriendsService {
      * 친구 요청 전송
      */
     public void sendFriendRequest(Long receiverId) {
-        User currentUser = getCurrentUser();
+        System.out.println("Sending friend request to receiver ID: " + receiverId);
         User receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
 
-        if (friendsRepository.findByUserAndFriend(currentUser, receiver).isPresent()) {
-            throw new IllegalStateException("Already friends with this user.");
+        User sender = getCurrentUser();
+        System.out.println("Current user: " + sender.getUserId());
+
+        if (friendRequestRepository.existsBySenderAndReceiver(sender, receiver)) {
+            throw new IllegalArgumentException("Friend request already sent.");
         }
 
-        FriendRequest request = new FriendRequest(currentUser, receiver);
-        friendRequestRepository.save(request);
+        friendRequestRepository.save(new FriendRequest(sender, receiver));
+        System.out.println("Friend request saved successfully.");
     }
+
 
     /**
      * 친구 요청 수락
@@ -84,6 +89,20 @@ public class FriendsService {
         friendsRepository.save(new Friends(request.getReceiver(), request.getSender()));
 
         request.setStatus(FriendRequestStatus.ACCEPTED);
+        friendRequestRepository.save(request);
+    }
+    public void declineFriendRequest(Long requestId) {
+        // FriendRequest를 ID로 조회
+        FriendRequest request = friendRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Friend request not found"));
+
+        // 요청 상태가 PENDING인지 확인
+        if (!request.getStatus().equals(FriendRequestStatus.PENDING)) {
+            throw new IllegalStateException("Friend request is not pending.");
+        }
+
+        // 요청 상태를 DECLINED로 설정
+        request.setStatus(FriendRequestStatus.DECLINED);
         friendRequestRepository.save(request);
     }
 
@@ -111,7 +130,7 @@ public class FriendsService {
         }
         return userId;
     }
-    public List<UserDTO> getPendingFriendRequests(Long receiverId) {
+    public List<FriendRequestDetailDTO> getPendingFriendRequests(Long receiverId) {
         // Receiver의 User 엔티티 조회
         User receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
@@ -121,16 +140,43 @@ public class FriendsService {
                 .stream()
                 .map(request -> {
                     User sender = request.getSender();
-                    // 요청 보낸 사용자의 정보를 UserDTO로 변환하여 반환
-                    return new UserDTO(
-                            sender.getUserId(), // sender의 userId
-                            sender.getName(),   // sender의 이름
-                            sender.getEmail()   // sender의 이메일
+                    // 요청 보낸 사용자의 정보를 FriendRequestDetailDTO로 변환하여 반환
+                    return new FriendRequestDetailDTO(
+                            request.getId(),        // FriendRequest ID
+                            sender.getUserId(),     // Sender의 userId
+                            sender.getName(),       // Sender의 이름
+                            sender.getEmail()       // Sender의 이메일
                     );
                 })
                 .collect(Collectors.toList());
     }
+    public void removeFriend(Long friendId) {
+        // 현재 사용자 ID 가져오기
+        Long currentUserId = getCurrentUserId();
 
+        // 현재 사용자와 친구 관계 삭제
+        Friends currentUserFriend = friendsRepository.findByUserAndFriend(
+                userRepository.findById(currentUserId).orElseThrow(() -> new IllegalArgumentException("User not found")),
+                userRepository.findById(friendId).orElseThrow(() -> new IllegalArgumentException("Friend not found"))
+        ).orElseThrow(() -> new IllegalArgumentException("Friend relationship not found"));
+        friendsRepository.delete(currentUserFriend);
 
+        // 친구의 입장에서의 관계 삭제
+        Friends friendUserFriend = friendsRepository.findByUserAndFriend(
+                userRepository.findById(friendId).orElseThrow(() -> new IllegalArgumentException("Friend not found")),
+                userRepository.findById(currentUserId).orElseThrow(() -> new IllegalArgumentException("User not found"))
+        ).orElseThrow(() -> new IllegalArgumentException("Friend relationship not found"));
+        friendsRepository.delete(friendUserFriend);
+    }
+    public Long getSenderIdByRequestId(Long requestId) {
+        FriendRequest request = friendRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Friend request not found"));
+        return request.getSender().getUserId(); // 요청 보낸 사용자의 ID 반환
+    }
+    public Long getSenderIdFromRequest(Long requestId) {
+        FriendRequest request = friendRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Friend request not found"));
+        return request.getSender().getUserId();
+    }
 
 }
