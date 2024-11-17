@@ -166,21 +166,7 @@
       <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
     </div>
 
-    <input type="hidden" id="categoryId" name="categoryId" />
-
-    <div class="mb-3" id="subSubCategoryContainer" style="display: none;">
-    <label for="subSubCategory" class="form-label">세부 카테고리</label>
-    <select class="form-control" id="subSubCategory" onchange="updateCategoryId()">
-        <option value="">세부 카테고리를 선택하세요</option>
-    </select>
-</div>
-<div class="mb-3" id="subCategoryContainer" style="display: none;">
-    <label for="subCategory" class="form-label">하위 카테고리</label>
-    <select class="form-control" id="subCategory" onchange="updateSubSubCategory(); updateCategoryId();">
-        <option value="">하위 카테고리를 선택하세요</option>
-    </select>
-</div>
-<div class="mb-3">
+    <div class="mb-3">
     <label for="parentCategory" class="form-label">상위 카테고리</label>
     <select class="form-control" id="parentCategory" name="parentCategory" onchange="updateSubCategory(); updateCategoryId();" required>
         <option value="">상위 카테고리를 선택하세요</option>
@@ -188,6 +174,21 @@
         <option value="2">위치</option>
     </select>
 </div>
+
+<div class="mb-3" id="subCategoryContainer" style="display: none;">
+    <label for="subCategory" class="form-label">하위 카테고리</label>
+    <select class="form-control" id="subCategory" name="subCategory" onchange="updateCategoryId();">
+        <option value="">하위 카테고리를 선택하세요</option>
+    </select>
+</div>
+<div class="mb-3">
+    <label for="detailedCategory" class="form-label">상세 카테고리</label>
+    <input type="text" class="form-control" id="detailedCategory" name="detailedCategory" placeholder="상세 카테고리를 입력하세요">
+</div>
+<input type="hidden" id="categoryId" name="categoryId" />
+<input type="hidden" id="parentCategoryName" name="parentCategoryName" />
+<input type="hidden" id="categoryName" name="categoryName" />
+<input type="hidden" id="detailedCategory" name="detailedCategory" />
 
 
     <div class="mb-3">
@@ -203,109 +204,71 @@
     <button type="submit" class="btn btn-primary">작성하기</button>
   </form>
 </main>
-
 <script>
 const categories = {
-	    "1": {
-	        "name": "음식",
-	        "subCategories": {
+	    "1": { // 음식
+	        name: "음식",
+	        subCategories: {
 	            "3": "한식",
 	            "4": "중식",
 	            "5": "일식",
 	            "6": "양식"
 	        }
 	    },
-	    "2": {
-	        "name": "위치",
-	        "subCategories": {
-	            "7": {
-	                "name": "서울",
-	                "subSubCategories": {
-	                    "9": "강서구",
-	                    "10": "양천구",
-	                    "11": "구로구"
-	                }
-	            },
-	            "8": {
-	                "name": "경기",
-	                "subSubCategories": {
-	                    "12": "안양",
-	                    "13": "성남",
-	                    "14": "수원"
-	                }
-	            }
+	    "2": { // 위치
+	        name: "위치",
+	        subCategories: {
+	            "7": "서울",
+	            "8": "경기"
 	        }
 	    }
 	};
 
-	// 상위 카테고리 선택 시 하위 카테고리 업데이트
+	// 상위 카테고리 변경 시 하위 카테고리 업데이트
 	function updateSubCategory() {
 	    const parentCategory = document.getElementById("parentCategory").value;
 	    const subCategory = document.getElementById("subCategory");
 	    const subCategoryContainer = document.getElementById("subCategoryContainer");
-	    const subSubCategoryContainer = document.getElementById("subSubCategoryContainer");
-	    const subSubCategory = document.getElementById("subSubCategory");
 
 	    // 초기화
 	    subCategory.innerHTML = '<option value="">하위 카테고리를 선택하세요</option>';
-	    subSubCategory.innerHTML = '<option value="">세부 카테고리를 선택하세요</option>';
 	    subCategoryContainer.style.display = "none";
-	    subSubCategoryContainer.style.display = "none";
 
 	    if (categories[parentCategory]?.subCategories) {
 	        const subCategories = categories[parentCategory].subCategories;
-
 	        for (const key in subCategories) {
-	            const subCategoryData = subCategories[key];
 	            const option = document.createElement("option");
-	            option.value = key;
-	            option.textContent = subCategoryData.name || subCategoryData;
+	            option.value = key; // 하위 카테고리 ID
+	            option.textContent = subCategories[key]; // 하위 카테고리 이름
 	            subCategory.appendChild(option);
 	        }
 	        subCategoryContainer.style.display = "block";
 	    }
 	}
 
-	// 하위 카테고리 선택 시 세부 카테고리 업데이트
-	function updateSubSubCategory() {
-	    const parentCategory = document.getElementById("parentCategory").value;
-	    const subCategory = document.getElementById("subCategory").value;
-	    const subSubCategory = document.getElementById("subSubCategory");
-	    const subSubCategoryContainer = document.getElementById("subSubCategoryContainer");
-
-	    // 초기화
-	    subSubCategory.innerHTML = '<option value="">세부 카테고리를 선택하세요</option>';
-	    subSubCategoryContainer.style.display = "none";
-
-	    const subCategoryData = categories[parentCategory]?.subCategories[subCategory];
-	    if (subCategoryData?.subSubCategories) {
-	        const subSubCategories = subCategoryData.subSubCategories;
-
-	        for (const key in subSubCategories) {
-	            const option = document.createElement("option");
-	            option.value = key;
-	            option.textContent = subSubCategories[key];
-	            subSubCategory.appendChild(option);
-	        }
-	        subSubCategoryContainer.style.display = "block";
-	    }
-	}
-
-	// 선택된 카테고리 ID 설정
 	function updateCategoryId() {
-	    const subSubCategory = document.getElementById("subSubCategory").value;
-	    const subCategory = document.getElementById("subCategory").value;
-	    const parentCategory = document.getElementById("parentCategory").value;
+	    const parentCategory = document.getElementById("parentCategory");
+	    const subCategory = document.getElementById("subCategory");
+	    const detailedCategory = document.getElementById("detailedCategory");
 
-	    const categoryId = subSubCategory || subCategory || parentCategory;
+	    const parentCategoryName = parentCategory.options[parentCategory.selectedIndex]?.text || "";
+	    const categoryName = subCategory.options[subCategory.selectedIndex]?.text || "";
+	    const detailedCategoryValue = detailedCategory.value || "";
 
-	    if (!categoryId) {
-	        alert("카테고리를 선택하세요!");
-	        return;
-	    }
+	    // Hidden input 값 설정
+	    document.getElementById("parentCategoryName").value = parentCategoryName;
+	    document.getElementById("categoryName").value = categoryName;
+	    document.getElementById("detailedCategory").value = detailedCategoryValue;
 
+	    // 카테고리 ID 설정
+	    const categoryId = subCategory.value || parentCategory.value || null; // 우선 순위: 하위 > 상위
 	    document.getElementById("categoryId").value = categoryId;
-	    console.log(`Set categoryId: ${categoryId}`); // Debugging log
+
+	    // 디버깅 출력
+	    console.log("Parent Category Name:", parentCategoryName);
+	    console.log("Category Name:", categoryName);
+	    console.log("Detailed Category:", detailedCategoryValue);
+	    console.log("Category ID:", categoryId);
 	}
 
 

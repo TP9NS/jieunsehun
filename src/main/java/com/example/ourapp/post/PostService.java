@@ -35,16 +35,25 @@ public class PostService {
         post.setImageUrl(postDTO.getImageUrl());
         post.setLocation(postDTO.getLocation());
         post.setCreatedAt(LocalDateTime.now());
-     // // 2. 카테고리 설정
+        post.setDetailedCategory(postDTO.getDetailedCategory());
+     // // 카테고리 설정
         if (postDTO.getCategoryId() != null) {
             Category category = categoryRepository.findById(postDTO.getCategoryId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid Category ID"));
             post.setCategory(category);
-        } else {
-            throw new IllegalArgumentException("Category must be selected");
+            post.setCategoryName(category.getName());
+            if (category.getParentCategory() != null) {
+                post.setParentCategoryName(category.getParentCategory().getName());
+            }
         }
 
-        return new PostDTO(postRepository.save(post));
+        Post savedPost = postRepository.save(post);
+
+        System.out.println("Saved Post Parent Category Name: " + savedPost.getParentCategoryName());
+        System.out.println("Saved Post Category Name: " + savedPost.getCategoryName());
+        System.out.println("Saved Post Detailed Category: " + savedPost.getDetailedCategory());
+
+        return new PostDTO(savedPost);
     }
     
  // 카테고리 계층 구조 조회

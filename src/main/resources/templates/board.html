@@ -154,16 +154,19 @@
             <div class="mb-3">
     <label for="parentCategoryFilter" class="form-label">상위 카테고리</label>
     <select class="form-control" id="parentCategoryFilter" name="parentCategory">
-        <option value="">전체</option>
-        <option th:each="category : ${categories}" th:value="${category.name}" th:text="${category.name}"></option>
+        <option value="" th:selected="${#strings.isEmpty(parentCategoryName)}">전체</option>
+        <option th:each="category : ${categories}" 
+                th:value="${category.name}" 
+                th:text="${category.name}" 
+                th:selected="${category.name == parentCategoryName}">
+        </option>
     </select>
 </div>
-
-
             <div class="input-group w-50">
-                <input type="text" id="searchInput" class="form-control" placeholder="검색어를 입력하세요">
-                <button class="btn btn-primary" onclick="filterBySearch()">검색</button>
-            </div>
+    <input type="text" id="searchInput" class="form-control" placeholder="검색어를 입력하세요" style="height: 50px;">
+    <button class="btn btn-primary" onclick="filterBySearch()" style="height: 50px;">검색</button>
+</div>
+
         </div>
         <div class="table-container">
             <table class="table table-hover">
@@ -176,16 +179,17 @@
                     </tr>
                 </thead>
                 <tbody id="postTable">
-                    <tr th:each="post : ${posts}" 
-                    th:data-category-id="${post.categoryId}" 
-                    th:data-parent-category-name="${post.parentCategoryName}">
-                        <td><a th:href="@{/board/view/{id}(id=${post.id})}" th:text="${post.title}"></a></td>
-                        <td th:text="${post.username}"></td>
-                        <!-- 카테고리 계층 구조 출력 -->
-        <td th:text="${post.categoryName}"></td>
+                    <tr th:each="post : ${posts}">
+        <td><a th:href="@{/board/view/{id}(id=${post.id})}" th:text="${post.title}"></a></td>
+        <td th:text="${post.username}"></td>
+        <td>
+    <span th:text="${post.parentCategoryName != null ? post.parentCategoryName : ''}"></span>
+    <span th:text="${post.categoryName != null ? ' - ' + post.categoryName : ''}"></span>
+    <span th:text="${post.detailedCategory != null ? ' - ' + post.detailedCategory : ''}"></span>
+</td>
 
-                        <td th:text="${post.formattedCreatedAt}"></td>
-                    </tr>
+        <td th:text="${post.formattedCreatedAt}"></td>
+    </tr>
                 </tbody>
             </table>
         </div>

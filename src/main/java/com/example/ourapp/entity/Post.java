@@ -28,13 +28,18 @@ public class Post {
     @Column(nullable = false)
     private String content;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category; // 연결된 카테고리
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Category parentCategory;
+    @Column(name = "parent_category_name")
+    private String parentCategoryName;
+
+    @Column(name = "category_name")
+    private String categoryName;
+
+    @Column(name = "detailed_category")
+    private String detailedCategory;
 
     @Lob
     @Column(name = "image_url", length = 1024)
@@ -61,6 +66,29 @@ public class Post {
 
     public Category getCategory() { return category; }
     public void setCategory(Category category) { this.category = category; }
+    
+    public String getParentCategoryName() {
+        return parentCategoryName;
+    }
+
+    public void setParentCategoryName(String parentCategoryName) {
+        this.parentCategoryName = parentCategoryName;
+    }
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public String getDetailedCategory() {
+        return detailedCategory;
+    }
+
+    public void setDetailedCategory(String detailedCategory) {
+        this.detailedCategory = detailedCategory;
+    }
     
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }

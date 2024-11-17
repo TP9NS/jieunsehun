@@ -22,6 +22,7 @@ public class PostDTO {
     private Long parentCategoryId; // 상위 카테고리 ID
     private String parentCategoryName; // 상위 카테고리 이름
     private String fullCategoryName;  // "중간 카테고리 - 세부 카테고리" 형식
+    private String detailedCategory;
     private String imageUrl;
     private String location;
     private LocalDateTime createdAt;
@@ -32,45 +33,33 @@ public class PostDTO {
         this.title = post.getTitle();
         this.username = post.getUsername();
         this.content = post.getContent();
-     // 카테고리 정보 설정
-        if (post.getCategory() != null) {
-            this.categoryId = post.getCategory().getId();
-            this.categoryName = post.getCategory().getName();
 
-            // 중간 및 상위 카테고리 설정
-            Category currentCategory = post.getCategory();
-            if (currentCategory.getParentCategory() != null) {
-                this.subCategoryName = currentCategory.getParentCategory().getName();
-                if (currentCategory.getParentCategory().getParentCategory() != null) {
-                    this.parentCategoryName = currentCategory.getParentCategory().getParentCategory().getName();
-                } else {
-                    this.parentCategoryName = currentCategory.getParentCategory().getName();
-                }
-            }
+        // 상위, 하위, 상세 카테고리 정보 설정
+        this.parentCategoryName = post.getParentCategoryName(); // 상위 카테고리
+        this.categoryName = post.getCategoryName(); // 하위 카테고리
+        this.detailedCategory = post.getDetailedCategory(); // 상세 카테고리
 
-            // fullCategoryName 생성
-            StringBuilder categoryBuilder = new StringBuilder();
-            if (this.parentCategoryName != null) {
-                categoryBuilder.append(this.parentCategoryName);
-            }
-            if (this.subCategoryName != null) {
-                if (categoryBuilder.length() > 0) categoryBuilder.append(" - ");
-                categoryBuilder.append(this.subCategoryName);
-            }
-            if (this.categoryName != null) {
-                if (categoryBuilder.length() > 0) categoryBuilder.append(" - ");
-                categoryBuilder.append(this.categoryName);
-            }
-            this.fullCategoryName = categoryBuilder.toString();
-        }
+        
 
         this.imageUrl = post.getImageUrl();
         this.location = post.getLocation();
         this.createdAt = post.getCreatedAt();
+
+        // 디버깅용 로그
+        System.out.println("Post ID: " + this.id);
+        System.out.println("Title: " + this.title);
+        System.out.println("Parent Category Name: " + this.parentCategoryName);
+        System.out.println("Category Name: " + this.categoryName);
+        System.out.println("Detailed Category: " + this.detailedCategory);
     }
+
     
-    public String getFullCategoryName() {
-        return fullCategoryName; // 이미 생성자에서 설정된 값
+    public String getDetailedCategory() {
+        return detailedCategory;
+    }
+
+    public void setDetailedCategory(String detailedCategory) {
+        this.detailedCategory = detailedCategory;
     }
 
     
@@ -82,10 +71,9 @@ public class PostDTO {
                 ", username='" + username + '\'' +
                 ", content='" + content + '\'' +
                 ", categoryId=" + categoryId +
-            ", categoryName='" + categoryName + '\'' +
-            ", subCategoryName='" + subCategoryName + '\'' +
             ", parentCategoryName='" + parentCategoryName + '\'' +
-            ", fullCategoryName='" + fullCategoryName + '\'' +
+            ", categoryName='" + categoryName + '\'' +
+            ", detailedCategory='" + detailedCategory + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", location='" + location + '\'' +
                 ", createdAt=" + createdAt +

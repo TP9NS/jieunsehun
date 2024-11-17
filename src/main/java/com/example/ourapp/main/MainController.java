@@ -74,7 +74,7 @@ public class MainController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String parentCategoryName,
             Model model) {
-    	System.out.println("Parent Category Name: " + parentCategoryName);
+
         // 1. 계층형 카테고리 데이터 추가
         List<CategoryDTO> categories = categoryService.getAllCategoryHierarchy();
         model.addAttribute("categories", categories);
@@ -89,10 +89,14 @@ public class MainController {
         }
 
         // 2. 게시글 데이터 처리
-        List<PostDTO> posts = postService.getPostsFilteredByParentCategory(parentCategoryName);
+        List<PostDTO> posts = postService.getAllPosts(); // 기본적으로 모든 게시글을 가져옴
 
-     // 필터링된 게시글 확인
-        posts.forEach(post -> System.out.println("Filtered Post: " + post));
+        // 2-1. 카테고리 필터링
+        if (parentCategoryName != null && !parentCategoryName.isEmpty()) {
+            posts = posts.stream()
+                    .filter(post -> parentCategoryName.equals(post.getParentCategoryName()))
+                    .collect(Collectors.toList());
+        }
         
         // 2-2. 검색어 필터링
         if (search != null && !search.isEmpty()) {
@@ -101,6 +105,9 @@ public class MainController {
                             (post.getContent() != null && post.getContent().toLowerCase().contains(search.toLowerCase())))
                     .collect(Collectors.toList());
         }
+        
+        // 필터링된 게시글 확인
+        posts.forEach(post -> System.out.println("Filtered Post: " + post));
 
         // 3. 모델에 게시글 데이터 추가
         model.addAttribute("posts", posts);
@@ -140,6 +147,9 @@ public class MainController {
                 e.printStackTrace();
                 return "redirect:/post?error=upload";
             }
+        }
+        if (postDTO.getCategoryId() == null) {
+            throw new IllegalArgumentException("Category ID is required");
         }
         System.out.println("Received PostDTO: " + postDTO);
         System.out.println("Saved PostDTO: " + postDTO);

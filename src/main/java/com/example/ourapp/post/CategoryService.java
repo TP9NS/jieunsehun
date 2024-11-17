@@ -24,6 +24,7 @@ public class CategoryService {
         categories.forEach(category -> {
             CategoryDTO dto = new CategoryDTO(category);
             categoryMap.put(dto.getId(), dto);
+            System.out.println("Converted Category: " + dto.getName() + " (Parent ID: " + dto.getParentId() + ")");
         });
 
         // 계층 구조 생성
@@ -35,10 +36,12 @@ public class CategoryService {
                 CategoryDTO parent = categoryMap.get(dto.getParentId());
                 if (parent != null) {
                     parent.addSubCategory(dto);
+                    System.out.println("Added Subcategory: " + dto.getName() + " to Parent: " + parent.getName());
                 }
             }
         });
 
+        System.out.println("Final Hierarchy: " + rootCategories);
         return rootCategories;
     }
 }
