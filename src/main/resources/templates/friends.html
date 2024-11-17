@@ -383,28 +383,22 @@ function connectWebSocket() {
   const socket = new SockJS('/ws');
   stompClient = Stomp.over(socket);
 
-  stompClient.connect({}, function (frame) {
+ stompClient.connect(
+  { userId: userId }, // 헤더에 userId 추가
+  function (frame) {
     console.log('Connected to WebSocket:', frame);
 
-    // 서버에서 sessionId와 userId를 가져오는 API 호출
-    fetch('/api/session') // /api/session에서 sessionId와 userId를 반환하도록 서버 API 구성 필요
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch session ID: ${response.statusText}`);
-        }
-        return response.json();
-      })
+    // 서버에서 sessionId를 가져오는 API 호출
+    fetch('/api/session')
+      .then((response) => response.json())
       .then((data) => {
-        sessionId = data.sessionId;
-        userId = data.userId;
-
-        if (!sessionId || !userId) {
-          console.error('Missing sessionId or userId');
+        if (!data.sessionId) {
+          console.error('Session ID is missing');
           return;
         }
 
-        console.log('Session ID:', sessionId);
-        console.log('User ID:', userId);
+        sessionId = data.sessionId;
+        console.log('Session ID retrieved:', sessionId);
 
         // 친구 요청 구독
         stompClient.subscribe(`/topic/friend-requests/${sessionId}`, function (message) {
@@ -425,12 +419,80 @@ function connectWebSocket() {
       .catch((error) => {
         console.error('Error fetching session ID:', error);
       });
-  }, function (error) {
+  },
+  function (error) {
     console.error('WebSocket error:', error);
-  });
+  }
+);
+}
+// 초기화 및 WebSocket 연결
+document.addEventListener('DOMContentLoaded', () => {
+  connectWebSocket();
+  loadFriendList();
+  loadFriendRequests();
+});
+
+function sendFriendRequest(receiverId) {
+  fetch('/friends/request', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ receiverId }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      alert(data.message || '친구 요청이 전송되었습니다.');
+    })
+    .catch((error) => alert(`Error: ${error.message}`));
 }
 
-// 초기화 및 WebSocket 연결
+function acceptFriendRequest(requestId) {
+  fetch(`/friends/accept/${requestId}`, { method: 'POST' })
+    .then((response) => response.json())
+    .then((data) => {
+      alert(data.message || '친구 요청이 수락되었습니다.');
+      loadFriendRequests();
+      loadFriendList();
+    })
+    .catch((error) => alert(`Error: ${error.message}`));
+}
+
+function loadFriendList() {
+  fetch('/friends/list')
+    .then((response) => response.json())
+    .then((data) => {
+      const friendList = document.getElementById('friend-list');
+      friendList.innerHTML = '';
+      data.forEach((friend) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.textContent = friend.name;
+        friendList.appendChild(li);
+      });
+    })
+    .catch((error) => alert(`Error loading friends: ${error.message}`));
+}
+
+function loadFriendRequests() {
+  fetch('/friends/requests')
+    .then((response) => response.json())
+    .then((data) => {
+      const requestList = document.getElementById('friend-requests');
+      requestList.innerHTML = '';
+      data.forEach((request) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.textContent = request.senderName;
+        const acceptButton = document.createElement('button');
+        acceptButton.textContent = '수락';
+        acceptButton.className = 'btn btn-sm btn-success';
+        acceptButton.onclick = () => acceptFriendRequest(request.id);
+        li.appendChild(acceptButton);
+        requestList.appendChild(li);
+      });
+    })
+    .catch((error) => alert(`Error loading requests: ${error.message}`));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   connectWebSocket();
   loadFriendList();
