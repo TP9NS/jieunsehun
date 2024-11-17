@@ -35,14 +35,15 @@ public class PostService {
         post.setImageUrl(postDTO.getImageUrl());
         post.setLocation(postDTO.getLocation());
         post.setCreatedAt(LocalDateTime.now());
-     // 카테고리 설정
+     // // 2. 카테고리 설정
         if (postDTO.getCategoryId() != null) {
             Category category = categoryRepository.findById(postDTO.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 카테고리 ID입니다."));
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid category ID"));
             post.setCategory(category);
         } else {
-            throw new IllegalArgumentException("카테고리를 선택해야 합니다.");
+            throw new IllegalArgumentException("Category must be selected");
         }
+
         return new PostDTO(postRepository.save(post));
     }
     
@@ -115,6 +116,16 @@ public class PostService {
             
             return dto;
         }).collect(Collectors.toList());
+    }
+    public List<PostDTO> getPostsFilteredByParentCategory(String parentCategoryName) {
+        if (parentCategoryName == null || parentCategoryName.isEmpty()) {
+            return getPostsWithCategoryDetails();
+        }
+
+        List<Post> posts = postRepository.findByParentCategoryName(parentCategoryName);
+        return posts.stream()
+                .map(PostDTO::new)
+                .collect(Collectors.toList());
     }
 
     public PostDTO getPostById(Long id) {

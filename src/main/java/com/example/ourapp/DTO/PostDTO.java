@@ -37,6 +37,7 @@ public class PostDTO {
             this.categoryId = post.getCategory().getId();
             this.categoryName = post.getCategory().getName();
 
+            // 중간 및 상위 카테고리 설정
             Category currentCategory = post.getCategory();
             if (currentCategory.getParentCategory() != null) {
                 this.subCategoryName = currentCategory.getParentCategory().getName();
@@ -49,7 +50,7 @@ public class PostDTO {
 
             // fullCategoryName 생성
             StringBuilder categoryBuilder = new StringBuilder();
-            if (this.parentCategoryName != null && !this.parentCategoryName.equals(this.subCategoryName)) {
+            if (this.parentCategoryName != null) {
                 categoryBuilder.append(this.parentCategoryName);
             }
             if (this.subCategoryName != null) {
@@ -60,7 +61,6 @@ public class PostDTO {
                 if (categoryBuilder.length() > 0) categoryBuilder.append(" - ");
                 categoryBuilder.append(this.categoryName);
             }
-
             this.fullCategoryName = categoryBuilder.toString();
         }
 
@@ -82,7 +82,10 @@ public class PostDTO {
                 ", username='" + username + '\'' +
                 ", content='" + content + '\'' +
                 ", categoryId=" + categoryId +
-                ", fullCategoryName='" + fullCategoryName + '\'' +
+            ", categoryName='" + categoryName + '\'' +
+            ", subCategoryName='" + subCategoryName + '\'' +
+            ", parentCategoryName='" + parentCategoryName + '\'' +
+            ", fullCategoryName='" + fullCategoryName + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", location='" + location + '\'' +
                 ", createdAt=" + createdAt +

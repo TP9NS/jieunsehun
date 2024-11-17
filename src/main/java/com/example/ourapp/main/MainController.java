@@ -72,8 +72,9 @@ public class MainController {
     @GetMapping("/board")
     public String board(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String parentCategoryName,
             Model model) {
+    	System.out.println("Parent Category Name: " + parentCategoryName);
         // 1. 계층형 카테고리 데이터 추가
         List<CategoryDTO> categories = categoryService.getAllCategoryHierarchy();
         model.addAttribute("categories", categories);
@@ -88,15 +89,11 @@ public class MainController {
         }
 
         // 2. 게시글 데이터 처리
-        List<PostDTO> posts = postService.getPostsWithCategoryDetails();
+        List<PostDTO> posts = postService.getPostsFilteredByParentCategory(parentCategoryName);
 
-        // 2-1. 카테고리 필터링
-        if (categoryId != null) {
-            posts = posts.stream()
-                    .filter(post -> post.getCategoryId() != null && post.getCategoryId().equals(categoryId))
-                    .collect(Collectors.toList());
-        }
-
+     // 필터링된 게시글 확인
+        posts.forEach(post -> System.out.println("Filtered Post: " + post));
+        
         // 2-2. 검색어 필터링
         if (search != null && !search.isEmpty()) {
             posts = posts.stream()
@@ -107,7 +104,7 @@ public class MainController {
 
         // 3. 모델에 게시글 데이터 추가
         model.addAttribute("posts", posts);
-
+        model.addAttribute("parentCategoryName", parentCategoryName);
         return "board.html";
     }
 
@@ -145,6 +142,10 @@ public class MainController {
             }
         }
         System.out.println("Received PostDTO: " + postDTO);
+        System.out.println("Saved PostDTO: " + postDTO);
+        System.out.println("Category Name: " + postDTO.getCategoryName());
+        System.out.println("Full Category Name: " + postDTO.getFullCategoryName());
+
         postService.savePost(postDTO);
         return "redirect:/board";
     }
