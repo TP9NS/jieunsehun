@@ -6,13 +6,18 @@ import com.example.ourapp.entity.Post;
 import com.example.ourapp.entity.Category;
 import com.example.ourapp.post.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,22 +26,35 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
     private final CategoryRepository categoryRepository;
+    
+    @Value("${image.upload.dir}") // 이미지 저장 경로를 application.properties에서 가져옴
+    private String uploadDir;
 
     public PostService(PostRepository postRepository, CategoryRepository categoryRepository) {
         this.postRepository = postRepository;
         this.categoryRepository = categoryRepository;
     }
 
-    public PostDTO savePost(PostDTO postDTO) {
+    public PostDTO savePost(PostDTO postDTO, MultipartFile image) {
         Post post = new Post();
         post.setTitle(postDTO.getTitle());
         post.setUsername(postDTO.getUsername());
         post.setContent(postDTO.getContent());
-        post.setImageUrl(postDTO.getImageUrl());
         post.setLocation(postDTO.getLocation());
         post.setCreatedAt(LocalDateTime.now());
         post.setDetailedCategory(postDTO.getDetailedCategory());
-     // // 카테고리 설정
+
+        // 이미지 저장
+        if (!image.isEmpty()) {
+            try {
+                String fileName = saveImage(image); // 파일 저장 후 이름 반환
+                post.setImageUrl(fileName); // 이미지 URL 설정
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save image", e);
+            }
+        }
+
+        // 카테고리 설정
         if (postDTO.getCategoryId() != null) {
             Category category = categoryRepository.findById(postDTO.getCategoryId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid Category ID"));
@@ -55,6 +73,27 @@ public class PostService {
 
         return new PostDTO(savedPost);
     }
+
+
+    private String saveImage(MultipartFile image) throws IOException {
+        String uploadDir = "C:/Users/82104/git/jieunsehun/src/main/resources/static/images/";
+        File directory = new File(uploadDir);
+
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        String originalFileName = image.getOriginalFilename();
+        String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        String fileName = UUID.randomUUID().toString() + extension;
+
+        File file = new File(directory, fileName);
+        image.transferTo(file);
+        System.out.println("Image saved to: " + file.getAbsolutePath());
+
+        return fileName;
+    }
+
     
  // 카테고리 계층 구조 조회
     public List<CategoryDTO> getAllCategoryHierarchy() {

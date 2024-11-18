@@ -32,6 +32,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -136,29 +137,17 @@ public class MainController {
     
     @PostMapping("/post/save")
     public String savePost(@ModelAttribute PostDTO postDTO, @RequestParam("image") MultipartFile image) {
-        if (!image.isEmpty()) {
-            try {
-                // 이미지 이름 가져오기
-                String fileName = image.getOriginalFilename();
-
-                // 이미지 이름만 저장
-                postDTO.setImageUrl(fileName); // imageUrl 필드에 이미지 이름 저장
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "redirect:/post?error=upload";
-            }
+        try {
+            postService.savePost(postDTO, image);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/post?error=upload"; // 업로드 에러 시 리다이렉트
         }
-        if (postDTO.getCategoryId() == null) {
-            throw new IllegalArgumentException("Category ID is required");
-        }
-        System.out.println("Received PostDTO: " + postDTO);
-        System.out.println("Saved PostDTO: " + postDTO);
-        System.out.println("Category Name: " + postDTO.getCategoryName());
-        System.out.println("Full Category Name: " + postDTO.getFullCategoryName());
 
-        postService.savePost(postDTO);
-        return "redirect:/board";
+        return "redirect:/board"; // 저장 후 게시글 목록 페이지로 리다이렉트
     }
+
+
 
     
     @PostMapping("/post/delete/{id}")
