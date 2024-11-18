@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-	// 카테고리 계층 데이터를 가져오기
+   // 카테고리 계층 데이터를 가져오기
     @Query("SELECT c FROM Category c LEFT JOIN FETCH c.parentCategory")
     List<Category> findAllCategoriesWithHierarchy();
 
@@ -28,8 +28,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findPostsByParentCategoryName(@Param("parentCategoryName") String parentCategoryName);
 
     @Query("SELECT p FROM Post p " +
-    	       "JOIN p.category c " +
-    	       "LEFT JOIN c.parentCategory pc " +
-    	       "WHERE pc.name = :parentCategoryName OR c.name = :parentCategoryName")
-    	List<Post> findByParentCategoryName(@Param("parentCategoryName") String parentCategoryName);
+              "JOIN p.category c " +
+              "LEFT JOIN c.parentCategory pc " +
+              "WHERE pc.name = :parentCategoryName OR c.name = :parentCategoryName")
+       List<Post> findByParentCategoryName(@Param("parentCategoryName") String parentCategoryName);
 }
