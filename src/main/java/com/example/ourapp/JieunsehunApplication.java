@@ -15,8 +15,7 @@ public class JieunsehunApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(JieunsehunApplication.class, args);
-		System.out.println("초지ㅣㅇ느 사랑해");
-		System.out.println("tkfkdgo");
+		System.out.println("지은이는 응애응애 응애기 ㅋㅋ ");
 	}
 
 }

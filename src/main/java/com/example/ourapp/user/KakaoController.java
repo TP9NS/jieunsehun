@@ -54,6 +54,7 @@ public class KakaoController {
                         .map(user -> {
                             session.setAttribute("user_id", user.getUserId());
                             session.setAttribute("username", user.getUsername());
+                            session.setAttribute("permission", user.getPermission());
                             return "redirect:/main";
                         })
                         .orElseGet(() -> {
