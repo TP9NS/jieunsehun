@@ -1,6 +1,9 @@
 package com.example.ourapp.main;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -77,49 +80,40 @@ public class MainController {
     
     @GetMapping("/board")
     public String board(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String parentCategoryName,
-            Model model) {
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "5") int size,
+        @RequestParam(required = false) String search,
+        @RequestParam(required = false) String parentCategoryName,
+        Model model
+    ) {
+        // 페이징 설정: 정렬 기준은 createdAt 필드, 내림차순
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        // 1. 계층형 카테고리 데이터 추가
+        // 게시글 데이터 가져오기
+        Page<PostDTO> postsPage = postService.getPostsByPage(parentCategoryName, search, pageable);
+
+        // 댓글 수 추가
+        postsPage.getContent().forEach(post -> {
+            int commentCount = commentService.countCommentsByPostId(post.getId());
+            post.setCommentCount(commentCount);
+        });
+
+        // 모델에 데이터 추가
+        model.addAttribute("posts", postsPage.getContent()); // 현재 페이지 게시글
+        model.addAttribute("currentPage", postsPage.getNumber()); // 현재 페이지 번호
+        model.addAttribute("totalPages", postsPage.getTotalPages()); // 전체 페이지 수
+        model.addAttribute("totalElements", postsPage.getTotalElements()); // 전체 게시글 수
+        model.addAttribute("parentCategoryName", parentCategoryName);
+        model.addAttribute("search", search);
+
+        // 카테고리 계층 데이터 추가
         List<CategoryDTO> categories = categoryService.getAllCategoryHierarchy();
         model.addAttribute("categories", categories);
 
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String categoriesJson = objectMapper.writeValueAsString(categories);
-            model.addAttribute("categoriesJson", categoriesJson); // JavaScript에서 사용할 JSON 데이터로 변환
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            model.addAttribute("categoriesJson", "[]"); // 변환 실패 시 기본 빈 배열 설정
-        }
-
-        // 2. 게시글 데이터 처리
-        List<PostDTO> posts = postService.getAllPosts(); // 기본적으로 모든 게시글을 가져옴
-
-        // 2-1. 카테고리 필터링
-        if (parentCategoryName != null && !parentCategoryName.isEmpty()) {
-            posts = posts.stream()
-                    .filter(post -> parentCategoryName.equals(post.getParentCategoryName()))
-                    .collect(Collectors.toList());
-        }
-        
-        // 2-2. 검색어 필터링
-        if (search != null && !search.isEmpty()) {
-            posts = posts.stream()
-                    .filter(post -> post.getTitle().toLowerCase().contains(search.toLowerCase()) ||
-                            (post.getContent() != null && post.getContent().toLowerCase().contains(search.toLowerCase())))
-                    .collect(Collectors.toList());
-        }
-        
-        // 필터링된 게시글 확인
-        posts.forEach(post -> System.out.println("Filtered Post: " + post));
-
-        // 3. 모델에 게시글 데이터 추가
-        model.addAttribute("posts", posts);
-        model.addAttribute("parentCategoryName", parentCategoryName);
         return "board.html";
     }
+
+
 
 
     @GetMapping("/board/view/{id}")

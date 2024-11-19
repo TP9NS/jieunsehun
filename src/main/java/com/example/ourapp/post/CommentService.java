@@ -24,12 +24,11 @@ public class CommentService {
     public List<Comment> findCommentsByPostId(Long postId) {
         return commentRepository.findByPostId(postId);
     }
-    
+
     public Comment findCommentById(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다. ID: " + commentId));
     }
-
 
     /**
      * 댓글 저장
@@ -40,6 +39,10 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
+    /**
+     * 댓글 삭제
+     * @param commentId 삭제할 댓글 ID
+     */
     public void deleteComment(Long commentId) {
         if (!commentRepository.existsById(commentId)) {
             throw new IllegalArgumentException("댓글을 찾을 수 없습니다.");
@@ -47,7 +50,11 @@ public class CommentService {
         commentRepository.deleteById(commentId);
     }
 
-    
+    /**
+     * 댓글 수정
+     * @param commentId 수정할 댓글 ID
+     * @param newContent 수정된 댓글 내용
+     */
     public void updateComment(Long commentId, String newContent) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
@@ -55,6 +62,13 @@ public class CommentService {
         commentRepository.save(comment); // 수정된 댓글 저장
     }
 
-
-
+    /**
+     * 특정 게시글의 댓글 수 계산
+     * @param postId 게시글 ID
+     * @return 댓글 수
+     */
+    public int countCommentsByPostId(Long postId) {
+        return commentRepository.findByPostId(postId).size();
+    }
 }
+

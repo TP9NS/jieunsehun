@@ -7,6 +7,8 @@ import com.example.ourapp.entity.Category;
 import com.example.ourapp.post.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +35,22 @@ public class PostService {
     public PostService(PostRepository postRepository, CategoryRepository categoryRepository) {
         this.postRepository = postRepository;
         this.categoryRepository = categoryRepository;
+    }
+    
+    public Page<PostDTO> getPostsByPage(String parentCategoryName, String search, Pageable pageable) {
+        if ((parentCategoryName == null || parentCategoryName.isEmpty()) &&
+            (search == null || search.isEmpty())) {
+            // 필터 조건이 없으면 전체 게시글 가져오기
+            return postRepository.findAll(pageable).map(PostDTO::new);
+        }
+        // 필터 조건이 있을 경우
+        return postRepository
+            .findByParentCategoryNameContainingIgnoreCaseAndTitleContainingIgnoreCase(
+                parentCategoryName != null ? parentCategoryName : "",
+                search != null ? search : "",
+                pageable
+            )
+            .map(PostDTO::new);
     }
 
     public PostDTO savePost(PostDTO postDTO, MultipartFile image) {

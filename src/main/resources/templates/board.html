@@ -176,6 +176,7 @@
                         <th>작성자</th>
                         <th>카테고리 구조</th>
                         <th>작성일</th>
+                        <th>댓글 수</th>
                     </tr>
                 </thead>
                 <tbody id="postTable">
@@ -186,13 +187,36 @@
     <span th:text="${post.parentCategoryName != null ? post.parentCategoryName : ''}"></span>
     <span th:text="${post.categoryName != null ? ' - ' + post.categoryName : ''}"></span>
     <span th:text="${post.detailedCategory != null ? ' - ' + post.detailedCategory : ''}"></span>
-</td>
-
+				</td>
         <td th:text="${post.formattedCreatedAt}"></td>
+        <td th:text="${post.commentCount}">0</td>
     </tr>
                 </tbody>
             </table>
         </div>
+        
+<!-- 페이지 네이션 -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        <!-- 이전 버튼 -->
+        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+            <a class="page-link" th:href="@{/board(page=${currentPage - 1}, size=${size})}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <!-- 페이지 번호 -->
+        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
+            <a class="page-link" th:href="@{/board(page=${i}, size=${size})}" th:text="${i + 1}"></a>
+        </li>
+        <!-- 다음 버튼 -->
+        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+            <a class="page-link" th:href="@{/board(page=${currentPage + 1}, size=${size})}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
 
         <div class="d-flex justify-content-end">
             <a href="/post" class="btn btn-bd-primary">새 글 작성</a>

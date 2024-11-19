@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Stack;
 
 @Getter
@@ -27,6 +28,7 @@ public class PostDTO {
     private String location;
     private LocalDateTime createdAt;
     private String formattedCreatedAt; 
+    private int commentCount;
 
     public PostDTO(Post post) {
         this.id = post.getId();
@@ -44,6 +46,10 @@ public class PostDTO {
         this.imageUrl = post.getImageUrl();
         this.location = post.getLocation();
         this.createdAt = post.getCreatedAt();
+        
+     // 날짜를 원하는 형식으로 변환
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        this.formattedCreatedAt = this.createdAt.format(formatter);
 
         // 디버깅용 로그
         System.out.println("Post ID: " + this.id);
@@ -81,4 +87,12 @@ public class PostDTO {
     }
 
     public PostDTO() {}
+    
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
 }
