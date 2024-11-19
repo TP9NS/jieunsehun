@@ -16,6 +16,63 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
 <style>
+.comments-section {
+        margin-top: 20px;
+    }
+
+    /* 댓글 컨테이너 */
+    .comment-container {
+        border-bottom: 1px solid #dee2e6;
+        padding: 15px 0;
+    }
+
+    /* 댓글 내용 */
+    .comment-content {
+        margin-bottom: 10px;
+    }
+
+    /* 수정 및 삭제 버튼 정렬 */
+    .comment-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* 수정/삭제 버튼 간격 */
+    }
+
+    .comment-actions textarea {
+        flex-grow: 1;
+        width: 100%; /* 입력창이 가능한 최대 너비로 확장 */
+        max-width: 600px; /* 최대 너비 제한 */
+        min-width: 300px; /* 최소 너비 제한 */
+        height: 38px; /* 높이를 버튼과 맞춤 */
+        resize: none; /* 크기 조정 비활성화 */
+    }
+    .btn {
+        white-space: nowrap; /* 버튼 텍스트 줄바꿈 방지 */
+    }
+    .btn-outline-danger {
+        color: #ffffff; /* 텍스트 색상 */
+        background-color: #dc3545; /* 클릭 시 배경색 */
+        border-color: #dc3545; /* 테두리 색상 */
+    }
+    .btn-outline-danger:hover {
+        color: #fff; /* 마우스 오버 시 텍스트 색상 */
+        background-color: #c82333; /* 마우스 오버 시 배경색 */
+        border-color: #dc3545; /* 마우스 오버 시 테두리 색상 */
+    }
+
+    .btn-outline-danger:active {
+        color: #fff; /* 클릭 시 텍스트 색상 */
+        background-color: #c82333; /* 클릭 시 배경색 */
+        border-color: #bd2130; /* 클릭 시 테두리 색상 */
+    }
+
+    .comment-form {
+        margin-top: 30px;
+    }
+
+    .comment-form .form-control {
+        resize: none;
+    }
     .bd-placeholder-img {
       font-size: 1.125rem;
       text-anchor: middle;
@@ -147,26 +204,32 @@
     </div>
   </div>
 </header>
-  <body>
-   <main class="container">
-  <h1>새 글 작성</h1>
-  <form th:action="@{/post/save}" method="post" enctype="multipart/form-data">
-    <div class="mb-3">
-        <label for="title" class="form-label">제목</label>
-        <input type="text" class="form-control" id="title" name="title" required>
-    </div>
+<body>
+    <div class="container mt-4">
+    <h1>게시글 수정</h1>
+    <form th:action="@{/post/update}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="id" th:value="${post.id}"/>
 
-    <div class="mb-3">
-        <label for="username" class="form-label">작성자</label>
-        <input type="text" class="form-control" id="username" name="username" th:value="${session.username}" readonly>
-    </div>
+        <!-- 제목 -->
+        <div class="mb-3">
+            <label for="title" class="form-label">제목</label>
+            <input type="text" class="form-control" id="title" name="title" th:value="${post.title}" required>
+        </div>
 
-    <div class="mb-3">
-        <label for="content" class="form-label">내용</label>
-        <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
-    </div>
+        <!-- 작성자 (readonly) -->
+        <div class="mb-3">
+            <label for="username" class="form-label">작성자</label>
+            <input type="text" class="form-control" id="username" name="username" th:value="${post.username}" readonly>
+        </div>
 
-    <div class="mb-3">
+        <!-- 내용 -->
+        <div class="mb-3">
+            <label for="content" class="form-label">내용</label>
+            <textarea class="form-control" id="content" name="content" rows="5" th:text="${post.content}" required></textarea>
+        </div>
+
+        <!-- 카테고리 구조 -->
+       <div class="mb-3">
         <label for="parentCategory" class="form-label">상위 카테고리</label>
         <select class="form-control" id="parentCategory" name="parentCategory" onchange="updateSubCategory(); updateCategoryId();" required>
             <option value="">상위 카테고리를 선택하세요</option>
@@ -181,34 +244,27 @@
             <option value="">하위 카테고리를 선택하세요</option>
         </select>
     </div>
+<input type="hidden" id="categoryId" name="categoryId" />
 
-    <div class="mb-3">
-        <label for="detailedCategory" class="form-label">상세 카테고리</label>
-        <input type="text" class="form-control" id="detailedCategory" name="detailedCategory" placeholder="상세 카테고리를 입력하세요">
-    </div>
 
-    <input type="hidden" id="categoryId" name="categoryId">
-    <input type="hidden" id="parentCategoryName" name="parentCategoryName">
-    <input type="hidden" id="categoryName" name="categoryName">
+        <div class="mb-3">
+            <label for="detailedCategory" class="form-label">상세 카테고리</label>
+            <input type="text" class="form-control" id="detailedCategory" name="detailedCategory" th:value="${post.detailedCategory}">
+        </div>
 
-    <div class="mb-3">
-        <label for="image" class="form-label">이미지 첨부</label>
-        <input type="file" class="form-control" id="image" name="image" accept="image/*" onchange="previewImage(event)">
-    </div>
+        <!-- 이미지 -->
+        <div class="mb-3">
+            <label for="image" class="form-label">이미지 첨부</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+            <img th:if="${post.imageUrl != null}" th:src="@{/images/{image}(image=${post.imageUrl})}" class="img-fluid mt-3" style="max-width: 200px;" alt="이미지 미리보기">
+        </div>
 
-    <!-- 미리보기 영역 -->
-    <div class="mb-3" id="imagePreviewContainer" style="display: none;">
-        <label class="form-label"><b>미리보기:</b></label>
-        <img id="imagePreview" src="#" alt="이미지 미리보기" style="max-width: 200px; max-height: 200px; display: block;">
-    </div>
-
-    <!-- 지도 및 장소 검색 UI -->
-    <div class="mb-3">
+<div class="mb-3">
         <label for="location" class="form-label">위치 정보</label>
         <input type="text" class="form-control" id="location" name="location" placeholder="위치 입력 (선택)">
     </div>
 
-    <div id="menu_wrap" class="bg_white">
+        <div id="menu_wrap" class="bg_white">
         <div class="option">
             <div>
                 키워드 :
@@ -231,43 +287,63 @@
     <input type="hidden" id="address" name="address">
     <input type="hidden" id="placeName" name="placeName">
 
-    <button type="submit" class="btn btn-primary">작성하기</button>
-</form>
-
-</main>
+        <!-- 수정 버튼 -->
+        <button type="submit" class="btn btn-success">수정 완료</button>
+        <a href="/board" class="btn btn-secondary">취소</a>
+    </form>
+</div>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
 <script>
     var markers = [];
-    var mapContainer = document.getElementById('map'),
-        mapOption = {
-            center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심 좌표
-            level: 3 // 지도의 확대 레벨
-        };
+    var mapContainer = document.getElementById('map');
+    
+    // 초기 지도의 중심 좌표를 사용자가 저장한 값으로 설정
+    var initialLatitude = [[${post.latitude}]];
+    var initialLongitude = [[${post.longitude}]];
+    var initialPlaceName = '[[${post.placeName}]]';
+    var initialAddress = '[[${post.address}]]';
 
+    // 지도 초기화
+    var mapOption = {
+        center: new kakao.maps.LatLng(initialLatitude, initialLongitude), // 저장된 좌표를 중심으로 설정
+        level: 3 // 지도 확대 레벨
+    };
     var map = new kakao.maps.Map(mapContainer, mapOption);
+
+    // 저장된 장소의 마커 추가
+    var marker = new kakao.maps.Marker({
+        position: new kakao.maps.LatLng(initialLatitude, initialLongitude),
+        map: map
+    });
+
+    // 인포윈도우 표시
+    var infowindow = new kakao.maps.InfoWindow({
+        zIndex: 1
+    });
+
+    infowindow.setContent(`<div style="padding:5px; z-index:1;">${initialPlaceName}</div>`);
+    infowindow.open(map, marker);
+
+    // 장소 검색 객체 생성
     var ps = new kakao.maps.services.Places();
-    var infowindow = new kakao.maps.InfoWindow({zIndex: 1});
 
     // 키워드로 장소를 검색합니다
     function searchPlaces() {
-    console.log("searchPlaces() 함수 호출됨"); // 디버깅용 로그
-    var keyword = document.getElementById('keyword').value;
+        var keyword = document.getElementById('keyword').value;
 
-    if (!keyword.trim()) {
-        alert('키워드를 입력해주세요!');
-        return false;
+        if (!keyword.trim()) {
+            alert('키워드를 입력해주세요!');
+            return false;
+        }
+
+        ps.keywordSearch(keyword, placesSearchCB);
     }
 
-    console.log("검색 키워드:", keyword); // 디버깅용 로그
-    ps.keywordSearch(keyword, placesSearchCB);
-}
-
-
-    // 장소 검색이 완료되었을 때 호출되는 콜백 함수입니다
+    // 장소 검색 결과 콜백 함수
     function placesSearchCB(data, status, pagination) {
         if (status === kakao.maps.services.Status.OK) {
-            displayPlaces(data); // 검색 결과 목록 및 마커 표시
-            displayPagination(pagination); // 페이지네이션 표시
+            displayPlaces(data); // 검색 결과 표시
+            displayPagination(pagination); // 페이지네이션
         } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
             alert('검색 결과가 없습니다.');
         } else if (status === kakao.maps.services.Status.ERROR) {
@@ -275,23 +351,23 @@
         }
     }
 
-    // 검색 결과 목록과 마커를 표시합니다
+    // 검색 결과 표시
     function displayPlaces(places) {
-        var listEl = document.getElementById('placesList'),
-            bounds = new kakao.maps.LatLngBounds();
+        var listEl = document.getElementById('placesList');
+        var bounds = new kakao.maps.LatLngBounds();
 
-        // 기존 검색 결과를 삭제합니다
+        // 기존 검색 결과 삭제
         removeAllChildNodes(listEl);
         removeMarkers();
 
         for (var i = 0; i < places.length; i++) {
-            var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x),
-                marker = addMarker(placePosition, i),
-                itemEl = getListItem(i, places[i]);
+            var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x);
+            var marker = addMarker(placePosition, i);
+            var itemEl = getListItem(i, places[i]);
 
             bounds.extend(placePosition);
 
-            // 마커 클릭 및 목록 클릭 이벤트 연결
+            // 마커 및 목록 클릭 이벤트
             (function (marker, place) {
                 kakao.maps.event.addListener(marker, 'click', function () {
                     displayOverlay(place, marker);
@@ -308,7 +384,7 @@
         map.setBounds(bounds);
     }
 
-    // 검색 결과 항목을 생성합니다
+    // 검색 결과 목록 생성
     function getListItem(index, place) {
         var el = document.createElement('li');
         el.className = 'item';
@@ -325,21 +401,18 @@
         return el;
     }
 
+    // 마커 추가
     function addMarker(position, idx) {
         var marker = new kakao.maps.Marker({
             position: position
         });
-
         marker.setMap(map);
         markers.push(marker);
-
         return marker;
     }
 
-
+    // 오버레이 표시
     function displayOverlay(place, marker) {
-        console.log("displayOverlay 호출:", place, marker); // 디버깅용 로그
-
         var content =
             `<div class="overlaybox">` +
             `   <h4>${place.place_name}</h4>` +
@@ -351,27 +424,17 @@
         infowindow.open(map, marker);
     }
 
-
+    // 장소 선택 시
     function selectPlace(name, address, lat, lng) {
         document.getElementById('location').value = `${name}, ${address}`;
         document.getElementById('latitude').value = lat;
         document.getElementById('longitude').value = lng;
-        document.getElementById('placeName').value = name; // placeName 설정
-
-        // 디버깅용 로그 출력
-        console.log("Location:", name, address);
-        console.log("Latitude:", lat);
-        console.log("Longitude:", lng);
-        console.log("Place Name:", name);
+        document.getElementById('placeName').value = name;
 
         infowindow.close();
     }
 
-
-
-
-
-    // 기존 마커를 제거합니다
+    // 기존 마커 제거
     function removeMarkers() {
         for (var i = 0; i < markers.length; i++) {
             markers[i].setMap(null);
@@ -379,7 +442,7 @@
         markers = [];
     }
 
-    // 페이지 번호를 표시합니다
+    // 페이지네이션
     function displayPagination(pagination) {
         var paginationEl = document.getElementById('pagination');
         removeAllChildNodes(paginationEl);
@@ -403,101 +466,81 @@
         }
     }
 
-    // 자식 노드를 모두 삭제합니다
+    // 자식 노드 삭제
     function removeAllChildNodes(el) {
         while (el.hasChildNodes()) {
             el.removeChild(el.lastChild);
         }
     }
-</script>
-<script>
-const categories = {
-	    "1": { // 음식
-	        name: "음식",
-	        subCategories: {
-	            "3": "한식",
-	            "4": "중식",
-	            "5": "일식",
-	            "6": "양식"
-	        }
-	    },
-	    "2": { // 위치
-	        name: "위치",
-	        subCategories: {
-	            "7": "서울",
-	            "8": "경기"
-	        }
-	    }
-	};
 
-	// 상위 카테고리 변경 시 하위 카테고리 업데이트
-	function updateSubCategory() {
-	    const parentCategory = document.getElementById("parentCategory").value;
-	    const subCategory = document.getElementById("subCategory");
-	    const subCategoryContainer = document.getElementById("subCategoryContainer");
+    const categories = {
+    	    "1": { // 음식
+    	        name: "음식",
+    	        subCategories: {
+    	            "3": "한식",
+    	            "4": "중식",
+    	            "5": "일식",
+    	            "6": "양식"
+    	        }
+    	    },
+    	    "2": { // 위치
+    	        name: "위치",
+    	        subCategories: {
+    	            "7": "서울",
+    	            "8": "경기"
+    	        }
+    	    }
+    	};
 
-	    // 초기화
-	    subCategory.innerHTML = '<option value="">하위 카테고리를 선택하세요</option>';
-	    subCategoryContainer.style.display = "none";
+    	// 상위 카테고리 변경 시 하위 카테고리 업데이트
+    	function updateSubCategory() {
+    	    const parentCategory = document.getElementById("parentCategory").value;
+    	    const subCategory = document.getElementById("subCategory");
+    	    const subCategoryContainer = document.getElementById("subCategoryContainer");
 
-	    if (categories[parentCategory]?.subCategories) {
-	        const subCategories = categories[parentCategory].subCategories;
-	        for (const key in subCategories) {
-	            const option = document.createElement("option");
-	            option.value = key; // 하위 카테고리 ID
-	            option.textContent = subCategories[key]; // 하위 카테고리 이름
-	            subCategory.appendChild(option);
-	        }
-	        subCategoryContainer.style.display = "block";
-	    }
-	}
+    	    // 초기화
+    	    subCategory.innerHTML = '<option value="">하위 카테고리를 선택하세요</option>';
+    	    subCategoryContainer.style.display = "none";
 
-	function updateCategoryId() {
-	    const parentCategory = document.getElementById("parentCategory");
-	    const subCategory = document.getElementById("subCategory");
-	    const detailedCategory = document.getElementById("detailedCategory");
+    	    if (categories[parentCategory]?.subCategories) {
+    	        const subCategories = categories[parentCategory].subCategories;
+    	        for (const key in subCategories) {
+    	            const option = document.createElement("option");
+    	            option.value = key; // 하위 카테고리 ID
+    	            option.textContent = subCategories[key]; // 하위 카테고리 이름
+    	            subCategory.appendChild(option);
+    	        }
+    	        subCategoryContainer.style.display = "block";
+    	    }
+    	}
 
-	    const parentCategoryName = parentCategory.options[parentCategory.selectedIndex]?.text || "";
-	    const categoryName = subCategory.options[subCategory.selectedIndex]?.text || "";
-	    const detailedCategoryValue = detailedCategory.value || "";
+    	function updateCategoryId() {
+    	    const parentCategory = document.getElementById("parentCategory");
+    	    const subCategory = document.getElementById("subCategory");
+    	    const detailedCategory = document.getElementById("detailedCategory");
 
-	    // Hidden input 값 설정
-	    document.getElementById("parentCategoryName").value = parentCategoryName;
-	    document.getElementById("categoryName").value = categoryName;
-	    document.getElementById("detailedCategory").value = detailedCategoryValue;
+    	    const parentCategoryName = parentCategory.options[parentCategory.selectedIndex]?.text || "";
+    	    const categoryName = subCategory.options[subCategory.selectedIndex]?.text || "";
+    	    const detailedCategoryValue = detailedCategory.value || "";
 
-	    // 카테고리 ID 설정
-	    const categoryId = subCategory.value || parentCategory.value || null; // 우선 순위: 하위 > 상위
-	    document.getElementById("categoryId").value = categoryId;
+    	    // Hidden input 값 설정
+    	    document.getElementById("parentCategoryName").value = parentCategoryName;
+    	    document.getElementById("categoryName").value = categoryName;
+    	    document.getElementById("detailedCategory").value = detailedCategoryValue;
 
-	    // 디버깅 출력
-	    console.log("Parent Category Name:", parentCategoryName);
-	    console.log("Category Name:", categoryName);
-	    console.log("Detailed Category:", detailedCategoryValue);
-	    console.log("Category ID:", categoryId);
-	}
+    	    // 카테고리 ID 설정
+    	    const categoryId = subCategory.value || parentCategory.value || null; // 우선 순위: 하위 > 상위
+    	    document.getElementById("categoryId").value = categoryId;
 
-
-</script>
-<script>
-    function previewImage(event) { //이미지 미리보기
-        const file = event.target.files[0];
-        const previewContainer = document.getElementById("imagePreviewContainer");
-        const previewImage = document.getElementById("imagePreview");
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                previewImage.src = e.target.result; // 이미지 소스 업데이트
-                previewContainer.style.display = "block"; // 미리보기 컨테이너 표시
-            };
-            reader.readAsDataURL(file); // 파일 읽기
-        } else {
-            previewContainer.style.display = "none"; // 파일이 없을 경우 미리보기 숨김
-        }
-    }
+    	    // 디버깅 출력
+    	    console.log("Parent Category Name:", parentCategoryName);
+    	    console.log("Category Name:", categoryName);
+    	    console.log("Detailed Category:", detailedCategoryValue);
+    	    console.log("Category ID:", categoryId);
+    	}
 </script>
 
+</body>
 
-  </body>
+
 </html>

@@ -253,11 +253,26 @@
                 <textarea class="form-control" rows="10" readonly th:text="${post.content}"></textarea>
             </div>
         </div>
+        <!-- 지도 표시 -->
+    <div class="form-group row mb-3">
+        <label class="col-sm-2 col-form-label"><b>위치 정보:</b></label>
+        <div class="col-sm-10">
+            <div id="map" style="width:100%; height:400px; border: 1px solid #ddd;"></div>
+        </div>
+    </div>
 
         <div class="form-group row">
             <div class="col-sm-12 text-center">
                 <a href="/board" class="btn btn-primary">뒤로 가기</a>
             </div>
+            <!-- 수정 및 삭제 버튼: 작성자 확인 -->
+        <span th:if="${session.username == post.username}">
+            <a th:href="@{/post/edit/{id}(id=${post.id})}" class="btn btn-warning">수정</a>
+            <form th:action="@{/post/delete}" method="post" style="display:inline;">
+                <input type="hidden" name="id" th:value="${post.id}">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+            </form>
+        </span>
         </div>
     </div>
 <div class="comments-section">
@@ -312,7 +327,44 @@
     </div>
 </div>
 
+<!-- Kakao 지도 API -->
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 서버에서 전달된 데이터 가져오기
+        const latitude = [[${post.latitude}]];
+        const longitude = [[${post.longitude}]];
+        const placeName = "[[${post.placeName}]]"; // 장소 이름
+
+        // 디버깅: 데이터 확인
+        console.log("Latitude:", latitude);
+        console.log("Longitude:", longitude);
+        console.log("Place Name:", placeName);
+
+        // 지도 생성
+        const container = document.getElementById('map');
+        const options = {
+            center: new kakao.maps.LatLng(latitude, longitude), // 중심 좌표
+            level: 3 // 확대 레벨
+        };
+
+        const map = new kakao.maps.Map(container, options);
+
+        // 마커 생성
+        const marker = new kakao.maps.Marker({
+            position: new kakao.maps.LatLng(latitude, longitude),
+            map: map
+        });
+
+        // 장소 이름 표시
+        const infowindow = new kakao.maps.InfoWindow({
+            content: `<div style="padding:5px;">${placeName}</div>` // 장소명 표시
+        });
+
+        infowindow.open(map, marker); // 인포윈도우를 마커 위에 표시
+    });
+</script>
 <script>
     // 데이터가 없을 경우 기본 객체 설정
     const post = /*[[${post}]]*/ {};

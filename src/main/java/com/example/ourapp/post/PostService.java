@@ -61,6 +61,10 @@ public class PostService {
         post.setLocation(postDTO.getLocation());
         post.setCreatedAt(LocalDateTime.now());
         post.setDetailedCategory(postDTO.getDetailedCategory());
+        post.setLatitude(postDTO.getLatitude());
+        post.setLongitude(postDTO.getLongitude());
+        post.setAddress(postDTO.getAddress());
+        post.setPlaceName(postDTO.getPlaceName());
 
         // 이미지 저장
         if (!image.isEmpty()) {
@@ -88,6 +92,16 @@ public class PostService {
         System.out.println("Saved Post Parent Category Name: " + savedPost.getParentCategoryName());
         System.out.println("Saved Post Category Name: " + savedPost.getCategoryName());
         System.out.println("Saved Post Detailed Category: " + savedPost.getDetailedCategory());
+        System.out.println("PostDTO Data:");
+        System.out.println("Title: " + postDTO.getTitle());
+        System.out.println("Username: " + postDTO.getUsername());
+        System.out.println("Content: " + postDTO.getContent());
+        System.out.println("Location: " + postDTO.getLocation());
+        System.out.println("Latitude: " + postDTO.getLatitude());
+        System.out.println("Longitude: " + postDTO.getLongitude());
+        System.out.println("Address: " + postDTO.getAddress());
+        System.out.println("Place Name: " + postDTO.getPlaceName());
+
 
         return new PostDTO(savedPost);
     }
@@ -205,12 +219,63 @@ public class PostService {
         return postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with id: " + id));
     }
+    public void updatePost(PostDTO postDTO, MultipartFile image) {
+        // 기존 포스트 조회
+        Post post = postRepository.findById(postDTO.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+
+        // 필드 업데이트
+        post.setTitle(postDTO.getTitle());
+        post.setContent(postDTO.getContent());
+        post.setLocation(postDTO.getLocation());
+        post.setLatitude(postDTO.getLatitude());
+        post.setLongitude(postDTO.getLongitude());
+        post.setPlaceName(postDTO.getPlaceName());
+        post.setAddress(postDTO.getAddress());
+        post.setDetailedCategory(postDTO.getDetailedCategory());
+
+        // 이미지 처리
+        if (!image.isEmpty()) {
+            try {
+                String fileName = saveImage(image); // 이미지 저장
+                post.setImageUrl(fileName);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to update image", e);
+            }
+        }
+
+        // 카테고리 설정
+        if (postDTO.getCategoryId() != null) {
+            Category category = categoryRepository.findById(postDTO.getCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid Category ID"));
+            post.setCategory(category);
+            post.setCategoryName(category.getName());
+            if (category.getParentCategory() != null) {
+                post.setParentCategoryName(category.getParentCategory().getName());
+            }
+        }
+
+        // 디버깅 로그 추가
+        System.out.println("Updated Post Data:");
+        System.out.println("Title: " + post.getTitle());
+        System.out.println("Content: " + post.getContent());
+        System.out.println("Parent Category Name: " + post.getParentCategoryName());
+        System.out.println("Category Name: " + post.getCategoryName());
+        System.out.println("Detailed Category: " + post.getDetailedCategory());
+        System.out.println("Location: " + post.getLocation());
+        System.out.println("Latitude: " + post.getLatitude());
+        System.out.println("Longitude: " + post.getLongitude());
+        System.out.println("Address: " + post.getAddress());
+        System.out.println("Place Name: " + post.getPlaceName());
+        System.out.println("Image URL: " + post.getImageUrl());
+
+        // 저장
+        postRepository.save(post);
+    }
 
 
     public void deletePost(Long id) {
-        if (!postRepository.existsById(id)) {
-            throw new IllegalArgumentException("Post not found");
-        }
         postRepository.deleteById(id);
     }
+
 }

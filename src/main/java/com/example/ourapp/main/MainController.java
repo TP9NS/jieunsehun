@@ -210,8 +210,19 @@ public class MainController {
     }
     
     @PostMapping("/post/save")
-    public String savePost(@ModelAttribute PostDTO postDTO, @RequestParam("image") MultipartFile image) {
+    public String savePost(
+            @ModelAttribute PostDTO postDTO,
+            @RequestParam("image") MultipartFile image,
+            @RequestParam(required = false) Double latitude,
+            @RequestParam(required = false) Double longitude,
+            @RequestParam(required = false) String address,
+            @RequestParam(required = false) String placeName) {
         try {
+            postDTO.setLatitude(latitude); // 장소 정보 설정
+            postDTO.setLongitude(longitude);
+            postDTO.setAddress(address);
+            postDTO.setPlaceName(placeName);
+
             postService.savePost(postDTO, image);
         } catch (Exception e) {
             e.printStackTrace();
@@ -221,14 +232,72 @@ public class MainController {
         return "redirect:/board"; // 저장 후 게시글 목록 페이지로 리다이렉트
     }
 
+    @PostMapping("/post/delete")
+    public String deletePost(@RequestParam Long id, HttpSession session) {
+        PostDTO post = postService.getPostById(id);
+        String sessionUsername = (String) session.getAttribute("username");
 
+        // 작성자가 아닌 경우 예외 처리
+        if (!post.getUsername().equals(sessionUsername)) {
+            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+        }
 
-    
-    @PostMapping("/post/delete/{id}")
-    public String deletePost(@PathVariable Long id) {
         postService.deletePost(id);
         return "redirect:/board";
     }
+
+    @GetMapping("/post/edit/{id}")
+    public String editPost(@PathVariable Long id, Model model, HttpSession session) {
+        PostDTO post = postService.getPostById(id);
+        if (post == null) {
+            throw new IllegalArgumentException("Post not found");
+        }
+
+        // 세션에서 사용자 이름 가져오기
+        String sessionUsername = (String) session.getAttribute("username");
+        if (sessionUsername == null) {
+            throw new IllegalStateException("로그인된 사용자 정보가 없습니다.");
+        }
+
+        // 수정 권한 확인
+        if (!post.getUsername().equals(sessionUsername)) {
+            throw new IllegalArgumentException("수정 권한이 없습니다.");
+        }
+
+        // 카테고리 계층 구조 가져오기
+        List<CategoryDTO> categoryHierarchy = categoryService.getAllCategoryHierarchy();
+
+        model.addAttribute("post", post);
+        model.addAttribute("categoryHierarchy", categoryHierarchy);
+
+        return "edit";
+    }
+
+
+    @PostMapping("/post/update")
+    public String updatePost(
+        @ModelAttribute PostDTO postDTO,
+        @RequestParam("image") MultipartFile image,
+        HttpSession session
+    ) {
+        String sessionUsername = (String) session.getAttribute("username");
+
+        if (!postDTO.getUsername().equals(sessionUsername)) {
+            throw new IllegalArgumentException("수정 권한이 없습니다.");
+        }
+
+        // 전달된 카테고리 정보 디버깅 출력
+        System.out.println("Parent Category: " + postDTO.getParentCategoryName());
+        System.out.println("Sub Category: " + postDTO.getCategoryName());
+        System.out.println("Category ID: " + postDTO.getCategoryId());
+
+        postService.updatePost(postDTO, image);
+
+        return "redirect:/board/view/" + postDTO.getId();
+    }
+
+
+
     
     // OpenAI GPT와의 대화를 처리하는 엔드포인트
     @PostMapping("/api/chat")

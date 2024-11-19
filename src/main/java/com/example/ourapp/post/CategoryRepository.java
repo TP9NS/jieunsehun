@@ -10,4 +10,5 @@ import com.example.ourapp.entity.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 	List<Category> findByParentCategoryId(Long parentId);
+	 List<Category> findByParentCategoryIsNull();
 }

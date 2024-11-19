@@ -46,6 +46,18 @@ public class Post {
     private String imageUrl;
 
     private String location;
+    
+    @Column(nullable = true)
+    private Double latitude;
+
+    @Column(nullable = true)
+    private Double longitude;
+
+    @Column(length = 255, nullable = true)
+    private String address;
+
+    @Column(length = 255, nullable = true)
+    private String placeName;
 
     public Post() {}
 
@@ -95,4 +107,36 @@ public class Post {
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
+    
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPlaceName() {
+        return placeName;
+    }
+
+    public void setPlaceName(String placeName) {
+        this.placeName = placeName;
+    }
 }

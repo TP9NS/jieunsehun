@@ -29,6 +29,10 @@ public class PostDTO {
     private LocalDateTime createdAt;
     private String formattedCreatedAt; 
     private int commentCount;
+    private Double latitude;
+    private Double longitude;
+    private String address;
+    private String placeName;
 
     public PostDTO(Post post) {
         this.id = post.getId();
@@ -41,11 +45,14 @@ public class PostDTO {
         this.categoryName = post.getCategoryName(); // 하위 카테고리
         this.detailedCategory = post.getDetailedCategory(); // 상세 카테고리
 
-        
-
         this.imageUrl = post.getImageUrl();
         this.location = post.getLocation();
         this.createdAt = post.getCreatedAt();
+        
+        this.latitude = post.getLatitude();
+        this.longitude = post.getLongitude();
+        this.address = post.getAddress();
+        this.placeName = post.getPlaceName();
         
      // 날짜를 원하는 형식으로 변환
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -95,4 +102,12 @@ public class PostDTO {
     public void setCommentCount(int commentCount) {
         this.commentCount = commentCount;
     }
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
 }
