@@ -182,6 +182,12 @@ public class PostService {
         System.out.println("Fetched Post from DB: " + post);
         return new PostDTO(post);
     }
+    
+    public Post getPostEntityById(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found with id: " + id));
+    }
+
 
     public void deletePost(Long id) {
         if (!postRepository.existsById(id)) {

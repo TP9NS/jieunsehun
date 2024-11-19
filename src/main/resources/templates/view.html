@@ -16,6 +16,63 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
 <style>
+.comments-section {
+        margin-top: 20px;
+    }
+
+    /* 댓글 컨테이너 */
+    .comment-container {
+        border-bottom: 1px solid #dee2e6;
+        padding: 15px 0;
+    }
+
+    /* 댓글 내용 */
+    .comment-content {
+        margin-bottom: 10px;
+    }
+
+    /* 수정 및 삭제 버튼 정렬 */
+    .comment-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* 수정/삭제 버튼 간격 */
+    }
+
+    .comment-actions textarea {
+        flex-grow: 1;
+        width: 100%; /* 입력창이 가능한 최대 너비로 확장 */
+        max-width: 600px; /* 최대 너비 제한 */
+        min-width: 300px; /* 최소 너비 제한 */
+        height: 38px; /* 높이를 버튼과 맞춤 */
+        resize: none; /* 크기 조정 비활성화 */
+    }
+    .btn {
+        white-space: nowrap; /* 버튼 텍스트 줄바꿈 방지 */
+    }
+    .btn-outline-danger {
+        color: #ffffff; /* 텍스트 색상 */
+        background-color: #dc3545; /* 클릭 시 배경색 */
+        border-color: #dc3545; /* 테두리 색상 */
+    }
+    .btn-outline-danger:hover {
+        color: #fff; /* 마우스 오버 시 텍스트 색상 */
+        background-color: #c82333; /* 마우스 오버 시 배경색 */
+        border-color: #dc3545; /* 마우스 오버 시 테두리 색상 */
+    }
+
+    .btn-outline-danger:active {
+        color: #fff; /* 클릭 시 텍스트 색상 */
+        background-color: #c82333; /* 클릭 시 배경색 */
+        border-color: #bd2130; /* 클릭 시 테두리 색상 */
+    }
+
+    .comment-form {
+        margin-top: 30px;
+    }
+
+    .comment-form .form-control {
+        resize: none;
+    }
     .bd-placeholder-img {
       font-size: 1.125rem;
       text-anchor: middle;
@@ -203,6 +260,59 @@
             </div>
         </div>
     </div>
+<div class="comments-section">
+    <!-- 댓글 리스트 -->
+    <h4>댓글</h4>
+    <div th:each="comment : ${comments}" class="comment-container">
+        <!-- 댓글 헤더 -->
+        <div class="comment-header d-flex justify-content-between align-items-center">
+            <div>
+                <strong th:text="${comment.username}">사용자 이름</strong>
+                <small class="text-muted ms-2" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">작성 시간</small>
+            </div>
+        </div>
+
+        <!-- 댓글 내용 -->
+        <div class="comment-content mb-3">
+            <p th:text="${comment.content}" class="m-0" th:unless="${comment.username == username}">댓글 내용</p>
+        </div>
+
+        <!-- 수정 폼: 본인이 작성한 댓글만 보이도록 -->
+        <div class="comment-actions d-flex align-items-center" th:if="${comment.username == username}">
+            <form th:action="@{/comments/edit}" method="post" class="d-flex align-items-center me-2">
+                <input type="hidden" name="commentId" th:value="${comment.id}">
+                <textarea class="form-control me-2" name="content" rows="1" 
+                          th:text="${comment.content}" required></textarea>
+                <button type="submit" class="btn btn-sm btn-primary">수정</button>
+            </form>
+            <form th:action="@{/comments/delete}" method="post" class="d-inline">
+                <input type="hidden" name="commentId" th:value="${comment.id}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">삭제</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 댓글 작성 폼 -->
+    <div class="comment-form card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">댓글 작성</h5>
+            <form action="/comments/add" method="post" th:action="@{/comments/add}" th:object="${newComment}">
+                <input type="hidden" name="postId" th:value="${post.id}">
+                <div class="mb-3">
+                    <label for="username" class="form-label">이름</label>
+                    <input type="text" class="form-control" id="username" name="username" th:value="${username}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="content" class="form-label">내용</label>
+                    <textarea class="form-control" id="content" name="content" rows="3" placeholder="댓글 내용을 입력하세요." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">댓글 작성</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <script>
     // 데이터가 없을 경우 기본 객체 설정
     const post = /*[[${post}]]*/ {};
@@ -211,7 +321,24 @@
     if (Object.keys(post).length === 0) {
         console.error("Post data is empty. Check server response.");
     }
+const editCommentModal = document.getElementById('editCommentModal');
+editCommentModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget; // 수정 버튼 가져오기
+    const commentId = button.getAttribute('data-comment-id'); // 댓글 ID 가져오기
+    const commentContent = button.getAttribute('data-comment-content'); // 댓글 내용 가져오기
+
+    // 디버깅용 로그 출력
+    console.log("Comment ID: ", commentId);
+    console.log("Comment Content: ", commentContent);
+
+    // 모달 input 및 textarea에 값 설정
+    document.getElementById('editCommentId').value = commentId;
+    document.getElementById('editCommentContent').value = commentContent;
+});
+
 </script>
+
+
 
 </body>
 

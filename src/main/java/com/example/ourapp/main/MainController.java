@@ -16,9 +16,12 @@ import com.example.ourapp.DTO.AdminMapPointDTO;
 import com.example.ourapp.DTO.CategoryDTO;
 import com.example.ourapp.DTO.MyMapPointDTO;
 import com.example.ourapp.DTO.PostDTO;
+import com.example.ourapp.entity.Comment;
+import com.example.ourapp.entity.Post;
 import com.example.ourapp.map.AdminMapPointService;
 import com.example.ourapp.map.MyMapPointService;
 import com.example.ourapp.post.CategoryService;
+import com.example.ourapp.post.CommentService;
 import com.example.ourapp.post.PostService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,6 +50,8 @@ public class MainController {
     private PostService postService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/main")
     public String main() {
@@ -118,14 +123,89 @@ public class MainController {
 
 
     @GetMapping("/board/view/{id}")
-    public String viewPost(@PathVariable Long id, Model model) {
-        PostDTO post = postService.getPostById(id); // 게시글 조회
+    public String viewPost(@PathVariable Long id, Model model, HttpSession session) {
+        PostDTO post = postService.getPostById(id);
         if (post == null) {
             throw new IllegalArgumentException("Post not found");
         }
-        model.addAttribute("post", post); // 모델에 추가
-        System.out.println("Post data sent to view: " + post);
-        return "view.html"; // 템플릿 이름 반환
+
+        List<Comment> comments = commentService.findCommentsByPostId(id);
+
+        // 세션에서 사용자 이름 가져오기
+        String username = (String) session.getAttribute("username");
+
+        model.addAttribute("post", post);
+        model.addAttribute("comments", comments);
+        model.addAttribute("newComment", new Comment());
+        model.addAttribute("username", username); // 사용자 이름 모델에 추가
+
+        return "view";
+    }
+    @PostMapping("/comments/add")
+    public String addComment(@ModelAttribute Comment comment, @RequestParam("postId") Long postId, HttpSession session) {
+        String username = (String) session.getAttribute("username");
+
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        comment.setUsername(username);
+
+        // Post 엔티티 가져오기
+        Post post = postService.getPostEntityById(postId);
+        comment.setPost(post);
+
+        commentService.saveComment(comment);
+
+        return "redirect:/board/view/" + postId;
+    }
+
+    @PostMapping("/comments/edit")
+    public String editComment(@RequestParam("commentId") Long commentId,
+                              @RequestParam("content") String newContent,
+                              HttpSession session) {
+        // 현재 로그인한 사용자 확인
+        String username = (String) session.getAttribute("username");
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        // 댓글 가져오기
+        Comment comment = commentService.findCommentById(commentId);
+
+        // 댓글 작성자 확인
+        if (!comment.getUsername().equals(username)) {
+            throw new IllegalArgumentException("수정 권한이 없습니다.");
+        }
+
+        // 댓글 수정
+        commentService.updateComment(commentId, newContent);
+
+        // 게시글로 리다이렉트
+        return "redirect:/board/view/" + comment.getPost().getId();
+    }
+
+
+
+    
+    @PostMapping("/comments/delete")
+    public String deleteComment(@RequestParam("commentId") Long commentId,
+                                HttpSession session) {
+        String username = (String) session.getAttribute("username");
+
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
+
+        Comment comment = commentService.findCommentById(commentId);
+
+        if (!comment.getUsername().equals(username)) {
+            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+        }
+
+        commentService.deleteComment(commentId);
+
+        return "redirect:/board/view/" + comment.getPost().getId();
     }
 
     
