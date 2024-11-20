@@ -356,6 +356,12 @@
     <button class="btn btn-primary me-2" onclick="searchCategory('마트')">마트</button>
     <button class="btn btn-primary" onclick="searchCategory('패션')">쇼핑몰</button>
   </div>
+  <div id="route-finder" style="position: absolute; top: 60px; left: 10px; z-index: 2; background: white; padding: 10px; border-radius: 5px;">
+    <h3>길찾기</h3>
+    <label>출발지: <input type="text" id="start-location" placeholder="출발지 입력"></label><br>
+    <label>도착지: <input type="text" id="end-location" placeholder="도착지 입력"></label><br>
+    <button onclick="findRouteWithREST()">길찾기</button>
+</div>
     <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
 </div>
 <!-- GPT 채팅 박스 -->
@@ -786,6 +792,92 @@ function saveLocation(title, latitude, longitude, address_name, road_address_nam
         alert('저장 중 오류가 발생했습니다.');
     });
 }
+
+//Kakao REST API를 통한 길찾기 요청
+async function findRouteWithREST() {
+    const startLocation = document.getElementById("start-location").value;
+    const endLocation = document.getElementById("end-location").value;
+
+    if (!startLocation || !endLocation) {
+        alert("출발지와 도착지를 입력해주세요!");
+        return;
+    }
+
+    const geocoder = new kakao.maps.services.Geocoder();
+
+    // 출발지와 도착지 좌표 가져오기
+    const startCoords = await getCoordinates(geocoder, startLocation);
+    const endCoords = await getCoordinates(geocoder, endLocation);
+
+    if (!startCoords || !endCoords) {
+        alert("출발지 또는 도착지 주소를 찾을 수 없습니다.");
+        return;
+    }
+
+    // Kakao REST API로 길찾기 요청
+    const url = `https://apis-navi.kakaomobility.com/v1/directions?origin=${startCoords.x},${startCoords.y}&destination=${endCoords.x},${endCoords.y}&priority=FASTEST`;
+    const headers = {
+    	    Authorization: `KakaoAK 7324f29455ad0dff17d06c69490caaf1`, // REST API 키
+    	};
+
+
+    try {
+        const response = await fetch(url, { headers });
+        const data = await response.json();
+
+        if (data?.routes?.length > 0) {
+            displayRouteOnMap(data.routes[0]);
+        } else {
+            console.error("API Response:", data);
+            alert("경로를 찾을 수 없습니다.");
+        }
+    } catch (error) {
+        console.error("Error fetching route:", error);
+        alert("길찾기 요청 중 오류가 발생했습니다.");
+    }
+}
+
+// 좌표 가져오기
+async function getCoordinates(geocoder, address) {
+    return new Promise((resolve) => {
+        geocoder.addressSearch(address, function (result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                resolve({ x: result[0].x, y: result[0].y });
+            } else {
+                resolve(null);
+            }
+        });
+    });
+}
+
+// 지도에 경로 표시
+function displayRouteOnMap(route) {
+    // 기존 경로 제거
+    if (window.currentRoutePolyline) {
+        window.currentRoutePolyline.setMap(null);
+    }
+
+    const path = route.sections[0].roads.map((road) =>
+        new kakao.maps.LatLng(road.y, road.x)
+    );
+
+    const polyline = new kakao.maps.Polyline({
+        path: path,
+        strokeWeight: 5,
+        strokeColor: "#FF0000",
+        strokeOpacity: 0.8,
+        strokeStyle: "solid",
+    });
+
+    polyline.setMap(map);
+    window.currentRoutePolyline = polyline;
+
+    // 경로 정보 표시
+    const distance = (route.summary.distance / 1000).toFixed(2); // km 단위
+    const duration = Math.round(route.summary.duration / 60); // 분 단위
+    alert(`거리: ${distance} km, 예상 소요 시간: ${duration}분`);
+}
+
 
 </script>
 </body>

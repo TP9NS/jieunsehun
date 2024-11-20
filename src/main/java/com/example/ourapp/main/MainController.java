@@ -60,10 +60,6 @@ public class MainController {
     public String main() {
         return "main.html";
     }
-    @GetMapping("/test")
-    public String test() {
-       return "map_test.html";
-    }
     @GetMapping("/map")
     public String map() {
        return "map.html";
@@ -76,6 +72,10 @@ public class MainController {
     @GetMapping("/main_test2")
     public String main_test2() {
        return "main_test2.html";
+    }
+    @GetMapping("/index")
+    public String index() {
+       return "index.html";
     }
     
     @GetMapping("/board")
@@ -98,7 +98,6 @@ public class MainController {
             post.setCommentCount(commentCount);
         });
 
-        // 모델에 데이터 추가
         model.addAttribute("posts", postsPage.getContent()); // 현재 페이지 게시글
         model.addAttribute("currentPage", postsPage.getNumber()); // 현재 페이지 번호
         model.addAttribute("totalPages", postsPage.getTotalPages()); // 전체 페이지 수
@@ -112,9 +111,6 @@ public class MainController {
 
         return "board.html";
     }
-
-
-
 
     @GetMapping("/board/view/{id}")
     public String viewPost(@PathVariable Long id, Model model, HttpSession session) {
@@ -145,7 +141,6 @@ public class MainController {
 
         comment.setUsername(username);
 
-        // Post 엔티티 가져오기
         Post post = postService.getPostEntityById(postId);
         comment.setPost(post);
 
@@ -158,13 +153,11 @@ public class MainController {
     public String editComment(@RequestParam("commentId") Long commentId,
                               @RequestParam("content") String newContent,
                               HttpSession session) {
-        // 현재 로그인한 사용자 확인
         String username = (String) session.getAttribute("username");
         if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("로그인이 필요합니다.");
         }
 
-        // 댓글 가져오기
         Comment comment = commentService.findCommentById(commentId);
 
         // 댓글 작성자 확인
@@ -172,15 +165,10 @@ public class MainController {
             throw new IllegalArgumentException("수정 권한이 없습니다.");
         }
 
-        // 댓글 수정
         commentService.updateComment(commentId, newContent);
 
-        // 게시글로 리다이렉트
         return "redirect:/board/view/" + comment.getPost().getId();
     }
-
-
-
     
     @PostMapping("/comments/delete")
     public String deleteComment(@RequestParam("commentId") Long commentId,
@@ -201,11 +189,10 @@ public class MainController {
 
         return "redirect:/board/view/" + comment.getPost().getId();
     }
-
     
     @GetMapping("/post")
     public String postForm(Model model) {
-        model.addAttribute("post", new PostDTO()); // 빈 PostDTO 전달
+        model.addAttribute("post", new PostDTO());
         return "post.html";
     }
     
@@ -218,7 +205,7 @@ public class MainController {
             @RequestParam(required = false) String address,
             @RequestParam(required = false) String placeName) {
         try {
-            postDTO.setLatitude(latitude); // 장소 정보 설정
+            postDTO.setLatitude(latitude);
             postDTO.setLongitude(longitude);
             postDTO.setAddress(address);
             postDTO.setPlaceName(placeName);
@@ -226,10 +213,10 @@ public class MainController {
             postService.savePost(postDTO, image);
         } catch (Exception e) {
             e.printStackTrace();
-            return "redirect:/post?error=upload"; // 업로드 에러 시 리다이렉트
-        }
+            return "redirect:/post?error=upload";
+          }
 
-        return "redirect:/board"; // 저장 후 게시글 목록 페이지로 리다이렉트
+        return "redirect:/board";
     }
 
     @PostMapping("/post/delete")
@@ -237,7 +224,6 @@ public class MainController {
         PostDTO post = postService.getPostById(id);
         String sessionUsername = (String) session.getAttribute("username");
 
-        // 작성자가 아닌 경우 예외 처리
         if (!post.getUsername().equals(sessionUsername)) {
             throw new IllegalArgumentException("삭제 권한이 없습니다.");
         }
@@ -253,18 +239,15 @@ public class MainController {
             throw new IllegalArgumentException("Post not found");
         }
 
-        // 세션에서 사용자 이름 가져오기
         String sessionUsername = (String) session.getAttribute("username");
         if (sessionUsername == null) {
             throw new IllegalStateException("로그인된 사용자 정보가 없습니다.");
         }
 
-        // 수정 권한 확인
         if (!post.getUsername().equals(sessionUsername)) {
             throw new IllegalArgumentException("수정 권한이 없습니다.");
         }
 
-        // 카테고리 계층 구조 가져오기
         List<CategoryDTO> categoryHierarchy = categoryService.getAllCategoryHierarchy();
 
         model.addAttribute("post", post);
@@ -286,11 +269,6 @@ public class MainController {
             throw new IllegalArgumentException("수정 권한이 없습니다.");
         }
 
-        // 전달된 카테고리 정보 디버깅 출력
-        System.out.println("Parent Category: " + postDTO.getParentCategoryName());
-        System.out.println("Sub Category: " + postDTO.getCategoryName());
-        System.out.println("Category ID: " + postDTO.getCategoryId());
-
         postService.updatePost(postDTO, image);
 
         return "redirect:/board/view/" + postDTO.getId();
@@ -299,7 +277,6 @@ public class MainController {
 
 
     
-    // OpenAI GPT와의 대화를 처리하는 엔드포인트
     @PostMapping("/api/chat")
     @ResponseBody
     public ResponseEntity<?> chatWithGPT(@RequestBody Map<String, String> request) {
