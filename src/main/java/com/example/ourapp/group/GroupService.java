@@ -117,6 +117,14 @@ public class GroupService {
 
         groupRequest.setStatus(status);
         groupRequestRepository.save(groupRequest);
+        GroupMember groupMember = new GroupMember();
+        groupMember.setGroup(groupRequest.getGroup()); // 신청된 그룹
+        groupMember.setUser(groupRequest.getUser());   // 신청한 사용자
+        groupMember.setPermission(3);                 // 기본 권한: 일반 사용자 (3)
+
+            // 저장
+        groupMemberRepository.save(groupMember);
+        
     }
     @Transactional
     public void acceptGroupRequest(Long requestId) {
