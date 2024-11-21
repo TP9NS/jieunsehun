@@ -262,6 +262,7 @@
         <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
       </symbol>
     </svg>
+<body th:data-user-permission="${session.permission}">
 
 <header data-bs-theme="dark">
   <div class="collapse text-bg-dark" id="navbarHeader">
@@ -287,7 +288,7 @@
     <div class="container d-flex align-items-center justify-content-between">
       <!-- 보물 지도 로고를 상단에 고정 -->
       <a href="/main" class="navbar-brand">
-        <strong>보물 지도</strong>
+        <strong>보물 지도-그룹 지도</strong>
       </a>
 
       <!-- 로고 아래 가로로 메뉴와 버튼 배치 -->
@@ -298,22 +299,23 @@
             <a class="nav-link" href="/board">게시판</a>
           </li>
           <li class="nav-item me-3">
-            <a class="nav-link" th:href="@{/my-map(userId=${session.user_id})}">나만의 지도</a>
-          </li>
-          <li class="nav-item me-3">
-            <a class="nav-link" href="/groupmap">그룹 지도</a>
+            <a class="nav-link" href="/mymap">나만의 지도</a>
           </li>
           <li class="nav-item me-3">
             <a class="nav-link" href="/friends">친구 목록</a>
           </li>
+          <li class="nav-item me-3">
+	            <a class="nav-link" href="/main">메인으로 돌아가기</a>
+	          </li>
         </ul>
 
         <!-- 로그인 여부에 따라 버튼 표시 -->
         <ul class="navbar-nav flex-row">
           <!-- 로그인이 되어 있을 때(세션에 user_id가 있을 때) -->
           <li th:if="${session.user_id != null}" class="nav-item me-3">
-            <a class="nav-link" th:href="@{/user/mypage}">마이페이지</a>
-          </li>
+    					<a class="nav-link" th:if="${session.permission == 0}" th:href="@{/user/manage-locations}">관리자님 어서오세요!</a>
+    					<a class="nav-link" th:if="${session.permission != 0}" th:href="@{/user/mypage}">마이페이지</a>
+ 						 </li>
           <li th:if="${session.user_id != null}" class="nav-item">
             <a class="nav-link" th:href="@{/user/logout}">로그아웃</a>
           </li>
@@ -347,15 +349,42 @@
 <div class="map_wrap">
     <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
 </div>
-<!-- GPT 채팅 박스 -->
-    <div id="chatbox">
-        <div class="messages" id="messages">
-            <!-- 대화 기록이 여기에 추가됩니다 -->
+<!-- 그룹 생성 및 검색 박스 -->
+    <div id="groupbox">
+        <!-- 그룹 생성 폼 -->
+        <div id="group-create">
+            <h3>그룹 생성</h3>
+            <form id="create-group-form" onsubmit="createGroup(event);">
+                <label for="group-name">그룹 이름:</label>
+                <input type="text" id="group-name" placeholder="그룹 이름 입력" required>
+                <br>
+                <label for="group-description">설명:</label><br>
+                <textarea id="group-description" placeholder="그룹 설명 입력" rows="3" required></textarea>
+                <br>
+                <button type="submit">그룹 생성</button>
+            </form>
         </div>
-        <input type="text" id="user-input" placeholder="GPT와 대화하세요..." onkeypress="sendMessage(event)">
+        <hr>
+        <!-- 그룹 검색 -->
+        <div id="group-search">
+            <h3>그룹 검색</h3>
+            <form id="search-group-form" onsubmit="searchGroup(event);">
+                <label for="search-keyword">그룹 이름:</label>
+                <input type="text" id="search-keyword" placeholder="검색할 그룹 이름">
+                <button type="submit">검색</button>
+            </form>
+            <div id="group-results">
+                <!-- 검색 결과가 여기에 표시됩니다 -->
+            </div>
+        </div>
     </div>
-    </main>
+</main>
+<script type="text/javascript">
+//JavaScript to retrieve user permission dynamically
+const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
+console.log("User Permission:", userPermission);
 
+</script>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
 <script>
 // 마커를 담을 배열입니다
@@ -504,71 +533,90 @@ function getListItem(index, places) {
 }
 
 function addMarker(position, idx, title, place) {
-    var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png',
-        imageSize = new kakao.maps.Size(36, 37),
-        imgOptions = {
-            spriteSize: new kakao.maps.Size(36, 691),
-            spriteOrigin: new kakao.maps.Point(0, (idx * 46) + 10),
-            offset: new kakao.maps.Point(13, 37)
-        },
-        markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imgOptions),
-        marker = new kakao.maps.Marker({
-            position: position,
-            image: markerImage
-        });
+    var markerImage = new kakao.maps.MarkerImage(
+        'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png',
+        new kakao.maps.Size(36, 37),
+        { spriteSize: new kakao.maps.Size(36, 691), spriteOrigin: new kakao.maps.Point(0, idx * 46 + 10), offset: new kakao.maps.Point(13, 37) }
+    );
 
+    var marker = new kakao.maps.Marker({
+        position: position,
+        image: markerImage
+    });
     marker.setMap(map);
     markers.push(marker);
 
     // 마커 클릭 이벤트 리스너 추가
- kakao.maps.event.addListener(marker, 'click', function() {
-    var latitude = position.getLat();
-    var longitude = position.getLng();
+    kakao.maps.event.addListener(marker, 'click', function() {
+        console.log("Marker clicked:", title);  // 디버깅용
+        var latitude = position.getLat();
+        var longitude = position.getLng();
+        
+        // userPermission을 동적으로 가져오기
+        var userPermission = document.body.getAttribute("data-user-permission");
 
-    // 오버레이 내용을 구성합니다
-    var overlayContent = '<div class="wrap">' +
-        '    <div class="info">' +
-        '        <div class="title">' + title + 
-        '            <div class="close" onclick="closeOverlay()"></div>' +
-        '        </div>' +
-        '        <div class="body">' +
-        '            <div class="desc">' +
-        '                <span>' + (place.road_address_name ? '주소: ' + place.road_address_name : place.address_name) + '</span><br>' +
-        '                <span class="tel">' + (place.phone ? '전화: ' + place.phone : '') + '</span><br>' +
-        '                <span class="category">' + '카테고리: ' + (place.category_name ? place.category_name : '') + '</span><br>' +
-        '                <span>위도: ' + latitude + '</span><br>' +
-        '                <span>경도: ' + longitude + '</span><br>' +
-        '                <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>' +
-        '                <input type="text" placeholder="메모" id="note" class="input"><br>' +
-        '                <select id="mapType">' +
-        '                    <option value="MY_MAP">나만의 지도</option>' +
-        '                    <option value="GROUP1_MAP">그룹1 지도</option>' +
-        '                    <option value="GROUP2_MAP">그룹2 지도</option>' +
-        '                </select><br>' +
-        '                <button onclick="saveLocation(\'' + title + '\', ' + latitude + ', ' + longitude + ', \'' + (place.address_name || '') + '\', \'' + (place.road_address_name || '') + '\', \'' + (place.phone || '') + '\', \'' + (place.category_name || '') + '\')">저장</button>' +
-        '            </div>' +
-        '        </div>' +
-        '    </div>' +
-        '</div>';
+     // userPermission 값을 숫자로 변환하고 확인
+        var userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
+        console.log("User Permission (converted):", userPermission);  // 디버깅용
 
-    // 커스텀 오버레이를 생성하고 표시합니다
-    var customOverlay = new CustomOverlay(position, overlayContent);
-    customOverlay.setMap(map);
-    window.currentOverlay = customOverlay;
-});
+        // 마커 클릭 이벤트 리스너 내부
+        var overlayContent = 
+            '<div class="wrap">' +
+            '    <div class="info">' +
+            '        <div class="title">' + title + 
+            '            <div class="close" onclick="closeOverlay()"></div>' +
+            '        </div>' +
+            '        <div class="body">' +
+            '            <div class="desc">' +
+            '                <span>' + (place.road_address_name ? '주소: ' + place.road_address_name : place.address_name) + '</span><br>' +
+            '                <span class="tel">' + (place.phone ? '전화: ' + place.phone : '') + '</span><br>' +
+            '                <span class="category">' + '카테고리: ' + (place.category_name ? place.category_name : '') + '</span><br>' +
+            '                <span>위도: ' + latitude + '</span><br>' +
+            '                <span>경도: ' + longitude + '</span><br>' +
+            '                <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>' +
+            '                <input type="text" placeholder="메모" id="note" class="input"><br>';
+
+        // 관리자인지 확인 후 조건에 따라 입력 필드 추가
+        if (userPermission === 0) { // userPermission이 0 (관리자)인 경우
+            console.log("관리자 권한: topic 필드 추가");  // 디버깅용
+            overlayContent += '<input type="text" id="topic" placeholder="주제 입력" class="input"><br>';
+        } else {
+            console.log("일반 사용자 권한: mapType 필드 추가");  // 디버깅용
+            overlayContent += '<select id="mapType">' +
+                              '<option value="MY_MAP">나만의 지도</option>' +
+                              '<option value="GROUP1_MAP">그룹1 지도</option>' +
+                              '<option value="GROUP2_MAP">그룹2 지도</option>' +
+                              '</select><br>';
+        }
+
+        // 저장 버튼 추가
+        overlayContent += '<button onclick="saveLocation(\'' + title + '\', ' + latitude + ', ' + longitude + ', \'' + (place.address_name || '') + '\', \'' + (place.road_address_name || '') + '\', \'' + (place.phone || '') + '\', \'' + (place.category_name || '') + '\')">저장</button>' +
+            '            </div>' +
+            '        </div>' +
+            '    </div>' +
+            '</div>';
+
+
+        var customOverlay = new kakao.maps.CustomOverlay({
+            position: position,
+            content: overlayContent,
+            xAnchor: 0.5,
+            yAnchor: 1
+        });
+
+        customOverlay.setMap(map);
+        window.currentOverlay = customOverlay;
+    });
 
     return marker;
 }
 
-
-
 // 오버레이를 닫는 함수
 function closeOverlay() {
     if (window.currentOverlay) {
-        window.currentOverlay.setVisible(false);
+        window.currentOverlay.setMap(null);
     }
 }
-
 
 
 // 지도 위에 표시되고 있는 마커를 모두 제거합니다
@@ -648,49 +696,26 @@ CustomOverlay.prototype.setVisible = function(visible) {
     this.overlay.setMap(visible ? map : null);
 };
 
-async function sendMessage(event) {
-    if (event.key === 'Enter') {
-      const userInput = document.getElementById('user-input').value;
-      if (userInput.trim() === '') return;
 
-      const messagesContainer = document.getElementById('messages');
-      
-      // 사용자 메시지 추가
-      const userMessage = document.createElement('div');
-      userMessage.textContent = 'You: ' + userInput;
-      messagesContainer.appendChild(userMessage);
-
-      // 입력 창 비우기
-      document.getElementById('user-input').value = '';
-
-      // 서버로 요청 전송
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message: userInput })
-      });
-
-      const data = await response.json();
-      const gptMessage = data.response;
-
-      // GPT 응답 추가
-      const gptResponse = document.createElement('div');
-      gptResponse.textContent = 'GPT: ' + gptMessage;
-      messagesContainer.appendChild(gptResponse);
-
-      // 자동 스크롤
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-  }
-
+//장소 저장 함수
 function saveLocation(title, latitude, longitude, address_name, road_address_name, phone, category_name) {
-    const alias = document.getElementById("alias").value;
-    const note = document.getElementById("note").value;
-    const mapType = document.getElementById("mapType").value;
+    // 기본 필드 값 가져오기
+    const alias = document.getElementById("alias") ? document.getElementById("alias").value : ""; // 별칭
+    const note = document.getElementById("note") ? document.getElementById("note").value : ""; // 메모
+    
+    // userPermission에 따라 topic 또는 mapType 값 가져오기
+    var userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
+    let topic = null;
+    let mapType = null;
 
-    const myMapPoint = {
+    if (userPermission === 0) { // 관리자라면 topic 입력 필드를 가져옴
+        topic = document.getElementById("topic") ? document.getElementById("topic").value : ""; 
+    } else { // 일반 사용자라면 mapType 선택 필드를 가져옴
+        mapType = document.getElementById("mapType") ? document.getElementById("mapType").value : "MY_MAP"; 
+    }
+
+    // 요청 데이터 구성
+    const requestData = {
         category: category_name || '',
         locationName: title,
         locationAlias: alias,
@@ -699,15 +724,18 @@ function saveLocation(title, latitude, longitude, address_name, road_address_nam
         longitude: longitude,
         address: road_address_name || address_name,
         phone: phone || '',
-        mapType: mapType
+        topic: topic,    // topic은 관리자에게만
+        mapType: mapType // mapType은 일반 사용자에게만
     };
 
-    fetch('/saveMyMapPoint', {
+    // URL 설정: 관리자와 일반 사용자에 따라 다름
+    const url = userPermission === 0 ? '/saveAdminMapPoint' : '/saveMyMapPoint';
+
+    // 서버로 요청 전송
+    fetch(url, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(myMapPoint)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
     })
     .then(response => response.json())
     .then(data => {
@@ -720,8 +748,30 @@ function saveLocation(title, latitude, longitude, address_name, road_address_nam
     });
 }
 
+function createGroup(event) {
+    event.preventDefault();
+    const groupName = document.getElementById('group-name').value;
+    const groupDescription = document.getElementById('group-description').value;
 
+    if (groupName && groupDescription) {
+        alert(`그룹 "${groupName}"가 생성되었습니다!`);
+        // 생성된 그룹 정보를 서버로 전송하는 코드 추가
+    } else {
+        alert('모든 필드를 입력해주세요.');
+    }
+}
 
+function searchGroup(event) {
+    event.preventDefault();
+    const keyword = document.getElementById('search-keyword').value;
+
+    if (keyword) {
+        // 검색 결과를 처리하는 로직 추가
+        document.getElementById('group-results').innerHTML = `그룹 "${keyword}"에 대한 검색 결과를 표시합니다.`;
+    } else {
+        alert('검색어를 입력해주세요.');
+    }
+}
 
 
 </script>

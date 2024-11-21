@@ -22,7 +22,13 @@ public class MapController {
     @GetMapping("/mymap")
     public String getMyMapPage(HttpSession session) {
         System.out.println(session.getAttribute("user_id"));
-        return "mymap";  // HTML 파일의 확장자는 생략합니다.
+        return "mymap";
+    }
+    
+    @GetMapping("/groupmap")
+    public String getGroupMapPage(HttpSession session) {
+        System.out.println(session.getAttribute("user_id"));
+        return "groupmap";
     }
     
     @GetMapping("/api/topics")

@@ -1,0 +1,432 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <script src="/docs/5.3/assets/js/color-modes.js"></script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.118.2">
+    <title>우리의 보물 지도와 GPT 대화</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/album/">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      .b-example-divider {
+        width: 100%;
+        height: 3rem;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 1px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+      }
+
+      .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+      }
+
+      .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+      }
+
+      .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+      }
+
+      .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .btn-bd-primary {
+        --bd-violet-bg: #712cf9;
+        --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
+
+        --bs-btn-font-weight: 600;
+        --bs-btn-color: var(--bs-white);
+        --bs-btn-bg: var(--bd-violet-bg);
+        --bs-btn-border-color: var(--bd-violet-bg);
+        --bs-btn-hover-color: var(--bs-white);
+        --bs-btn-hover-bg: #6528e0;
+        --bs-btn-hover-border-color: #6528e0;
+        --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
+        --bs-btn-active-color: var(--bs-btn-hover-color);
+        --bs-btn-active-bg: #5a23c8;
+        --bs-btn-active-border-color: #5a23c8;
+      }
+
+      .bd-mode-toggle {
+        z-index: 1500;
+      }
+
+      .bd-mode-toggle .dropdown-menu .active .bi {
+        display: block !important;
+      }
+
+
+</style>
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+      <symbol id="check2" viewBox="0 0 16 16">
+        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+      </symbol>
+      <symbol id="circle-half" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+      </symbol>
+      <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+        <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+      </symbol>
+      <symbol id="sun-fill" viewBox="0 0 16 16">
+        <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+      </symbol>
+    </svg>
+<body th:data-user-permission="${session.permission}">
+
+<header data-bs-theme="dark">
+  <div class="collapse text-bg-dark" id="navbarHeader">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-8 col-md-7 py-4">
+          <h4>About</h4>
+          <p class="text-body-secondary">우리들의 보물지도에 온 것을 환영합니다!</p>
+        </div>
+        <div class="col-sm-4 offset-md-1 py-4">
+          <h4>Contact</h4>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-white">Follow on Twitter</a></li>
+            <li><a href="#" class="text-white">Like on Facebook</a></li>
+            <li><a href="#" class="text-white">Email me</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container d-flex align-items-center justify-content-between">
+      <!-- 보물 지도 로고를 상단에 고정 -->
+      <a href="/main" class="navbar-brand">
+        <strong>보물 지도-그룹 관리</strong>
+      </a>
+
+      <!-- 로고 아래 가로로 메뉴와 버튼 배치 -->
+      <div class="d-flex justify-content-between w-100 mt-2">
+        <ul class="navbar-nav flex-row">
+
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/board">게시판</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/mymap">나만의 지도</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/group-map">그룹 지도</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/friends">친구 목록</a>
+          </li>
+        </ul>
+
+        <!-- 로그인 여부에 따라 버튼 표시 -->
+        <ul class="navbar-nav flex-row">
+          <!-- 로그인이 되어 있을 때(세션에 user_id가 있을 때) -->
+          <li th:if="${session.user_id != null}" class="nav-item me-3">
+    					<a class="nav-link" th:if="${session.permission == 0}" th:href="@{/user/manage-locations}">관리자님 어서오세요!</a>
+    					<a class="nav-link" th:if="${session.permission != 0}" th:href="@{/user/mypage}">마이페이지</a>
+ 						 </li>
+          <li th:if="${session.user_id != null}" class="nav-item">
+            <a class="nav-link" th:href="@{/user/logout}">로그아웃</a>
+          </li>
+
+          <!-- 로그인이 되어 있지 않을 때(세션에 user_id가 없을 때) -->
+          <li th:unless="${session.user_id != null}" class="nav-item me-3">
+            <a class="nav-link" th:href="@{/user/login}">로그인</a>
+          </li>
+          <li th:unless="${session.user_id != null}" class="nav-item">
+            <a class="nav-link" th:href="@{/user/signup}">회원가입</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+<body>
+    <div class="container">
+        <!-- 그룹 생성 섹션 -->
+        <div class="section" id="create-group-section">
+            <h2>그룹을 생성하세요!</h2>
+            <form id="create-group-form" action="/groups/create" method="post">
+    <label for="group-name">그룹 명:</label>
+    <input type="text" id="group-name" name="groupName" required>
+    <br>
+    <label for="group-description">그룹 설명:</label>
+    <textarea id="group-description" name="description" rows="3" required></textarea>
+    <br>
+    <button type="submit">그룹 생성하기</button>
+</form>
+        </div><br>
+
+        <div class="section" id="search-group-section">
+    <h2>그룹 검색</h2>
+    <form id="search-group-form" onsubmit="searchGroups(event);">
+        <label for="search-keyword">그룹 명:</label>
+        <input type="text" id="search-keyword" placeholder="그룹 명을 입력하세요!">
+        <button type="submit">검색하기</button>
+    </form>
+    <ul id="group-results">
+        <!-- 검색 결과가 여기에 표시됩니다 -->
+    </ul>
+</div>
+<div class="section" id="my-groups-section">
+    <h2>내가 생성한 그룹</h2>
+    <ul id="my-groups">
+        <!-- JavaScript로 동적으로 그룹 목록을 추가할 부분 -->
+    </ul>
+</div>
+
+
+<ul id="group-requests">
+    <!-- 요청 목록이 여기에 표시됩니다 -->
+</ul>
+
+
+
+        <!-- 친구 목록 섹션 -->
+        <div class="section" id="friend-list-section">
+            <h2>Friend List</h2>
+            <ul id="friend-list" class="friend-list">
+                <!-- 친구 목록이 여기에 표시됩니다 -->
+            </ul>
+        </div>
+
+        <!-- 그룹에 친구 추가 섹션 -->
+        <div class="section" id="add-friend-to-group-section">
+            <h2>Add Friends to a Group</h2>
+            <form id="add-friend-form" onsubmit="addFriendToGroup(event);">
+                <label for="group-select">Select Group:</label>
+                <select id="group-select" required>
+                    <!-- 생성된 그룹 목록이 여기에 표시됩니다 -->
+                </select>
+                <br>
+                <label for="friend-select">Select Friend:</label>
+                <select id="friend-select" required>
+                    <!-- 친구 목록이 여기에 표시됩니다 -->
+                </select>
+                <br>
+                <button type="submit">Add Friend to Group</button>
+            </form>
+        </div>
+    </div>
+<script>
+window.onload = async function() {
+    try {
+        // 내 그룹 목록을 가져오는 API 호출
+        const response = await fetch('/groups/my-groups');
+        const groups = await response.json();
+
+        console.log(groups);  // 이 부분에서 데이터를 제대로 받아오는지 확인
+
+        const myGroupsContainer = document.getElementById('my-groups');
+        if (groups.length === 0) {
+            myGroupsContainer.innerHTML = '<li>아직 생성한 그룹이 없습니다.</li>';
+        } else {
+            myGroupsContainer.innerHTML = ''; // 기존 내용 지우기
+            groups.forEach(group => {
+                const li = document.createElement('li');
+                li.textContent = group.groupName;
+                myGroupsContainer.appendChild(li);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching groups:', error);
+    }
+
+    // 그룹 신청 목록을 가져오는 API 호출
+    try {
+        const requestsResponse = await fetch('/groups/requests');
+        const requests = await requestsResponse.json();
+        
+        console.log(requests);
+
+        const groupRequestsContainer = document.getElementById('group-requests');
+        if (requests.length === 0) {
+            groupRequestsContainer.innerHTML = '<li>현재 신청된 그룹이 없습니다.</li>';
+        } else {
+            groupRequestsContainer.innerHTML = ''; // 기존 내용 제거
+            requests.forEach(request => {
+                const li = document.createElement('li');
+                li.textContent = `그룹: ${request.groupName}, 신청자: ${request.userName}`;
+
+                // 수락 버튼
+                const acceptButton = document.createElement('button');
+                acceptButton.textContent = '수락';
+                acceptButton.onclick = () => updateRequestStatus(request.id, '수락');
+
+                // 거절 버튼
+                const rejectButton = document.createElement('button');
+                rejectButton.textContent = '거절';
+                rejectButton.onclick = () => updateRequestStatus(request.id, '거절');
+
+                li.appendChild(acceptButton);
+                li.appendChild(rejectButton);
+                groupRequestsContainer.appendChild(li);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching group requests:', error);
+    }
+};
+
+// 신청 상태를 수락 또는 거절로 업데이트하는 함수
+async function updateRequestStatus(requestId, status) {
+    try {
+        const response = await fetch(`/groups/requests/${requestId}/update?status=${status}`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            alert('신청 상태가 업데이트되었습니다.');
+            location.reload(); // 새로고침하여 상태 업데이트 반영
+        } else {
+            alert('신청 상태 업데이트에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('Error updating request status:', error);
+    }
+}
+
+async function createGroup(event) {
+    event.preventDefault(); // 기본 폼 제출 동작 방지
+
+    // 입력값 가져오기
+    const groupName = document.getElementById('group-name').value.trim();
+    const groupDescription = document.getElementById('group-description').value.trim();
+
+    if (!groupName || !groupDescription) {
+        alert("Please fill out all fields.");
+        return;
+    }
+
+    // 서버로 데이터 전송
+    try {
+        const response = await fetch('/groups/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ groupName, description: groupDescription }),
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert(`Group created successfully: ${result.groupName}`);
+            // 그룹 목록 갱신 로직 추가 가능
+        } else {
+            const error = await response.json();
+            alert(`Error creating group: ${error.message}`);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("An error occurred while creating the group.");
+    }
+}
+
+async function searchGroups(event) {
+    event.preventDefault(); // 기본 폼 제출 방지
+
+    const keyword = document.getElementById('search-keyword').value.trim();
+
+    if (!keyword) {
+        alert("Please enter a keyword to search.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/groups/search?keyword=${encodeURIComponent(keyword)}`);
+        if (response.ok) {
+            const groups = await response.json();
+
+            const resultsContainer = document.getElementById('group-results');
+            resultsContainer.innerHTML = "";
+            if (groups.length > 0) {
+                groups.forEach(group => {
+                    const li = document.createElement('li');
+                    li.textContent = `${group.groupName} - Created by: ${group.createdBy}`;
+                    
+                    // 신청 버튼 추가
+                    const button = document.createElement('button');
+                    button.textContent = "그룹 신청";
+                    button.onclick = () => applyForGroup(group.groupId); // 버튼 클릭 시 그룹 신청
+                    
+                    li.appendChild(button);
+                    resultsContainer.appendChild(li);
+                });
+            } else {
+                resultsContainer.innerHTML = "<li>No groups found.</li>";
+            }
+        } else {
+            alert("Error occurred while searching for groups.");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("An error occurred while searching for groups.");
+    }
+}
+
+async function applyForGroup(groupId) {
+    try {
+        const response = await fetch(`/groups/apply/${groupId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (response.ok) {
+            alert('그룹 신청이 완료되었습니다!');
+        } else {
+            alert('그룹 신청에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error(error);
+        alert("An error occurred while applying for the group.");
+    }
+}
+
+</script>
+
+
+</body>
+</html>

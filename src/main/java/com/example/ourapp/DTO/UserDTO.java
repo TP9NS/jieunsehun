@@ -69,4 +69,13 @@ public class UserDTO { //회원 정보를 필드로 정의
             }
         }
     }
+    
+    public Long getUserId() {
+        return User_id;
+    }
+
+    // 다른 getter, setter 메서드들...
+    public void setUserId(Long userId) {
+        this.User_id = userId;
+    }
 }
