@@ -1,9 +1,11 @@
 package com.example.ourapp.group;
 
+import com.example.ourapp.DTO.GroupRequestDTO;
 import com.example.ourapp.DTO.UserDTO;
 import com.example.ourapp.entity.Group;
 import com.example.ourapp.entity.GroupMember;
 import com.example.ourapp.entity.GroupRequest;
+import com.example.ourapp.entity.GroupRequest.RequestStatus;
 import com.example.ourapp.entity.User;
 import com.example.ourapp.user.UserRepository;
 
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -167,6 +170,5 @@ public class GroupService {
         // 6. 그룹 신청이 수락되었으므로 해당 그룹 신청을 삭제할 수 있음 (필요시)
         // groupRequestRepository.delete(groupRequest); // 필요시 삭제
     }
-
 
 }

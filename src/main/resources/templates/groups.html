@@ -220,34 +220,12 @@
 <ul id="group-requests">
     <!-- 요청 목록이 여기에 표시됩니다 -->
 </ul>
-
-
-
-        <!-- 친구 목록 섹션 -->
-        <div class="section" id="friend-list-section">
-            <h2>Friend List</h2>
-            <ul id="friend-list" class="friend-list">
-                <!-- 친구 목록이 여기에 표시됩니다 -->
-            </ul>
-        </div>
-
-        <!-- 그룹에 친구 추가 섹션 -->
-        <div class="section" id="add-friend-to-group-section">
-            <h2>Add Friends to a Group</h2>
-            <form id="add-friend-form" onsubmit="addFriendToGroup(event);">
-                <label for="group-select">Select Group:</label>
-                <select id="group-select" required>
-                    <!-- 생성된 그룹 목록이 여기에 표시됩니다 -->
-                </select>
-                <br>
-                <label for="friend-select">Select Friend:</label>
-                <select id="friend-select" required>
-                    <!-- 친구 목록이 여기에 표시됩니다 -->
-                </select>
-                <br>
-                <button type="submit">Add Friend to Group</button>
-            </form>
-        </div>
+<div class="section" id="my-requests-section">
+    <h2>내가 신청한 그룹</h2>
+    <ul id="my-requests">
+        <!-- JavaScript로 동적으로 그룹 목록을 추가할 부분 -->
+    </ul>
+</div>
     </div>
 <script>
 window.onload = async function() {
