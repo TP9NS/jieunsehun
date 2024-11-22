@@ -215,11 +215,16 @@
         <!-- JavaScript로 동적으로 그룹 목록을 추가할 부분 -->
     </ul>
 </div>
-
-
 <ul id="group-requests">
     <!-- 요청 목록이 여기에 표시됩니다 -->
 </ul>
+
+<div class="section" id="group-members-section">
+    <h2>선택된 그룹의 구성원</h2>
+    <ul id="group-members">
+        <!-- JavaScript로 동적으로 구성원 목록을 추가 -->
+    </ul>
+</div>
 <div class="section" id="my-requests-section">
     <h2>내가 신청한 그룹</h2>
     <ul id="my-requests">
@@ -229,40 +234,78 @@
     </div>
 <script>
 window.onload = async function() {
+    await fetchMyGroups();  // 내 그룹 목록 가져오기
+    await fetchGroupRequests();  // 그룹 신청 목록 가져오기
+};
+
+//내 그룹 목록 가져오기
+async function fetchMyGroups() {
     try {
-        // 내 그룹 목록을 가져오는 API 호출
-        const response = await fetch('/groups/my-groups');
+        const response = await fetch('/groups/my-groups'); // API 호출
         const groups = await response.json();
 
-        console.log(groups);  // 이 부분에서 데이터를 제대로 받아오는지 확인
+        console.log(groups); // 데이터 확인용
 
         const myGroupsContainer = document.getElementById('my-groups');
         if (groups.length === 0) {
             myGroupsContainer.innerHTML = '<li>아직 생성한 그룹이 없습니다.</li>';
         } else {
-            myGroupsContainer.innerHTML = ''; // 기존 내용 지우기
+            myGroupsContainer.innerHTML = ''; // 기존 내용 초기화
             groups.forEach(group => {
                 const li = document.createElement('li');
                 li.textContent = group.groupName;
+
+                // 그룹 클릭 이벤트 추가
+                li.onclick = () => fetchGroupMembers(group.groupId);
+
                 myGroupsContainer.appendChild(li);
             });
         }
     } catch (error) {
         console.error('Error fetching groups:', error);
     }
+}
 
-    // 그룹 신청 목록을 가져오는 API 호출
+async function fetchGroupMembers(groupId) {
     try {
-        const requestsResponse = await fetch('/groups/requests');
-        const requests = await requestsResponse.json();
-        
-        console.log(requests);
+        const response = await fetch(`/api/groups/${groupId}/members`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const members = await response.json(); // JSON 데이터 파싱
+        console.log(members);
+
+        const groupMembersContainer = document.getElementById('group-members');
+        if (members.length === 0) {
+            groupMembersContainer.innerHTML = '<li>구성원이 없습니다.</li>';
+        } else {
+            groupMembersContainer.innerHTML = '';
+            members.forEach(member => {
+                const li = document.createElement('li');
+                li.textContent = member.userName; // 멤버 이름 표시
+                groupMembersContainer.appendChild(li);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching group members:', error);
+        const groupMembersContainer = document.getElementById('group-members');
+        groupMembersContainer.innerHTML = `<li>오류 발생: ${error.message}</li>`;
+    }
+}
+
+// 그룹 신청 목록 가져오기 함수
+async function fetchGroupRequests() {
+    try {
+        const response = await fetch('/groups/requests');
+        const requests = await response.json();
+
+        console.log(requests); // 데이터 확인용
 
         const groupRequestsContainer = document.getElementById('group-requests');
         if (requests.length === 0) {
             groupRequestsContainer.innerHTML = '<li>현재 신청된 그룹이 없습니다.</li>';
         } else {
-            groupRequestsContainer.innerHTML = ''; // 기존 내용 제거
+            groupRequestsContainer.innerHTML = ''; // 기존 내용 초기화
             requests.forEach(request => {
                 const li = document.createElement('li');
                 li.textContent = `그룹: ${request.groupName}, 신청자: ${request.userName}`;
@@ -285,7 +328,8 @@ window.onload = async function() {
     } catch (error) {
         console.error('Error fetching group requests:', error);
     }
-};
+}
+
 
 // 신청 상태를 수락 또는 거절로 업데이트하는 함수
 async function updateRequestStatus(requestId, status) {

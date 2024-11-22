@@ -9,9 +9,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.ourapp.DTO.GroupDTO;
+import com.example.ourapp.DTO.GroupMemberDTO;
 import com.example.ourapp.DTO.GroupRequestDTO;
 import com.example.ourapp.DTO.UserDTO;
 import com.example.ourapp.entity.Group;
+import com.example.ourapp.entity.GroupMember;
 import com.example.ourapp.entity.GroupRequest;
 import com.example.ourapp.entity.User;
 import com.example.ourapp.user.UserRepository;
@@ -50,7 +52,7 @@ public class GroupController {
     }
     
     @GetMapping("/my-groups")
-    @ResponseBody  // JSON 응답을 보낼 수 있게 해주는 어노테이션
+    @ResponseBody
     public List<GroupDTO> getMyGroups(HttpSession session) {
         Long userId = (Long) session.getAttribute("user_id");
 
@@ -58,13 +60,20 @@ public class GroupController {
             throw new IllegalArgumentException("User not logged in");
         }
 
-        UserDTO userDTO = userService.findUserById(userId);
-        List<Group> groups = groupService.findGroupsByUser(userDTO.getUser_id());
-        
-        // GroupDTO 리스트로 변환하여 반환
+        // 사용자가 생성하거나 소속된 그룹 조회
+        List<Group> groups = groupService.findGroupsByUser(userId);
+
+        // GroupDTO로 변환하여 반환
         return groups.stream()
-                     .map(GroupDTO::new)  // Group을 GroupDTO로 변환
+                     .map(GroupDTO::new)
                      .collect(Collectors.toList());
+    }
+    
+    @GetMapping("/{groupId}/members")
+    public String getGroupMembersPage(@PathVariable Long groupId, Model model) {
+        Group group = groupService.findGroupById(groupId);
+        model.addAttribute("groupName", group.getGroupName());
+        return "groups/members"; // HTML 템플릿 렌더링
     }
 
     @PostMapping("/apply/{groupId}")

@@ -12,8 +12,11 @@ import com.example.ourapp.user.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -68,15 +71,45 @@ public class GroupService {
     }
     
     public List<Group> findGroupsByUser(Long userId) {
-        // 해당 userId에 해당하는 User 객체를 DB에서 찾고
+        // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        
-        // 해당 사용자가 생성한 그룹 목록을 반환
-        return groupRepository.findByCreatedBy(user);  // User 객체를 기준으로 그룹 찾기
-    }
 
- // 그룹 신청 처리
+        // 사용자가 생성한 그룹
+        List<Group> groupsCreatedByUser = groupRepository.findByCreatedBy(user);
+
+        // 사용자가 소속된 그룹
+        List<Group> groupsUserIsMemberOf = groupMemberRepository.findByUser(user).stream()
+                .map(GroupMember::getGroup) // GroupMember에서 Group 추출
+                .distinct() // 중복 제거
+                .collect(Collectors.toList());
+
+        // 모든 그룹 합치기
+        Set<Group> allGroups = new HashSet<>(groupsCreatedByUser);
+        allGroups.addAll(groupsUserIsMemberOf);
+
+        // 로그 출력
+        allGroups.forEach(group -> {
+            System.out.println("Group ID: " + group.getGroupId());
+            System.out.println("Group Name: " + group.getGroupName());
+        });
+
+        // 결과 반환
+        return new ArrayList<>(allGroups);
+    }
+ // 그룹 ID로 그룹 조회
+    public Group findGroupById(Long groupId) {
+        return groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Group not found with ID: " + groupId));
+    }
+    public List<GroupMember> findGroupMembers(Long groupId) {
+        // 그룹이 존재하는지 확인
+        groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("Group not found"));
+
+        // 그룹의 멤버 조회
+        return groupMemberRepository.findByGroup_GroupId(groupId);
+    }
  // 그룹 신청 처리
     public void applyForGroup(Long groupId, UserDTO userDTO) {
         // UserDTO에서 userId를 바로 사용할 수 있음

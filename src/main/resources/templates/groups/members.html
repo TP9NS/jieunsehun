@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Group Members</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>선택된 그룹의 구성원</h1>
+
+    <h2 th:text="'Group: ' + ${groupName}"></h2> <!-- 그룹 이름 표시 -->
+
+    <ul>
+        <!-- 구성원 목록 표시 -->
+        <li th:each="member : ${members}">
+            <span th:text="${member.userName}">User Name</span>
+        </li>
+    </ul>
+
+    <a href="/groups">Back to Groups</a> <!-- 그룹 목록으로 돌아가기 -->
+</body>
+</html>
+
