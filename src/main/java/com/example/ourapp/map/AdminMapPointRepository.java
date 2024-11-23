@@ -14,4 +14,5 @@ public interface AdminMapPointRepository extends JpaRepository<AdminMapPoint, Lo
     List<String> findDistinctTopics();
 
     List<AdminMapPoint> findByTopic(String topic);
+    List<AdminMapPoint> findByUserId(Long userId);
 }

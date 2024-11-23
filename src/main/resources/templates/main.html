@@ -94,7 +94,7 @@
       }
       #chatbox {
         width: 400px;
-        height: 700px;
+        height: 670px;
         border: 1px solid #ccc;
         padding: 10px;
         margin-left: 20px;
@@ -263,6 +263,23 @@
       </symbol>
     </svg>
 <body th:data-user-permission="${session.permission}">
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
+    const chatbox = document.getElementById("chatbox");
+    const adminMapPointsForm = document.getElementById("adminMapPointsForm");
+
+    // chatbox는 관리자일 경우 숨기고, 장소 리스트(adminMapPointsForm)는 항상 표시
+    if (chatbox && userPermission === 0) {
+        chatbox.style.display = "none"; // 관리자인 경우 chatbox 숨김
+    }
+    
+    if (adminMapPointsForm) {
+        adminMapPointsForm.style.display = "block"; // 장소 리스트는 항상 표시
+    }
+});
+</script>
+
 
 <header data-bs-theme="dark">
   <div class="collapse text-bg-dark" id="navbarHeader">
@@ -359,6 +376,45 @@
         </div>
         <input type="text" id="user-input" placeholder="GPT와 대화하세요..." onkeypress="sendMessage(event)">
     </div>
+    
+    <div id="admin-places">
+    <h3>관리자가 저장한 장소들</h3>
+
+    <!-- 주제 선택 드롭다운 -->
+    <div class="mb-3">
+        <label for="topicFilter" class="form-label">주제를 선택하세요:</label>
+        <select id="topicFilter" class="form-select">
+            <option value="ALL">전체</option>
+            <th:block th:each="topic : ${distinctTopics}">
+                <option th:value="${topic}" th:text="${topic}"></option>
+            </th:block>
+        </select>
+    </div>
+
+    <!-- 장소 리스트 -->
+    <div id="place-list" class="list-group">
+        <th:block th:each="point : ${adminMapPoints}">
+            <div class="list-group-item mb-3" th:attr="data-topic-th=${point.topic}">
+                <h4 th:text="${point.topic}"></h4>
+                <h5>
+                    <a href="javascript:void(0);" 
+                       class="location-link" 
+                       th:text="${point.locationName}"
+                       th:data-lat="${point.latitude}"
+                       th:data-lng="${point.longitude}"
+                       th:data-name="${point.locationName}">
+                    </a>
+                </h5>
+                <p th:text="'Alias: ' + ${point.locationAlias}"></p>
+                <p th:text="'Address: ' + ${point.address}"></p>
+                <p th:text="'Phone: ' + ${point.phone}"></p>
+                <img th:src="${point.imageUrl}" alt="Image" class="img-thumbnail" style="max-width: 200px;">
+            </div>
+        </th:block>
+    </div>
+</div>
+
+    
     </main>
 <script type="text/javascript">
 //JavaScript to retrieve user permission dynamically
@@ -764,6 +820,76 @@ function saveLocation(title, latitude, longitude, address_name, road_address_nam
         alert('저장 중 오류가 발생했습니다.');
     });
 }
+
+//페이지가 로드된 후 이벤트 리스너를 추가합니다
+document.addEventListener("DOMContentLoaded", function () {
+    // 모든 장소 링크에 클릭 이벤트 리스너를 추가합니다
+    const locationLinks = document.querySelectorAll(".location-link");
+    locationLinks.forEach(link => {
+        link.addEventListener("click", function () {
+            // data-* 속성에서 데이터 가져오기
+            const latitude = parseFloat(this.dataset.lat);
+            const longitude = parseFloat(this.dataset.lng);
+            const locationName = this.dataset.name;
+
+            // 마커 표시 함수 호출
+            showMarker(latitude, longitude, locationName);
+        });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const topicFilter = document.getElementById("topicFilter");
+    const placeList = document.getElementById("place-list");
+
+    // 드롭다운 변경 이벤트 리스너 추가
+    topicFilter.addEventListener("change", function () {
+        const selectedTopic = topicFilter.value;
+
+        // 장소 리스트의 각 항목을 확인
+        const places = placeList.querySelectorAll(".list-group-item");
+        places.forEach(place => {
+            const placeTopic = place.getAttribute("data-topic-th");
+
+            // 전체 보기(ALL) 또는 주제가 일치하는 경우에만 표시
+            if (selectedTopic === "ALL" || placeTopic === selectedTopic) {
+                place.style.display = "block";
+            } else {
+                place.style.display = "none";
+            }
+        });
+    });
+});
+
+
+
+// 좌표에 마커를 표시하는 함수
+function showMarker(latitude, longitude, locationName) {
+    // 기존 마커 제거
+    removeMarker();
+
+    // 마커 위치 생성
+    var position = new kakao.maps.LatLng(latitude, longitude);
+
+    // 새로운 마커 생성
+    var marker = new kakao.maps.Marker({
+        position: position
+    });
+
+    // 지도에 마커 표시
+    marker.setMap(map);
+    markers.push(marker);
+
+    // 지도 중심을 해당 위치로 이동
+    map.setCenter(position);
+
+    // 인포윈도우 표시
+    var content = '<div style="padding:5px;z-index:1;">' + locationName + '</div>';
+    infowindow.setContent(content);
+    infowindow.open(map, marker);
+}
+
+
 
 </script>
 </body>

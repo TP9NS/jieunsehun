@@ -57,9 +57,31 @@ public class MainController {
     private CommentService commentService;
 
     @GetMapping("/main")
-    public String main() {
+    public String main(HttpSession session, Model model) {
+        // 세션에서 사용자 권한과 사용자 ID 가져오기
+        Integer userPermission = (Integer) session.getAttribute("permission");
+        Long adminUserId = (Long) session.getAttribute("user_id");
+
+        // 모든 장소 가져오기
+        List<AdminMapPointDTO> adminMapPoints = adminMapPointService.getAllAdminMapPoints();
+
+        // 주제(topic) 리스트 생성
+        List<String> distinctTopics = adminMapPoints.stream()
+            .map(AdminMapPointDTO::getTopic) // 주제 가져오기
+            .filter(topic -> topic != null && !topic.isEmpty()) // 비어있지 않은 값만 필터링
+            .distinct() // 중복 제거
+            .sorted() // 정렬
+            .collect(Collectors.toList());
+
+        // 모델에 데이터 추가
+        model.addAttribute("adminMapPoints", adminMapPoints); // 전체 장소
+        model.addAttribute("distinctTopics", distinctTopics); // 고유 주제
+        model.addAttribute("userPermission", userPermission);
+
         return "main.html";
     }
+
+
     @GetMapping("/map")
     public String map() {
        return "map.html";
