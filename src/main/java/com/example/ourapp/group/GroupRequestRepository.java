@@ -16,5 +16,5 @@ public interface GroupRequestRepository extends JpaRepository<GroupRequest, Long
     // 여러 그룹에 대한 신청 목록을 반환
     List<GroupRequest> findByGroupIn(List<Group> groups);
     List<GroupRequest> findByGroupInAndStatus(List<Group> groups, GroupRequest.RequestStatus status);
-    
+
 }

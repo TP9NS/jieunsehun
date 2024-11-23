@@ -20,6 +20,9 @@ public class Group {
 
     @Column(name = "group_name", length = 50, nullable = false)
     private String groupName;
+    
+    @Column(name = "group_description", length = 100, nullable = false)
+    private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by", nullable = false)

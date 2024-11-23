@@ -58,6 +58,7 @@ public class GroupService {
         Group group = new Group();
         group.setGroupName(groupName);
         group.setCreatedBy(createdBy);
+        group.setDescription(description);
         group.setCreatedDate(LocalDateTime.now());
         // GroupMember 추가 (그룹 생성자는 기본적으로 소유자 권한을 가짐)
         GroupMember owner = new GroupMember();
@@ -69,7 +70,13 @@ public class GroupService {
         // 그룹 저장
         return groupRepository.save(group);
     }
-    
+    public Integer getMyPermission(Group group, Long userId) {
+        return group.getMembers().stream()
+                    .filter(member -> member.getUser().getUserId().equals(userId))
+                    .map(GroupMember::getPermission)
+                    .findFirst()
+                    .orElse(3); // 기본값: 일반 사용자 (3)
+    }
     public List<Group> findGroupsByUser(Long userId) {
         // 사용자 조회
         User user = userRepository.findById(userId)
@@ -202,6 +209,110 @@ public class GroupService {
 
         // 6. 그룹 신청이 수락되었으므로 해당 그룹 신청을 삭제할 수 있음 (필요시)
         // groupRequestRepository.delete(groupRequest); // 필요시 삭제
+    }
+    public void editGroupDescription(Long groupId, Long userId, String description) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+
+        // 소유자 여부 확인
+        if (!group.getCreatedBy().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("그룹 설명을 수정할 권한이 없습니다.");
+        }
+
+        group.setDescription(description);
+        groupRepository.save(group);
+    }
+    public void removeMember(Long groupId, Long userId, Long memberId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+
+        // 소유자 여부 확인
+        if (!group.getCreatedBy().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("멤버를 추방할 권한이 없습니다.");
+        }
+
+        GroupMember member = groupMemberRepository.findByGroup_groupIdAndUser_userId(groupId, memberId)
+                .orElseThrow(() -> new IllegalArgumentException("멤버를 찾을 수 없습니다."));
+
+        groupMemberRepository.delete(member);
+    }
+    public void deleteGroup(Long groupId, Long userId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+
+        if (!group.getCreatedBy().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("그룹을 삭제할 권한이 없습니다.");
+        }
+
+        groupRepository.delete(group);
+    }
+    public void changeMemberPermission(Long groupId, Long userId, Long targetUserId, Integer newPermission) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+
+        if (!group.getCreatedBy().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("권한을 변경할 권한이 없습니다.");
+        }
+
+        GroupMember member = groupMemberRepository.findByGroup_groupIdAndUser_userId(groupId, targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("멤버를 찾을 수 없습니다."));
+
+        if (member.getPermission() == 1) {
+            throw new IllegalArgumentException("소유자의 권한은 변경할 수 없습니다.");
+        }
+
+        member.setPermission(newPermission);
+        groupMemberRepository.save(member);
+    }
+    public List<GroupRequestDTO> getGroupRequestsForGroup(Long groupId, Long userId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+
+        if (!group.getCreatedBy().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("그룹 신청을 조회할 권한이 없습니다.");
+        }
+
+        List<GroupRequest> requests = groupRequestRepository.findByGroupAndStatus(group, GroupRequest.RequestStatus.대기);
+        return requests.stream()
+                .map(GroupRequestDTO::new)
+                .collect(Collectors.toList());
+    }
+    public void updateRequestStatus(Long requestId, Long userId, String status) {
+        GroupRequest groupRequest = groupRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("신청을 찾을 수 없습니다."));
+
+        Group group = groupRequest.getGroup();
+        if (!group.getCreatedBy().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("신청을 처리할 권한이 없습니다.");
+        }
+
+        GroupRequest.RequestStatus newStatus = GroupRequest.RequestStatus.valueOf(status.toUpperCase());
+        groupRequest.setStatus(newStatus);
+        groupRequestRepository.save(groupRequest);
+
+        if (newStatus == GroupRequest.RequestStatus.수락) {
+            GroupMember member = new GroupMember();
+            member.setUser(groupRequest.getUser());
+            member.setGroup(group);
+            member.setPermission(3); // 기본 권한: 그룹 구성원
+            groupMemberRepository.save(member);
+        }
+    }
+    public List<GroupRequest> findByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                      .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return groupRequestRepository.findByUserAndStatus(user, GroupRequest.RequestStatus.대기);
+    }
+
+    public void deleteRequest(Long requestId, Long userId) {
+        GroupRequest request = groupRequestRepository.findById(requestId)
+                                   .orElseThrow(() -> new IllegalArgumentException("Request not found"));
+
+        if (!request.getUser().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("You are not authorized to delete this request");
+        }
+
+        groupRequestRepository.delete(request);
     }
 
 }

@@ -16,9 +16,11 @@ public class GroupDTO {
     private String groupName; // 그룹 이름
     private String createdBy; // 생성자 이름
     private Long createdById; // 생성자 ID
+    private String description;
     private List<MemberPermissionDTO> members; // 구성원과 권한 정보
     private LocalDateTime createdDate; // 생성일자
-
+    private Integer myPermission;
+    public GroupDTO() {}
     // Group -> GroupDTO 변환
     public GroupDTO(Group group) {
         this.groupId = group.getGroupId();
@@ -26,13 +28,18 @@ public class GroupDTO {
         this.createdBy = group.getCreatedBy().getUsername();
         this.createdById = group.getCreatedBy().getUserId();
         this.createdDate = group.getCreatedDate();
-
+        this.description =group.getDescription();
         // 구성원 리스트를 MemberPermissionDTO로 변환
         this.members = group.getMembers().stream()
                 .map(MemberPermissionDTO::new)
                 .collect(Collectors.toList());
     }
-
+    public GroupDTO(Group group, Integer myPermission) {
+        this.groupId = group.getGroupId();
+        this.groupName = group.getGroupName();
+        this.description = group.getDescription();
+        this.myPermission = myPermission; // 나의 권한 설정
+    }
     @Getter
     @Setter
     public static class MemberPermissionDTO {

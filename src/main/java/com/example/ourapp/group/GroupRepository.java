@@ -11,5 +11,5 @@ import com.example.ourapp.entity.User;
 public interface GroupRepository extends JpaRepository<Group, Long> {
 	List<Group> findByGroupNameContainingIgnoreCase(String keyword);
 	List<Group> findByCreatedBy(User createdBy);
-	Optional<Group> findById(Long id);
+	
 }

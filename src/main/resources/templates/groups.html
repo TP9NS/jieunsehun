@@ -93,8 +93,53 @@
         display: block !important;
       }
 
+        .section {
+            display: none;
+        }
+        .active-section {
+            display: block;
+        }
+        .alert {
+            display: none;
+        }
+   
+    .list-group-item {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        padding: 10px 15px;
+        background-color: #f9f9f9;
+    }
+
+    .list-group-item:hover {
+        background-color: #f1f1f1;
+        transition: background-color 0.2s;
+    }
+
+    .list-group-item strong {
+        font-size: 1.1rem;
+    }
+
+    .list-group-item small {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .btn-outline-primary {
+        font-size: 0.9rem;
+    }
 
 </style>
+<script>
+        function showSection(sectionId) {
+            // 모든 섹션 숨기기
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active-section');
+            });
+            // 선택된 섹션만 보이기
+            document.getElementById(sectionId).classList.add('active-section');
+        }
+    </script>
 </head>
 <body>
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
@@ -183,169 +228,384 @@
   </div>
 </header>
 <body>
-    <div class="container">
-        <!-- 그룹 생성 섹션 -->
-        <div class="section" id="create-group-section">
-            <h2>그룹을 생성하세요!</h2>
-            <form id="create-group-form" action="/groups/create" method="post">
-    <label for="group-name">그룹 명:</label>
-    <input type="text" id="group-name" name="groupName" required>
-    <br>
-    <label for="group-description">그룹 설명:</label>
-    <textarea id="group-description" name="description" rows="3" required></textarea>
-    <br>
-    <button type="submit">그룹 생성하기</button>
-</form>
-        </div><br>
+	<div class="container mt-4 text-center">
+        <button class="btn btn-primary me-2" onclick="showSection('createGroupSection')">그룹 생성</button>
+        <button class="btn btn-secondary me-2" onclick="showSection('manageGroupSection')">그룹 관리</button>
+        <button class="btn btn-success" onclick="showSection('applyGroupSection')">그룹 신청</button>
+    </div>
 
-        <div class="section" id="search-group-section">
-    <h2>그룹 검색</h2>
+    <main class="container mt-4">
+        <!-- 그룹 생성 섹션 -->
+<div id="createGroupSection" class="section active-section">
+    <h2>그룹을 생성하세요!</h2>
+    <form id="create-group-form">
+        <label for="group-name">그룹 명:</label>
+        <input type="text" id="group-name" name="groupName" required>
+        <br>
+        <label for="group-description">그룹 설명:</label>
+        <textarea id="group-description" name="description" rows="3" required></textarea>
+        <br>
+        <button type="button" class="btn btn-primary" onclick="submitGroupForm()">그룹 생성하기</button>
+    </form>
+</div>
+
+        <!-- 그룹 관리 섹션 -->
+        <div id="manageGroupSection" class="section">
+            <h2>그룹 관리</h2>
+            <ul id="my-groups" class="list-group">
+                <!-- JavaScript로 동적으로 추가 -->
+            </ul>
+        </div>
+
+<div id="applyGroupSection" class="section">
+    <h2>그룹 신청</h2>
     <form id="search-group-form" onsubmit="searchGroups(event);">
         <label for="search-keyword">그룹 명:</label>
-        <input type="text" id="search-keyword" placeholder="그룹 명을 입력하세요!">
-        <button type="submit">검색하기</button>
+        <input type="text" id="search-keyword" placeholder="그룹 명을 입력하세요!" required>
+        <button type="submit" class="btn btn-primary">검색하기</button>
     </form>
-    <ul id="group-results">
-        <!-- 검색 결과가 여기에 표시됩니다 -->
+    <ul id="group-results" class="list-group">
+        <!-- 검색 결과 표시 -->
     </ul>
-</div>
-<div class="section" id="my-groups-section">
-    <h2>내가 생성한 그룹</h2>
-    <ul id="my-groups">
-        <!-- JavaScript로 동적으로 그룹 목록을 추가할 부분 -->
-    </ul>
-</div>
-<ul id="group-requests">
-    <!-- 요청 목록이 여기에 표시됩니다 -->
-</ul>
 
-<div class="section" id="group-members-section">
-    <h2>선택된 그룹의 구성원</h2>
-    <ul id="group-members">
-        <!-- JavaScript로 동적으로 구성원 목록을 추가 -->
+    <h3 class="mt-4">내가 신청한 그룹</h3>
+    <ul id="my-requests" class="list-group">
+        <!-- 내가 신청한 그룹 요청 표시 -->
     </ul>
 </div>
-<div class="section" id="my-requests-section">
-    <h2>내가 신청한 그룹</h2>
-    <ul id="my-requests">
-        <!-- JavaScript로 동적으로 그룹 목록을 추가할 부분 -->
-    </ul>
-</div>
-    </div>
+    </main>
 <script>
-window.onload = async function() {
-    await fetchMyGroups();  // 내 그룹 목록 가져오기
-    await fetchGroupRequests();  // 그룹 신청 목록 가져오기
-};
+async function fetchMyRequests() {
+    try {
+        const response = await fetch('/groups/my-requests');
+        const requests = await response.json();
 
+        const myRequestsContainer = document.getElementById('my-requests');
+        myRequestsContainer.innerHTML = ""; // 기존 요청 초기화
+
+        if (requests.length === 0) {
+            myRequestsContainer.innerHTML = '<li class="list-group-item">신청한 그룹이 없습니다.</li>';
+            return;
+        }
+
+        requests.forEach(request => {
+            const li = document.createElement('li');
+            li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+            li.innerHTML = `
+                <strong>그룹명: ${request.groupName}</strong> 
+
+            `;
+
+            // 신청 삭제 버튼
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = '삭제';
+            deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
+            deleteButton.onclick = () => deleteRequest(request.id);
+
+            li.appendChild(deleteButton);
+            myRequestsContainer.appendChild(li);
+        });
+    } catch (error) {
+        console.error('Error fetching my requests:', error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
+}
+
+// 신청 삭제 함수
+async function deleteRequest(requestId) {
+    if (!confirm('이 요청을 삭제하시겠습니까?')) return;
+
+    try {
+        const response = await fetch(`/groups/requests/${requestId}/delete`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            alert('신청이 삭제되었습니다.');
+            fetchMyRequests(); // 목록 갱신
+        } else {
+            const error = await response.json();
+            alert(`삭제 실패: ${error.message}`);
+        }
+    } catch (error) {
+        console.error('Error deleting request:', error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
+}
+
+// 페이지 로드 시 내 신청한 그룹 요청 가져오기
+window.onload = async function () {
+    await fetchMyRequests(); // 내가 신청한 그룹 요청 가져오기
+    await fetchMyGroups(); // 내 그룹 목록 가져오기
+    await fetchGroupRequests(); // 그룹 신청 목록 가져오기
+};
+    async function submitGroupForm() {
+        const groupName = document.getElementById('group-name').value.trim();
+        const groupDescription = document.getElementById('group-description').value.trim();
+
+        // 입력값 검증
+        if (!groupName || !groupDescription) {
+            alert('모든 필드를 채워주세요.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/groups/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ groupName, description: groupDescription })
+            });
+
+            if (response.ok) {
+                alert('그룹이 생성되었습니다!');
+                document.getElementById('create-group-form').reset(); // 폼 초기화
+                // 필요 시 다른 동작 추가 (예: 그룹 목록 갱신)
+            } else {
+                const error = await response.json();
+                alert(`그룹 생성 실패: ${error.message}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('오류가 발생했습니다. 다시 시도해주세요.');
+        }
+    }
 //내 그룹 목록 가져오기
 async function fetchMyGroups() {
     try {
-        const response = await fetch('/groups/my-groups'); // API 호출
+        const response = await fetch('/groups/my-groups');
         const groups = await response.json();
 
-        console.log(groups); // 데이터 확인용
-
         const myGroupsContainer = document.getElementById('my-groups');
+        myGroupsContainer.innerHTML = '';
+
         if (groups.length === 0) {
-            myGroupsContainer.innerHTML = '<li>아직 생성한 그룹이 없습니다.</li>';
-        } else {
-            myGroupsContainer.innerHTML = ''; // 기존 내용 초기화
-            groups.forEach(group => {
-                const li = document.createElement('li');
-                li.textContent = group.groupName;
-
-                // 그룹 클릭 이벤트 추가
-                li.onclick = () => fetchGroupMembers(group.groupId);
-
-                myGroupsContainer.appendChild(li);
-            });
+            myGroupsContainer.innerHTML = '<li class="list-group-item">아직 생성한 그룹이 없습니다.</li>';
+            return;
         }
+
+        groups.forEach(group => {
+            const li = document.createElement('li');
+            li.classList.add('list-group-item');
+            li.textContent = `${group.groupName} (권한: ${getPermissionText(group.myPermission)})`;
+
+            const groupInfoDiv = document.createElement('div');
+            groupInfoDiv.classList.add('group-info', 'd-none');
+            groupInfoDiv.innerHTML = `
+                <p><strong>그룹 설명:</strong> <span id="group-description-${group.groupId}">${group.description}</span></p>
+                ${
+                    group.myPermission === 1
+                        ? `
+                        <button class="btn btn-warning btn-sm" onclick="editGroupDescription(${group.groupId})">그룹 설명 수정</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteGroup(${group.groupId})">그룹 삭제</button>
+                        `
+                        : ''
+                }
+                <p><strong>그룹 구성원:</strong></p>
+                <ul id="group-members-${group.groupId}" class="list-group"></ul>
+            `;
+
+            li.onclick = () => toggleGroupInfo(group.groupId, groupInfoDiv);
+            fetchGroupMembers(group.groupId, groupInfoDiv.querySelector(`#group-members-${group.groupId}`), group.myPermission);
+            li.appendChild(groupInfoDiv);
+            myGroupsContainer.appendChild(li);
+        });
     } catch (error) {
         console.error('Error fetching groups:', error);
     }
 }
-
-async function fetchGroupMembers(groupId) {
+function getPermissionText(permission) {
+    switch (permission) {
+        case 1:
+            return '소유자';
+        case 2:
+            return '관리자';
+        case 3:
+            return '그룹 구성원';
+        default:
+            return '알 수 없음';
+    }
+}
+function toggleGroupInfo(groupId, groupInfoDiv) {
+    // 그룹 정보 토글
+    const isHidden = groupInfoDiv.classList.contains('d-none');
+    document.querySelectorAll('.group-info').forEach(div => div.classList.add('d-none')); // 다른 그룹 정보 숨김
+    if (isHidden) groupInfoDiv.classList.remove('d-none');
+}
+async function fetchGroupMembers(groupId, membersContainer, myPermission) {
     try {
         const response = await fetch(`/api/groups/${groupId}/members`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const members = await response.json(); // JSON 데이터 파싱
-        console.log(members);
+        const members = await response.json();
 
-        const groupMembersContainer = document.getElementById('group-members');
+        membersContainer.innerHTML = '';
         if (members.length === 0) {
-            groupMembersContainer.innerHTML = '<li>구성원이 없습니다.</li>';
+            membersContainer.innerHTML = '<li class="list-group-item">구성원이 없습니다.</li>';
         } else {
-            groupMembersContainer.innerHTML = '';
             members.forEach(member => {
                 const li = document.createElement('li');
-                li.textContent = member.userName; // 멤버 이름 표시
-                groupMembersContainer.appendChild(li);
+                li.classList.add('list-group-item');
+                li.textContent = `${member.userName} (권한: ${getPermissionText(member.permission)})`;
+
+                if (myPermission === 1 && member.permission !== 1) {
+                    // 권한 변경 및 추방 버튼 추가
+                    const changePermissionButton = document.createElement('button');
+                    changePermissionButton.textContent = '권한 변경';
+                    changePermissionButton.classList.add('btn', 'btn-secondary', 'btn-sm', 'ms-2');
+                    changePermissionButton.onclick = () => changeMemberPermission(groupId, member.userId);
+
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = '추방';
+                    removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'ms-2');
+                    removeButton.onclick = () => removeMember(groupId, member.userId);
+
+                    li.appendChild(changePermissionButton);
+                    li.appendChild(removeButton);
+                }
+
+                membersContainer.appendChild(li);
             });
+        }
+
+        // 그룹 신청 목록 추가 (소유자만 보임)
+        if (myPermission === 1) {
+            const requestsHeader = document.createElement('h4');
+            requestsHeader.textContent = '그룹 신청 목록';
+            membersContainer.appendChild(requestsHeader);
+
+            const requestsContainer = document.createElement('ul');
+            requestsContainer.classList.add('list-group');
+            membersContainer.appendChild(requestsContainer);
+
+            fetchGroupRequests(groupId, requestsContainer);
         }
     } catch (error) {
         console.error('Error fetching group members:', error);
-        const groupMembersContainer = document.getElementById('group-members');
-        groupMembersContainer.innerHTML = `<li>오류 발생: ${error.message}</li>`;
+        membersContainer.innerHTML = '<li class="list-group-item text-danger">오류가 발생했습니다.</li>';
+    }
+}
+async function deleteGroup(groupId) {
+    if (!confirm('이 그룹을 정말 삭제하시겠습니까?')) return;
+
+    try {
+        const response = await fetch(`/groups/${groupId}/delete`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            alert('그룹이 삭제되었습니다.');
+            fetchMyGroups(); // 그룹 목록 갱신
+        } else {
+            const error = await response.json();
+            alert(`그룹 삭제 실패: ${error.message}`);
+        }
+    } catch (error) {
+        console.error('Error deleting group:', error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
     }
 }
 
-// 그룹 신청 목록 가져오기 함수
-async function fetchGroupRequests() {
+async function editGroupDescription(groupId) {
+    const newDescription = prompt('새 그룹 설명을 입력하세요:');
+    if (!newDescription) return;
+
     try {
-        const response = await fetch('/groups/requests');
+        const response = await fetch(`/groups/${groupId}/edit-description`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: newDescription }),
+        });
+
+        if (response.ok) {
+            alert('그룹 설명이 수정되었습니다!');
+            document.getElementById(`group-description-${groupId}`).textContent = newDescription; // UI 업데이트
+        } else {
+            const error = await response.json();
+            alert(`수정 실패: ${error.message}`);
+        }
+    } catch (error) {
+        console.error(error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
+}
+
+async function removeMember(groupId, userId) {
+    if (!confirm('해당 멤버를 추방하시겠습니까?')) return;
+
+    try {
+        const response = await fetch(`/groups/${groupId}/remove-member`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId }),
+        });
+
+        if (response.ok) {
+            alert('멤버가 추방되었습니다.');
+            fetchGroupMembers(groupId, document.querySelector(`#group-members-${groupId}`), 1); // 멤버 목록 갱신
+        } else {
+            const error = await response.json();
+            alert(`추방 실패: ${error.message}`);
+        }
+    } catch (error) {
+        console.error(error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
+}
+async function fetchGroupRequests(groupId, requestsContainer) {
+    try {
+        const response = await fetch(`/groups/${groupId}/requests`);
         const requests = await response.json();
 
-        console.log(requests); // 데이터 확인용
-
-        const groupRequestsContainer = document.getElementById('group-requests');
+        requestsContainer.innerHTML = '';
         if (requests.length === 0) {
-            groupRequestsContainer.innerHTML = '<li>현재 신청된 그룹이 없습니다.</li>';
+            requestsContainer.innerHTML = '<li class="list-group-item">신청이 없습니다.</li>';
         } else {
-            groupRequestsContainer.innerHTML = ''; // 기존 내용 초기화
             requests.forEach(request => {
                 const li = document.createElement('li');
-                li.textContent = `그룹: ${request.groupName}, 신청자: ${request.userName}`;
+                li.classList.add('list-group-item');
+                li.textContent = `신청자: ${request.userName}`;
 
                 // 수락 버튼
                 const acceptButton = document.createElement('button');
                 acceptButton.textContent = '수락';
-                acceptButton.onclick = () => updateRequestStatus(request.id, '수락');
+                acceptButton.classList.add('btn', 'btn-primary', 'btn-sm', 'ms-2');
+                acceptButton.onclick = () => updateRequestStatus(request.id, '수락', groupId);
 
                 // 거절 버튼
                 const rejectButton = document.createElement('button');
                 rejectButton.textContent = '거절';
-                rejectButton.onclick = () => updateRequestStatus(request.id, '거절');
+                rejectButton.classList.add('btn', 'btn-danger', 'btn-sm', 'ms-2');
+                rejectButton.onclick = () => updateRequestStatus(request.id, '거절', groupId);
 
                 li.appendChild(acceptButton);
                 li.appendChild(rejectButton);
-                groupRequestsContainer.appendChild(li);
+                requestsContainer.appendChild(li);
             });
         }
     } catch (error) {
         console.error('Error fetching group requests:', error);
+        requestsContainer.innerHTML = '<li class="list-group-item text-danger">오류가 발생했습니다.</li>';
     }
 }
 
 
+
 // 신청 상태를 수락 또는 거절로 업데이트하는 함수
-async function updateRequestStatus(requestId, status) {
+async function updateRequestStatus(requestId, status, groupId) {
     try {
         const response = await fetch(`/groups/requests/${requestId}/update?status=${status}`, {
-            method: 'POST'
+            method: 'POST',
         });
 
         if (response.ok) {
-            alert('신청 상태가 업데이트되었습니다.');
-            location.reload(); // 새로고침하여 상태 업데이트 반영
+            alert(`신청이 ${status}되었습니다.`);
+            const membersContainer = document.querySelector(`#group-members-${groupId}`);
+            fetchGroupMembers(groupId, membersContainer, 1); // 멤버 목록 갱신
         } else {
-            alert('신청 상태 업데이트에 실패했습니다.');
+            const error = await response.json();
+            alert(`신청 처리 실패: ${error.message}`);
         }
     } catch (error) {
         console.error('Error updating request status:', error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
     }
 }
 
@@ -401,31 +661,43 @@ async function searchGroups(event) {
             const groups = await response.json();
 
             const resultsContainer = document.getElementById('group-results');
-            resultsContainer.innerHTML = "";
+            resultsContainer.innerHTML = ""; // 기존 검색 결과 초기화
+
             if (groups.length > 0) {
                 groups.forEach(group => {
                     const li = document.createElement('li');
-                    li.textContent = `${group.groupName} - Created by: ${group.createdBy}`;
-                    
+                    li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+
+                    // 그룹 이름과 생성자 정보 포함
+                    const groupInfoDiv = document.createElement('div');
+                    groupInfoDiv.innerHTML = `
+                        <strong>${group.groupName}</strong> 
+                        <small class="text-muted">Created by: ${group.createdBy}</small>
+                    `;
+
+                    li.appendChild(groupInfoDiv);
+
                     // 신청 버튼 추가
-                    const button = document.createElement('button');
-                    button.textContent = "그룹 신청";
-                    button.onclick = () => applyForGroup(group.groupId); // 버튼 클릭 시 그룹 신청
-                    
-                    li.appendChild(button);
+                    const applyButton = document.createElement('button');
+                    applyButton.textContent = '그룹 신청';
+                    applyButton.classList.add('btn', 'btn-primary', 'btn-sm');
+                    applyButton.onclick = () => applyForGroup(group.groupId);
+
+                    li.appendChild(applyButton);
                     resultsContainer.appendChild(li);
                 });
             } else {
-                resultsContainer.innerHTML = "<li>No groups found.</li>";
+                resultsContainer.innerHTML = "<li class='list-group-item'>검색된 그룹이 없습니다.</li>";
             }
         } else {
             alert("Error occurred while searching for groups.");
         }
     } catch (error) {
-        console.error(error);
+        console.error('Error searching groups:', error);
         alert("An error occurred while searching for groups.");
     }
 }
+
 
 async function applyForGroup(groupId) {
     try {
@@ -446,7 +718,32 @@ async function applyForGroup(groupId) {
         alert("An error occurred while applying for the group.");
     }
 }
+async function changeMemberPermission(groupId, userId) {
+    const newPermission = prompt('변경할 권한을 입력하세요 (2: 관리자, 3: 그룹 구성원):');
+    if (![2, 3].includes(Number(newPermission))) {
+        alert('잘못된 입력입니다.');
+        return;
+    }
 
+    try {
+        const response = await fetch(`/groups/${groupId}/change-permission`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, permission: Number(newPermission) }),
+        });
+
+        if (response.ok) {
+            alert('권한이 변경되었습니다.');
+            fetchGroupMembers(groupId, document.querySelector(`#group-members-${groupId}`), 1); // 구성원 목록 갱신
+        } else {
+            const error = await response.json();
+            alert(`권한 변경 실패: ${error.message}`);
+        }
+    } catch (error) {
+        console.error('Error changing member permission:', error);
+        alert('오류가 발생했습니다. 다시 시도해주세요.');
+    }
+}
 </script>
 
 
