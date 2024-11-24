@@ -22,10 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.example.ourapp.DTO.PostDTO;
 import com.example.ourapp.DTO.UserDTO;
 import com.example.ourapp.entity.AdminMapPoint;
 import com.example.ourapp.entity.User;
 import com.example.ourapp.map.AdminMapPointRepository;
+import com.example.ourapp.post.PostService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +38,8 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
     private final UserService userService;
+    @Autowired
+    private PostService postService;
     @Autowired
     private AdminMapPointRepository adminMapPointRepository;
 
@@ -88,16 +93,25 @@ public class UserController {
     @GetMapping("/mypage")
     public String myPage(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("user_id");
-        if (userId == null) {
+        String username = (String) session.getAttribute("username");
+
+        if (userId == null || username == null) {
             return "redirect:/user/login";
         }
+
         // UserDTO를 가져와서 모델에 추가
         UserDTO userDTO = userService.findUserById(userId);
         model.addAttribute("user", userDTO);
         model.addAttribute("editMode", true);
 
+        // username으로 게시글 가져오기
+        List<PostDTO> userPosts = postService.findPostsByUsername(username);
+        model.addAttribute("userPosts", userPosts);
+
         return "mypage.html";
     }
+
+
     
     @PostMapping("/update")
     public String updateUser(@ModelAttribute UserDTO userDTO, HttpSession session) {

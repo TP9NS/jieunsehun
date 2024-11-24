@@ -37,4 +37,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     
     Page<Post> findByParentCategoryNameContainingIgnoreCaseAndTitleContainingIgnoreCase(
             String parentCategoryName, String title, Pageable pageable);
+    
+    List<Post> findByUsername(String username);
 }

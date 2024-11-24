@@ -277,5 +277,11 @@ public class PostService {
     public void deletePost(Long id) {
         postRepository.deleteById(id);
     }
-
+    
+    public List<PostDTO> findPostsByUsername(String username) {
+        List<Post> posts = postRepository.findByUsername(username);
+        return posts.stream()
+                .map(PostDTO::new) // PostDTO 생성자를 활용
+                .collect(Collectors.toList());
+    }
 }

@@ -243,61 +243,86 @@
   </div>
 </header>
 
- <div class="container mt-4">
- <form th:action="@{/user/update}" method="post">
-    <div class="card">
-        <div class="card-header">
-            <h4 class="card-title">내 정보</h4>
+<div class="container mt-4">
+    <div class="row">
+        <!-- 내 정보 폼 -->
+        <div class="col-md-6">
+            <form th:action="@{/user/update}" method="post">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">내 정보</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <input type="hidden" th:value="${user.User_id}" name="user_id">
+                            <strong>아이디: </strong>
+                            <span th:if="${!editMode}" th:text="${user.username}"></span>
+                            <input th:if="${editMode}" type="text" id="username" class="form-control" th:value="${user.username}" name="username">
+                            <input type="button" class="btn-custom" onclick="checkDuplicate()" value="중복 확인">
+                            <hr>
+                            <strong>비밀번호: </strong>
+                            <span th:if="${!editMode}" th:text="${user.password}"></span>
+                            <input th:if="${editMode}" type="password" class="form-control" th:value="${user.password}" name="password">
+                            <hr>
+                            <strong>이름: </strong>
+                            <span th:if="${!editMode}" th:text="${user.name}"></span>
+                            <input th:if="${editMode}" type="text" class="form-control" th:value="${user.name}" name="name">
+                            <hr>
+                            <strong>생년월일: </strong>
+                            <span th:if="${!editMode}" th:text="${user.birthdate}"></span>
+                            <input th:if="${editMode}" type="date" class="form-control" th:value="${user.birthdate}" name="birthdate">
+                            <hr>
+                            <strong>이메일: </strong>
+                            <span th:if="${!editMode}" th:text="${user.email}"></span>
+                            <input th:if="${editMode}" type="email" class="form-control" th:value="${user.email}" name="email">
+                            <hr>
+                            <strong>전화번호: </strong>
+                            <span th:if="${!editMode}" th:text="${user.phone}"></span>
+                            <input th:if="${editMode}" type="tel" class="form-control" th:value="${user.phone}" name="phone">
+                            <hr>
+                            <strong>주소: </strong>
+                            <span th:if="${!editMode}" th:text="${user.address}"></span>
+                            <input th:if="${editMode}" type="text" id="sample6_address" class="form-control" th:value="${user.address}" name="address">
+                            <hr>
+                            <strong>우편번호: </strong>
+                            <span th:if="${!editMode}" th:text="${user.postcode}"></span>
+                            <input th:if="${editMode}" type="text" id="sample6_postcode" class="form-control" th:value="${user.postcode}" name="postcode">
+                            <input type="button" class="btn-custom2" onclick="sample6_execDaumPostcode()" value="우편번호 찾기">
+                            <hr>
+                            <strong>상세주소: </strong>
+                            <input th:if="${editMode}" type="text" id="sample6_detailAddress" class="form-control" th:value="${user.address_1}" name="address_1">
+                            <input type="text" id="sample6_extraAddress" class="form-control" placeholder="참고항목">
+                        </ul>
+                        <div class="mt-4">
+                            <button th:if="${!editMode}" class="btn btn-primary" type="button" onclick="toggleEditMode()">정보 수정</button>
+                            <button th:if="${editMode}" class="btn btn-success" type="submit">저장</button>
+                            <button th:if="${editMode}" class="btn btn-secondary" type="button" onclick="cancelEdit()">취소</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="card-body">
-            <ul class="list-group">
-                    <input type="hidden" th:value="${user.User_id}" name="user_id">
-                    <strong>아이디: </strong>
-                    <span th:if="${!editMode}" th:text="${user.username}"></span>
-                    <input th:if="${editMode}" type="text" id="username" class="form-control" th:value="${user.username}" name="username">
-                    <input type="button" class="btn-custom" onclick="checkDuplicate()" value="중복 확인">
-                <hr>
-                    <strong>비밀번호: </strong>
-                    <span th:if="${!editMode}" th:text="${user.password}"></span>
-                    <input th:if="${editMode}" type="password" class="form-control" th:value="${user.password}" name="password">
-                <hr>
-                    <strong>이름: </strong>
-                    <span th:if="${!editMode}" th:text="${user.name}"></span>
-                    <input th:if="${editMode}" type="text" class="form-control" th:value="${user.name}" name="name">
-                <hr>
-                    <strong>생년월일: </strong>
-                    <span th:if="${!editMode}" th:text="${user.birthdate}"></span>
-                    <input th:if="${editMode}" type="date" class="form-control" th:value="${user.birthdate}" name="birthdate">
-                <hr>
-                    <strong>이메일: </strong>
-                    <span th:if="${!editMode}" th:text="${user.email}"></span>
-                    <input th:if="${editMode}" type="email" class="form-control" th:value="${user.email}" name="email">
-                <hr>
-                    <strong>전화번호: </strong>
-                    <span th:if="${!editMode}" th:text="${user.phone}"></span>
-                    <input th:if="${editMode}" type="tel" class="form-control" th:value="${user.phone}" name="phone">
-                <hr>
-                    <strong>주소: </strong>
-                    <span th:if="${!editMode}" th:text="${user.address}"></span>
-                    <input th:if="${editMode}" type="text" id="sample6_address" class="form-control" th:value="${user.address}" name="address">
-                <hr>
-                    <strong>우편번호: </strong>
-                    <span th:if="${!editMode}" th:text="${user.postcode}"></span>
-                    <input th:if="${editMode}" type="text" id="sample6_postcode" class="form-control" th:value="${user.postcode}" name="postcode">
-                    <input type="button" class="btn-custom2" onclick="sample6_execDaumPostcode()" value="우편번호 찾기">
-                <hr>
-                    <strong>상세주소: </strong>
-                    <input th:if="${editMode}" type="text" id="sample6_detailAddress" class="form-control" th:value="${user.address_1}" name="address_1">
-                    <input type="text" id="sample6_extraAddress" class="form-control" placeholder="참고항목">
-            </ul>
-            <div class="mt-4">
-                <button th:if="${!editMode}" class="btn btn-primary" type="button" onclick="toggleEditMode()">정보 수정</button>
-                <button th:if="${editMode}" class="btn btn-success" type="submit">저장</button>
-                <button th:if="${editMode}" class="btn btn-secondary" type="button" onclick="cancelEdit()">취소</button>
+        
+        <!-- 내 게시글 -->
+        <div class="col-md-6">
+            <div id="user-posts">
+                <h3>내가 작성한 게시글</h3>
+                <ul class="list-group">
+                    <li class="list-group-item" th:each="post : ${userPosts}">
+                         <h4>
+                            <a th:href="@{/board/view/{id}(id=${post.id})}" th:text="${post.title}"></a>
+                        </h4>
+                        <p th:text="${post.content}"></p>
+                        <p><strong>작성일:</strong> <span th:text="${post.formattedCreatedAt}"></span></p>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
-</form>
+</div>
+
+
+
 
 <!-- 우편번호 찾기, 중복 체크 스크립트 추가 -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>

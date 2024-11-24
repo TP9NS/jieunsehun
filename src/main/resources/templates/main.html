@@ -892,7 +892,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-// 좌표에 마커를 표시하는 함수
+//좌표에 마커를 표시하는 함수
 function showMarker(latitude, longitude, locationName) {
     // 기존 마커 제거
     removeMarker();
@@ -912,11 +912,26 @@ function showMarker(latitude, longitude, locationName) {
     // 지도 중심을 해당 위치로 이동
     map.setCenter(position);
 
-    // 인포윈도우 표시
+    // 인포윈도우 생성
     var content = '<div style="padding:5px;z-index:1;">' + locationName + '</div>';
     infowindow.setContent(content);
     infowindow.open(map, marker);
+
+    // 마커 클릭 이벤트 추가: 클릭 시 마커와 인포윈도우 제거
+    kakao.maps.event.addListener(marker, 'click', function () {
+        marker.setMap(null); // 마커 제거
+        infowindow.close(); // 인포윈도우 닫기
+    });
 }
+
+// 기존 마커를 모두 제거하는 함수
+function removeMarker() {
+    markers.forEach(function (marker) {
+        marker.setMap(null); // 지도에서 마커 제거
+    });
+    markers = []; // 마커 배열 초기화
+}
+
 
 //주제에 따른 커스텀 오버레이 데이터를 정의합니다
 var overlayData = {
@@ -1053,8 +1068,6 @@ function createMarkerAndOverlay(data) {
                 <img src="${data.image}" alt="${data.name}" 
                      style="width: 250px; height: 200px; border-radius: 8px; margin: 0; padding: 0;"> <!-- 모든 여백 제거 -->
                 <div class="desc" style="flex-grow: 1; margin-left: 5px;"> <!-- 최소 간격 유지 -->
-                    <span>위도: ${data.position.getLat()}</span><br>
-                    <span>경도: ${data.position.getLng()}</span><br>
                     <input type="text" placeholder="저장할 별칭" id="alias" class="input" 
                            style="width: 100%; margin-top: 2px; margin-bottom: 2px;"><br> <!-- 여백 최소화 -->
                     <input type="text" placeholder="메모" id="note" class="input" 
