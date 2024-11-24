@@ -1,8 +1,12 @@
 package com.example.ourapp.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.time.LocalDateTime;
+@Getter
+@Setter
 @Entity
 @Table(name = "group_map_point")
 public class GroupMapPoint {

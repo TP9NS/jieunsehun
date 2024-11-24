@@ -273,7 +273,6 @@ public class GroupController {
     @DeleteMapping("/requests/{id}/delete")
     public ResponseEntity<?> deleteRequest(@PathVariable Long id, HttpSession session) {
         Long userId = (Long) session.getAttribute("user_id");
-
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
         }
@@ -285,4 +284,6 @@ public class GroupController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+    
+    
 }

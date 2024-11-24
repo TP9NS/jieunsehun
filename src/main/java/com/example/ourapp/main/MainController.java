@@ -17,10 +17,13 @@ import java.time.LocalDateTime;
 
 import com.example.ourapp.DTO.AdminMapPointDTO;
 import com.example.ourapp.DTO.CategoryDTO;
+import com.example.ourapp.DTO.GroupDTO;
 import com.example.ourapp.DTO.MyMapPointDTO;
 import com.example.ourapp.DTO.PostDTO;
 import com.example.ourapp.entity.Comment;
+import com.example.ourapp.entity.Group;
 import com.example.ourapp.entity.Post;
+import com.example.ourapp.group.GroupService;
 import com.example.ourapp.map.AdminMapPointService;
 import com.example.ourapp.map.MyMapPointService;
 import com.example.ourapp.post.CategoryService;
@@ -55,7 +58,8 @@ public class MainController {
     private CategoryService categoryService;
     @Autowired
     private CommentService commentService;
-
+    @Autowired
+    private GroupService groupService;
     @GetMapping("/main")
     public String main(HttpSession session, Model model) {
         // 세션에서 사용자 권한과 사용자 ID 가져오기
@@ -363,6 +367,20 @@ public class MainController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(Collections.singletonMap("error", "Error: " + e.getMessage()));
         }
+    }
+    @GetMapping("/user/groups")
+    @ResponseBody
+    public List<GroupDTO> getUserGroups(HttpSession session) {
+        Long userId = (Long) session.getAttribute("user_id");
+
+        if (userId == null) {
+            throw new IllegalArgumentException("User not logged in");
+        }
+
+        List<Group> groups = groupService.findGroupsByUser(userId);
+        return groups.stream()
+                     .map(GroupDTO::new) // GroupDTO로 변환
+                     .collect(Collectors.toList());
     }
 
 }

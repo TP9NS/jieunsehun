@@ -25,11 +25,7 @@ public class MapController {
         return "mymap";
     }
     
-    @GetMapping("/groupmap")
-    public String getGroupMapPage(HttpSession session) {
-        System.out.println(session.getAttribute("user_id"));
-        return "groupmap";
-    }
+
     
     @GetMapping("/api/topics")
     @ResponseBody
