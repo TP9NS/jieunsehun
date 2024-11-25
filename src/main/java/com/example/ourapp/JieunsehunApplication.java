@@ -15,7 +15,7 @@ public class JieunsehunApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(JieunsehunApplication.class, args);
-		System.out.println("지은이는 응애응애 응애기 ㅋㅋ ");
+		System.out.println("지은 is baby 나 지은인데 이거 ㄹㅇ이다. ");
 	}
 
 }

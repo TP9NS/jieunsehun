@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface GroupMapPointRepository extends JpaRepository<GroupMapPoint, Long> {
     List<GroupMapPoint> findByGroupId(Long groupId);
+    
 }
