@@ -895,6 +895,9 @@ async function displayGroupMapLocations() {
         return;
     }
 
+    // 기존 마커 제거
+    removeMarker();
+
     try {
         const response = await fetch(`/getgroupmappoint?groupId=${groupId}`);
         if (response.ok) {
@@ -907,7 +910,10 @@ async function displayGroupMapLocations() {
                     map: map,
                     position: coords
                 });
-								console.log(location.locationName);
+
+                // 마커 배열에 추가
+                markers.push(marker);
+
                 const content = `
                     <div style="padding:10px; max-width:250px; height:230px">
                         <h5>${location.locationName}</h5>
@@ -935,6 +941,7 @@ async function displayGroupMapLocations() {
         console.error("Error fetching group locations:", error);
     }
 }
+
 	
 	</script>
 	</body>
