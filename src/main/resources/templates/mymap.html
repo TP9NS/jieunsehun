@@ -466,7 +466,11 @@
 	    </div>
 	<div class="map_wrap">
 	<div id="map" style="width:100%;height:100%;"></div>
-	
+	</div>
+	 <div id="saved-locations" style="margin-top: 20px;">
+        <h4>저장된 장소 목록</h4>
+        <ul id="saved-locations-list" style="list-style: none; padding: 0;"></ul>
+    </div>
 	    </main>
 	
 	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
@@ -493,6 +497,9 @@
 	    green: 'https://i.ibb.co/hfBPHYB/green.png',
 	    blue: 'https://i.ibb.co/6N7BwZ6/blue.png',
 	};
+	
+	
+	
 
 	
 	function displayMyMapLocations() {
@@ -564,6 +571,8 @@ function closeInfoWindow() {
         window.currentInfoWindow.close();
     }
 }
+        
+        
 function deleteLocation(id) {
     if (confirm("정말로 삭제하시겠습니까?")) {
         fetch(`/api/mymap/delete?id=${id}`, { method: "DELETE" })  // 수정된 부분
@@ -993,8 +1002,102 @@ function editLocation(id) {
         alert('저장 중 오류가 발생했습니다.');
     });
 }
+	// 현재 활성 오버레이를 저장하는 전역 변수
+	let currentOverlay = null;
 
-	
+	function fetchMyMapLocationsList() {
+	    fetch(`/api/mymap`)
+	        .then(response => response.json())
+	        .then(data => {
+	            const savedLocationsList = document.getElementById('saved-locations-list');
+	            savedLocationsList.innerHTML = ''; // 기존 리스트 초기화
+
+	            data.forEach(location => {
+	                const listItem = document.createElement('li');
+	                listItem.className = 'list-item';
+	                listItem.style.padding = '10px 0';
+	                listItem.style.borderBottom = '1px solid #ddd';
+	                listItem.style.cursor = 'pointer';
+
+	                // 장소명 표시
+	                listItem.textContent = location.locationName;
+
+	                // 클릭 이벤트로 지도에서 해당 위치로 이동 및 마커와 오버레이 추가
+	                listItem.addEventListener('click', () => {
+	                    const coords = new kakao.maps.LatLng(location.latitude, location.longitude);
+
+	                    // 지도 중심 설정
+	                    map.setCenter(coords);
+
+	                    // 기존 마커와 오버레이 삭제
+	                    removeAllMarkersAndOverlays();
+
+	                    // 색상에 따른 마커 이미지 설정
+	                    const markerImage = new kakao.maps.MarkerImage(
+	                        markerColorImages[location.markerColor] || markerColorImages.red, // 기본값은 빨강
+	                        new kakao.maps.Size(24, 35) // 마커 크기
+	                    );
+
+	                    // 새로운 마커 생성
+	                    const marker = new kakao.maps.Marker({
+	                        position: coords,
+	                        image: markerImage,
+	                        map: map
+	                    });
+
+	                    // 오버레이 내용
+	                    const content = `
+	                        <div style="padding:10px; max-width:250px; background:white; border:1px solid #ddd; border-radius:5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+	                            <h5>${location.locationName}</h5>
+	                            <p><strong>Phone:</strong> ${location.phone || "N/A"}</p>
+	                            <p><strong>Address:</strong> ${location.address || "N/A"}</p>
+	                            <p><strong>Alias:</strong> ${location.locationAlias || "N/A"}</p>
+	                            <p><strong>Category:</strong> ${location.category || "N/A"}</p>
+	                            <p><strong>Description:</strong> ${location.locationDesc || "N/A"}</p>
+	                            <p><strong>위도:</strong> ${location.latitude}</p>
+	                            <p><strong>경도:</strong> ${location.longitude}</p>
+	                        </div>
+	                    `;
+
+	                    // 새로운 오버레이 생성
+	                    const overlay = new kakao.maps.CustomOverlay({
+	                        position: coords,
+	                        content: content,
+	                        xAnchor: 0.5,
+	                        yAnchor: 1.1,
+	                        zIndex: 3
+	                    });
+
+	                    // 지도에 마커와 오버레이 추가
+	                    overlay.setMap(map);
+	                    markers.push(marker);
+	                    window.currentOverlay = overlay; // 현재 오버레이 저장
+	                });
+
+	                savedLocationsList.appendChild(listItem); // 리스트 항목 추가
+	            });
+	        })
+	        .catch(error => console.error("Error fetching locations:", error));
+	}
+
+	// 기존 마커와 오버레이 제거
+	function removeAllMarkersAndOverlays() {
+	    markers.forEach(marker => marker.setMap(null)); // 모든 마커 제거
+	    markers = []; // 마커 배열 초기화
+
+	    if (window.currentOverlay) {
+	        window.currentOverlay.setMap(null); // 현재 오버레이 제거
+	        window.currentOverlay = null;
+	    }
+	}
+
+	// 페이지 로드 시 저장된 장소 리스트와 지도 마커 표시
+	window.onload = function () {
+	    displayMyMapLocations(); // 지도에 마커 표시
+	    fetchMyMapLocationsList(); // 저장된 장소 리스트 표시
+	    searchPlaces(); // 키워드 검색
+	};
+
 	</script>
 	</body>
 	</html>
