@@ -90,11 +90,6 @@ public class MainController {
     public String map() {
        return "map.html";
     }
-    
-    @GetMapping("/main_test")
-    public String main_test() {
-       return "main_test.html";
-    }
     @GetMapping("/main_test2")
     public String main_test2() {
        return "main_test2.html";
