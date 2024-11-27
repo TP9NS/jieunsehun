@@ -253,7 +253,7 @@
     left: 0;
     bottom: 40px;
     width: 400px;
-    height: 350px; /* 높이 증가 */
+    height: 400px; /* 높이 증가 */
     margin-left: -144px;
     text-align: left;
     overflow: auto; /* 내부 요소가 넘치면 스크롤 추가 */
@@ -745,13 +745,35 @@ async function fetchUserGroups() {
 
 // 마커 클릭 이벤트 리스너 내부
 kakao.maps.event.addListener(marker, 'click', async function () {
-    console.log("Marker clicked:", title);  // 디버깅용
+    console.log("Marker clicked:", title); // 디버깅용
     var latitude = position.getLat();
     var longitude = position.getLng();
 
     var userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
-    console.log("User Permission (converted):", userPermission);  // 디버깅용
+    console.log("User Permission (converted):", userPermission); // 디버깅용
 
+    // 마커 색상 이미지 리스트
+    const markerColorImages = {
+        red: 'https://i.ibb.co/JKQhd5F/red.png',
+        orange: 'https://i.ibb.co/5GBR3by/orange.png',
+        yellow: 'https://i.ibb.co/M26n9tG/yellow.png',
+        green: 'https://i.ibb.co/hfBPHYB/green.png',
+        blue: 'https://i.ibb.co/6N7BwZ6/blue.png',
+    };
+
+    // 마커 선택 UI 생성
+    let markerSelectionUI = '<div style="display: flex; gap: 30px; justify-content: center; margin-top: 10px;">';
+    for (const [color, url] of Object.entries(markerColorImages)) {
+        markerSelectionUI += `
+            <img src="${url}" alt="${color}" 
+                style="width: 30px; height: 50px; cursor: pointer;" 
+                data-color="${color}"
+                onclick="document.getElementById('selected-marker-color').value='${color}'; document.getElementById('color-feedback').textContent='현재 선택된 색상: ${color}';">
+        `;
+    }
+    markerSelectionUI += '</div>';
+
+    // 오버레이 내용 생성
     var overlayContent =
         '<div class="wrap">' +
         '    <div class="info">' +
@@ -767,20 +789,16 @@ kakao.maps.event.addListener(marker, 'click', async function () {
         '                <span>경도: ' + longitude + '</span><br>' +
         '                <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>' +
         '                <input type="text" placeholder="메모" id="note" class="input"><br>' +
-        '                <label for="marker-color">마커 색상:</label>' +
-        '                <select id="selected-marker-color">' +
-        '                    <option value="red">빨강</option>' +
-        '                    <option value="orange">주황</option>' +
-        '                    <option value="yellow">노랑</option>' +
-        '                    <option value="green">초록</option>' +
-        '                    <option value="blue">파랑</option>' +
-        '                </select><br>';
+        '                <label>마커 색상 선택:</label>' +
+        '                <input type="hidden" id="selected-marker-color" value="red">' + // 기본값은 빨강
+        markerSelectionUI +
+        '<p id="color-feedback" style="margin-top: 10px; font-weight: bold; color: #333;">현재 선택된 색상: 빨강</p>'; // 초기 텍스트
 
     if (userPermission === 0) {
-        console.log("관리자 권한: topic 필드 추가");  // 디버깅용
+        console.log("관리자 권한: topic 필드 추가"); // 디버깅용
         overlayContent += '<input type="text" id="topic" placeholder="주제 입력" class="input"><br>';
     } else {
-        console.log("일반 사용자 권한: 그룹 목록 필드 추가");  // 디버깅용
+        console.log("일반 사용자 권한: 그룹 목록 필드 추가"); // 디버깅용
         const groups = await fetchUserGroups(); // 가입된 그룹 목록 가져오기
         overlayContent += '<select id="mapType">';
         overlayContent += '<option value="MY_MAP">나만의 지도</option>';
@@ -806,7 +824,6 @@ kakao.maps.event.addListener(marker, 'click', async function () {
     customOverlay.setMap(map);
     window.currentOverlay = customOverlay;
 });
-
 
     return marker;
 }
