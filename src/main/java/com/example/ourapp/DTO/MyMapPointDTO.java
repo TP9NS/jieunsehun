@@ -16,4 +16,13 @@ public class MyMapPointDTO {
     private String address;
     private String phone;
     private LocalDateTime searchTime;
+    private String markerColor;
+    
+    public String getMarkerColor() {
+        return markerColor;
+    }
+
+    public void setMarkerColor(String markerColor) {
+        this.markerColor = markerColor;
+    }
 }

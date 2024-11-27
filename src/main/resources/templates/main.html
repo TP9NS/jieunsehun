@@ -248,20 +248,134 @@
 #pagination {margin:10px auto;text-align: center;}
 #pagination a {display:inline-block;margin-right:10px;}
 #pagination .on {font-weight: bold; cursor: default;color:#777;}
-.wrap {position: absolute;left: 0;bottom: 40px;width: 400px;height: 250px;margin-left: -144px;text-align: left;overflow: hidden;font-size: 12px;font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;line-height: 1.5;}
-    .wrap * {padding: 0;margin: 0;}
-    .wrap .info {width: 400px;height: 250px;border-radius: 5px;border-bottom: 2px solid #ccc;border-right: 1px solid #ccc;overflow: hidden;background: #fff;}
-    .wrap .info:nth-child(1) {border: 0;box-shadow: 0px 1px 2px #888;}
-    .info .title {padding: 5px 0 0 10px;height: 30px;background: #eee;border-bottom: 1px solid #ddd;font-size: 18px;font-weight: bold;}
-    .info .close {position: absolute;top: 5px;right: 10px;color: #888;width: 17px;height: 17px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');}
-    .info .close:hover {cursor: pointer;}
-    .info .body {position: relative;overflow: hidden;}
-    .info .desc {position: relative;margin: 13px 0 0 90px;height: 180px;}
-    .desc .ellipsis {overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
-    .desc .jibun {font-size: 11px;color: #888;margin-top: -2px;}
-    .info .img {position: absolute;top: 6px;left: 5px;width: 73px;height: 71px;border: 1px solid #ddd;color: #888;overflow: hidden;}
-    .info:after {content: '';position: absolute;margin-left: -12px;left: 50%;bottom: 0;width: 22px;height: 12px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png')}
-    .info .link {color: #5085BB;}
+.wrap {
+    position: absolute;
+    left: 0;
+    bottom: 40px;
+    width: 400px;
+    height: 350px; /* 높이 증가 */
+    margin-left: -144px;
+    text-align: left;
+    overflow: auto; /* 내부 요소가 넘치면 스크롤 추가 */
+    font-size: 12px;
+    font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;
+    line-height: 1.5;
+}
+
+.wrap * {
+    padding: 0;
+    margin: 0;
+}
+
+.wrap .info {
+    width: 100%; /* 부모 요소 크기와 동일하게 */
+    height: auto; /* 내부 요소에 따라 높이 자동 조정 */
+    border-radius: 5px;
+    border-bottom: 2px solid #ccc;
+    border-right: 1px solid #ccc;
+    overflow: visible; /* 버튼과 다른 요소가 숨겨지지 않도록 설정 */
+    background: #fff;
+    padding: 10px; /* 내부 여백 추가 */
+    box-sizing: border-box; /* 패딩 포함 크기 계산 */
+}
+
+.wrap .info:nth-child(1) {
+    border: 0;
+    box-shadow: 0px 1px 2px #888;
+}
+
+.info .title {
+    padding: 5px 10px; /* 좌우 여백 추가 */
+    height: auto; /* 제목 높이 자동 조정 */
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.info .close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    color: #888;
+    width: 17px;
+    height: 17px;
+    background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');
+    cursor: pointer; /* 마우스 포인터 */
+}
+
+.info .close:hover {
+    color: #000; /* 호버 시 색상 변경 */
+}
+
+.info .body {
+    position: relative;
+    overflow: auto; /* 스크롤 추가 */
+}
+
+.info .desc {
+    position: relative;
+    margin: 10px 0; /* 상단 여백 */
+    height: auto; /* 높이 자동 조정 */
+    line-height: 1.5;
+}
+
+.desc .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.desc .jibun {
+    font-size: 11px;
+    color: #888;
+    margin-top: -2px;
+}
+
+.info .img {
+    position: absolute;
+    top: 6px;
+    left: 5px;
+    width: 73px;
+    height: 71px;
+    border: 1px solid #ddd;
+    color: #888;
+    overflow: hidden;
+}
+
+.info:after {
+    content: '';
+    position: absolute;
+    margin-left: -12px;
+    left: 50%;
+    bottom: 0;
+    width: 22px;
+    height: 12px;
+    background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png');
+}
+
+.info .link {
+    color: #5085BB;
+}
+
+.wrap .info button {
+    display: block;
+    width: 100px; /* 버튼이 입력 필드와 동일한 너비 */
+    margin-top: 10px; /* 버튼 상단 여백 */
+    padding: 10px;
+    background-color: #007bff; /* 파란색 배경 */
+    color: white; /* 흰색 글자 */
+    border: none; /* 테두리 제거 */
+    border-radius: 5px; /* 모서리 둥글게 */
+    font-size: 14px;
+    cursor: pointer; /* 클릭 가능한 포인터 */
+    text-align: center;
+}
+
+.wrap .info button:hover {
+    background-color: #0056b3; /* 호버 시 색상 변경 */
+}
+
 .input {
     width: 300px; /* 원하는 너비로 설정 */
     height: 20px; /* 원하는 높이로 설정 */
@@ -630,18 +744,18 @@ async function fetchUserGroups() {
 }
 
 // 마커 클릭 이벤트 리스너 내부
-kakao.maps.event.addListener(marker, 'click', async function() {
+kakao.maps.event.addListener(marker, 'click', async function () {
     console.log("Marker clicked:", title);  // 디버깅용
     var latitude = position.getLat();
     var longitude = position.getLng();
-    
+
     var userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
     console.log("User Permission (converted):", userPermission);  // 디버깅용
 
-    var overlayContent = 
+    var overlayContent =
         '<div class="wrap">' +
         '    <div class="info">' +
-        '        <div class="title">' + title + 
+        '        <div class="title">' + title +
         '            <div class="close" onclick="closeOverlay()"></div>' +
         '        </div>' +
         '        <div class="body">' +
@@ -652,7 +766,15 @@ kakao.maps.event.addListener(marker, 'click', async function() {
         '                <span>위도: ' + latitude + '</span><br>' +
         '                <span>경도: ' + longitude + '</span><br>' +
         '                <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>' +
-        '                <input type="text" placeholder="메모" id="note" class="input"><br>';
+        '                <input type="text" placeholder="메모" id="note" class="input"><br>' +
+        '                <label for="marker-color">마커 색상:</label>' +
+        '                <select id="selected-marker-color">' +
+        '                    <option value="red">빨강</option>' +
+        '                    <option value="orange">주황</option>' +
+        '                    <option value="yellow">노랑</option>' +
+        '                    <option value="green">초록</option>' +
+        '                    <option value="blue">파랑</option>' +
+        '                </select><br>';
 
     if (userPermission === 0) {
         console.log("관리자 권한: topic 필드 추가");  // 디버깅용
@@ -811,24 +933,25 @@ async function sendMessage(event) {
     }
   }
 
-//장소 저장 함수
+//장소 저장 함수 수정
 function saveLocation(title, latitude, longitude, address_name, road_address_name, phone, category_name) {
-    const alias = document.getElementById("alias") ? document.getElementById("alias").value : ""; // 별칭
-    const note = document.getElementById("note") ? document.getElementById("note").value : ""; // 메모
+    const alias = document.getElementById("alias") ? document.getElementById("alias").value : "";
+    const note = document.getElementById("note") ? document.getElementById("note").value : "";
+    const markerColor = document.getElementById("selected-marker-color").value; // 여기서 null로 전달되는지 확인
+
+    console.log("Marker Color to be saved:", markerColor); // 디버깅용
+
     const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
 
     let topic = null;
     let mapType = null;
 
-    if (userPermission === 0) { 
-        // 관리자라면 topic 입력
-        topic = document.getElementById("topic") ? document.getElementById("topic").value : ""; 
+    if (userPermission === 0) {
+        topic = document.getElementById("topic") ? document.getElementById("topic").value : "";
     } else {
-        // 일반 사용자라면 mapType 선택
-        mapType = document.getElementById("mapType") ? document.getElementById("mapType").value : "MY_MAP"; 
+        mapType = document.getElementById("mapType") ? document.getElementById("mapType").value : "MY_MAP";
     }
 
-    // 요청 데이터 구성
     const requestData = {
         category: category_name || '',
         locationName: title,
@@ -838,29 +961,32 @@ function saveLocation(title, latitude, longitude, address_name, road_address_nam
         longitude: longitude,
         address: road_address_name || address_name,
         phone: phone || '',
-        topic: topic,    // topic은 관리자만
-        groupId: mapType !== "MY_MAP" ? parseInt(mapType, 10) : null // 그룹 ID 저장
+        topic: topic,
+        groupId: mapType !== "MY_MAP" ? parseInt(mapType, 10) : null,
+        markerColor: markerColor // null이 아닌 값을 전달
     };
 
-    // URL 설정
+    console.log("Request Data:", requestData); // 디버깅용
+
     const url = mapType === "MY_MAP" ? '/saveMyMapPoint' : '/saveGroupMapPoint';
 
-    // 서버로 요청 전송
     fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData)
     })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message || data.error);
-        closeOverlay();
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('저장 중 오류가 발생했습니다.');
-    });
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || data.error);
+            closeOverlay();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('저장 중 오류가 발생했습니다.');
+        });
 }
+
+
 
 //페이지가 로드된 후 이벤트 리스너를 추가합니다
 document.addEventListener("DOMContentLoaded", function () {

@@ -28,6 +28,12 @@ public class MyMapPointService {
         myMapPoint.setAddress(myMapPointDTO.getAddress());
         myMapPoint.setPhone(myMapPointDTO.getPhone());
         myMapPoint.setSearchTime(myMapPointDTO.getSearchTime());
+        // markerColor 설정
+        if (myMapPointDTO.getMarkerColor() == null || myMapPointDTO.getMarkerColor().isEmpty()) {
+            myMapPoint.setMarkerColor("blue"); // 기본값 설정
+        } else {
+            myMapPoint.setMarkerColor(myMapPointDTO.getMarkerColor());
+        }
         myMapPointRepository.save(myMapPoint);
     }
 }

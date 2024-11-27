@@ -46,11 +46,13 @@ public class MyMapPoint {
 
     @Column(name = "search_time", nullable = false)
     private LocalDateTime searchTime;
+    
+    @Column(name = "marker_color", nullable = false)
+    private String markerColor;
 
-    // Constructors, Getters and Setters
     public MyMapPoint() {}
 
-    public MyMapPoint(Long userId, String category, String locationName, String locationDesc, Double latitude, Double longitude) {
+    public MyMapPoint(Long userId, String category, String locationName, String locationDesc, Double latitude, Double longitude, String markerColor) {
         this.userId = userId;
         this.category = category;
         this.locationName = locationName;
@@ -58,7 +60,6 @@ public class MyMapPoint {
         this.latitude = latitude;
         this.longitude = longitude;
         this.searchTime = LocalDateTime.now();
+        this.markerColor = markerColor;
     }
-
-    // getters and setters
 }

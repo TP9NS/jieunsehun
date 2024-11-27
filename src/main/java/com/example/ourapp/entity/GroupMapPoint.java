@@ -50,23 +50,21 @@ public class GroupMapPoint {
     
     @Column(name = "is_locked", nullable = false)
     private boolean isLocked = false;
+    
+    @Column(name = "marker_color", nullable = false)
+    private String markerColor;
 
-    // Constructors, Getters and Setters
     public GroupMapPoint() {}
 
-    public GroupMapPoint(Long userId, Long groupId, String category, String locationName, String locationDesc, Double latitude, Double longitude, String locationAlias,String phone,String address) {
+    public GroupMapPoint(Long userId, Long groupId, String category, String locationName, String locationDesc, Double latitude, Double longitude, String markerColor) {
         this.userId = userId;
         this.groupId = groupId;
         this.category = category;
-        this.address =address;
-        this.phone=phone;
-        this.locationAlias = locationAlias;
         this.locationName = locationName;
         this.locationDesc = locationDesc;
         this.latitude = latitude;
         this.longitude = longitude;
         this.searchTime = LocalDateTime.now();
+        this.markerColor = markerColor;
     }
-
-    // getters and setters
 }

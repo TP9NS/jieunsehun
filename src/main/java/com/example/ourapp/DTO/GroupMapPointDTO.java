@@ -21,4 +21,13 @@ public class GroupMapPointDTO {
     private Long groupId;
     private LocalDateTime searchTime;
     private String addedBy; // 추가한 사용자 정보 추가
+    private String markerColor;
+    
+    public String getMarkerColor() {
+        return markerColor;
+    }
+
+    public void setMarkerColor(String markerColor) {
+        this.markerColor = markerColor;
+    }
 }

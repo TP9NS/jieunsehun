@@ -372,60 +372,79 @@
 	// 지도를 생성합니다    
 	var map = new kakao.maps.Map(mapContainer, mapOption); 
 	
-function displayMyMapLocations() {
-    fetch(`/api/mymap`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            return response.json();
-        })
-        .then(data => {
-            data.forEach(location => {
-                const coords = new kakao.maps.LatLng(location.latitude, location.longitude);
-                const marker = new kakao.maps.Marker({
-                    map: map,
-                    position: coords
-                });
+	// 색상별 마커 이미지 경로 매핑
+	const markerColorImages = {
+	    red: 'https://i.ibb.co/JKQhd5F/red.png',
+	    orange: 'https://i.ibb.co/5GBR3by/orange.png',
+	    yellow: 'https://i.ibb.co/M26n9tG/yellow.png',
+	    green: 'https://i.ibb.co/hfBPHYB/green.png',
+	    blue: 'https://i.ibb.co/6N7BwZ6/blue.png',
+	};
 
-                const content = `
-                    <div style="padding:10px; max-width:250px; height:230px">
-                        <h5>${location.locationName}</h5>
-                        <p><strong>Phone:</strong> ${location.phone || "N/A"}</p>
-                        <p><strong>Address:</strong> ${location.address || "N/A"}</p>
-                        <p><strong>Alias:</strong> ${location.locationAlias || "N/A"}</p>
-                        <p><strong>Category:</strong> ${location.category || "N/A"}</p>
-                        <p><strong>Description:</strong> ${location.locationDesc || "N/A"}</p>
-                        <p><strong>위도:</strong> ${location.latitude}</p>
-                        <p><strong>경도:</strong> ${location.longitude}</p>
-                        <button onclick="deleteLocation(${location.id})" style="margin-top:10px;">삭제</button>
-                        <button onclick="editLocation(${location.id})" style="margin-top:10px;">수정</button>
- 												<button onclick="closeInfoWindow()" style="margin-top:10px;">닫기</button>                   
-                    </div>
-                    
-                `;
+	
+	function displayMyMapLocations() {
+	    fetch(`/api/mymap`)
+	        .then(response => {
+	            if (!response.ok) {
+	                throw new Error("Network response was not ok");
+	            }
+	            return response.json();
+	        })
+	        .then(data => {
+	            data.forEach(location => {
+	                const coords = new kakao.maps.LatLng(location.latitude, location.longitude);
 
-                const infowindow = new kakao.maps.InfoWindow({
-                    content: content
-                });
-                // 닫기 버튼을 위한 전역 변수에 저장
-                window.currentInfoWindow = infowindow;
+	                // 색상에 따른 마커 이미지 설정
+	                const markerImage = new kakao.maps.MarkerImage(
+	                    markerColorImages[location.markerColor] || markerColorImages.red, // 기본값은 빨강
+	                    new kakao.maps.Size(24, 35) // 마커 크기
+	                );
 
-                // 마커 클릭 시 InfoWindow 열기/닫기
-                kakao.maps.event.addListener(marker, 'click', function() {
-                    if (infowindow.getMap()) {
-                        infowindow.close();
-                    } else {
-                        infowindow.open(map, marker);
-                        window.currentInfoWindow = infowindow;
-                    }
-                });
-            });
-        })
-        .catch(error => {
-            console.error("Error fetching locations:", error);
-        });
-        }
+	                const marker = new kakao.maps.Marker({
+	                    map: map,
+	                    position: coords,
+	                    image: markerImage, // 이미지 설정
+	                });
+
+	                const content = `
+	                    <div style="padding:10px; max-width:250px; height:230px">
+	                        <h5>${location.locationName}</h5>
+	                        <p><strong>Phone:</strong> ${location.phone || "N/A"}</p>
+	                        <p><strong>Address:</strong> ${location.address || "N/A"}</p>
+	                        <p><strong>Alias:</strong> ${location.locationAlias || "N/A"}</p>
+	                        <p><strong>Category:</strong> ${location.category || "N/A"}</p>
+	                        <p><strong>Description:</strong> ${location.locationDesc || "N/A"}</p>
+	                        <p><strong>위도:</strong> ${location.latitude}</p>
+	                        <p><strong>경도:</strong> ${location.longitude}</p>
+	                        <button onclick="deleteLocation(${location.id})" style="margin-top:10px;">삭제</button>
+	                        <button onclick="editLocation(${location.id})" style="margin-top:10px;">수정</button>
+	                        <button onclick="closeInfoWindow()" style="margin-top:10px;">닫기</button>
+	                    </div>
+	                `;
+
+	                const infowindow = new kakao.maps.InfoWindow({
+	                    content: content,
+	                });
+
+	                // 닫기 버튼을 위한 전역 변수에 저장
+	                window.currentInfoWindow = infowindow;
+
+	                // 마커 클릭 시 InfoWindow 열기/닫기
+	                kakao.maps.event.addListener(marker, 'click', function() {
+	                    if (infowindow.getMap()) {
+	                        infowindow.close();
+	                    } else {
+	                        infowindow.open(map, marker);
+	                        window.currentInfoWindow = infowindow;
+	                    }
+	                });
+	            });
+	        })
+	        .catch(error => {
+	            console.error("Error fetching locations:", error);
+	        });
+	}
+
         // 닫기 버튼에 사용할 함수
 function closeInfoWindow() {
     if (window.currentInfoWindow) {

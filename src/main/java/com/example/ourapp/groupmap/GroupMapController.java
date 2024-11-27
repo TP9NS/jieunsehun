@@ -94,39 +94,40 @@ public class GroupMapController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/saveGroupMapPoint")
+    public ResponseEntity<?> saveGroupMapPoint(@RequestBody GroupMapPointDTO groupMapPointDto, HttpSession session) {
+        Long userId = (Long) session.getAttribute("user_id");
 
-	
-	@PostMapping("/saveGroupMapPoint")
-	public ResponseEntity<?> saveGroupMapPoint(@RequestBody GroupMapPointDTO groupMapPointDto, HttpSession session) {
-	    Long userId = (Long) session.getAttribute("user_id");
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "로그인이 필요합니다."));
+        }
 
-	    if (userId == null) {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "로그인이 필요합니다."));
-	    }
+        // 그룹 존재 여부 확인
+        Group group = groupRepository.findById(groupMapPointDto.getGroupId())
+                .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
 
-	    // 그룹 존재 여부 확인
-	    Group group = groupRepository.findById(groupMapPointDto.getGroupId())
-	            .orElseThrow(() -> new IllegalArgumentException("그룹을 찾을 수 없습니다."));
+        // 그룹 지도에 저장
+        GroupMapPoint groupMapPoint = new GroupMapPoint(
+            userId,
+            group.getGroupId(),
+            groupMapPointDto.getCategory(),
+            groupMapPointDto.getLocationName(),
+            groupMapPointDto.getLocationDesc(),
+            groupMapPointDto.getLatitude(),
+            groupMapPointDto.getLongitude(),
+            groupMapPointDto.getMarkerColor() // markerColor를 추가
+        );
 
-	    // 그룹 지도에 저장
-	    GroupMapPoint groupMapPoint = new GroupMapPoint(
-	        userId,
-	        group.getGroupId(),
-	        
-	        groupMapPointDto.getCategory(),
-	        groupMapPointDto.getLocationName(),
-	        groupMapPointDto.getLocationDesc(),
-	        groupMapPointDto.getLatitude(),
-	        groupMapPointDto.getLongitude(),
-	        groupMapPointDto.getLocationAlias(),
-	        groupMapPointDto.getPhone(),
-	        groupMapPointDto.getAddress()
-	    );
+        groupMapPoint.setLocationAlias(groupMapPointDto.getLocationAlias());
+        groupMapPoint.setPhone(groupMapPointDto.getPhone());
+        groupMapPoint.setAddress(groupMapPointDto.getAddress());
 
-	    groupMapPointRepository.save(groupMapPoint);
+        groupMapPointRepository.save(groupMapPoint);
 
-	    return ResponseEntity.ok(Map.of("message", "그룹 지도에 장소가 성공적으로 저장되었습니다."));
-	}
+        return ResponseEntity.ok(Map.of("message", "그룹 지도에 장소가 성공적으로 저장되었습니다."));
+    }
+
+
 	
     @PutMapping("/groupmap/update")
     public ResponseEntity<?> updateGroupMapPoint(@RequestParam Long id, @RequestBody Map<String, String> updates, HttpSession session) {
