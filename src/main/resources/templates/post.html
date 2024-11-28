@@ -248,167 +248,181 @@
     var ps = new kakao.maps.services.Places();
     var infowindow = new kakao.maps.InfoWindow({zIndex: 1});
 
-    // 키워드로 장소를 검색합니다
-    function searchPlaces() {
-    console.log("searchPlaces() 함수 호출됨"); // 디버깅용 로그
-    var keyword = document.getElementById('keyword').value;
+    var selectedMarker = null; // 현재 선택된 마커
 
-    if (!keyword.trim()) {
-        alert('키워드를 입력해주세요!');
-        return false;
-    }
+ // 키워드로 장소를 검색합니다
+ function searchPlaces() {
+     console.log("searchPlaces() 함수 호출됨");
+     var keyword = document.getElementById('keyword').value;
 
-    console.log("검색 키워드:", keyword); // 디버깅용 로그
-    ps.keywordSearch(keyword, placesSearchCB);
+     if (!keyword.trim()) {
+         alert('키워드를 입력해주세요!');
+         return false;
+     }
+
+     console.log("검색 키워드:", keyword);
+     ps.keywordSearch(keyword, placesSearchCB);
+ }
+
+ // 장소 검색이 완료되었을 때 호출되는 콜백 함수입니다
+ function placesSearchCB(data, status, pagination) {
+     if (status === kakao.maps.services.Status.OK) {
+         displayPlaces(data); // 검색 결과 목록 및 마커 표시
+         displayPagination(pagination); // 페이지네이션 표시
+     } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+         alert('검색 결과가 없습니다.');
+     } else if (status === kakao.maps.services.Status.ERROR) {
+         alert('검색 중 오류가 발생했습니다.');
+     }
+ }
+
+ // 검색 결과 목록과 마커를 표시합니다
+ function displayPlaces(places) {
+     var listEl = document.getElementById('placesList'),
+         bounds = new kakao.maps.LatLngBounds();
+
+     // 기존 검색 결과를 삭제합니다
+     removeAllChildNodes(listEl);
+     removeMarkers();
+
+     for (var i = 0; i < places.length; i++) {
+         var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x),
+             marker = createMarker(placePosition), // 마커 생성
+             itemEl = getListItem(i, places[i]); // 목록 항목 생성
+
+         bounds.extend(placePosition);
+
+         // 마커 및 목록 클릭 이벤트 연결
+         (function (marker, place) {
+             kakao.maps.event.addListener(marker, 'click', function () {
+                 setSelectedMarker(place, marker);
+             });
+
+             itemEl.onclick = function () {
+                 setSelectedMarker(place, marker);
+             };
+         })(marker, places[i]);
+
+         listEl.appendChild(itemEl);
+         markers.push(marker); // 모든 마커를 배열에 추가
+     }
+
+     map.setBounds(bounds); // 지도의 범위를 검색 결과에 맞게 설정
+ }
+
+ // 검색 결과 항목을 생성합니다
+ function getListItem(index, place) {
+     var el = document.createElement('li');
+     el.className = 'item';
+     el.innerHTML =
+         `<span class="markerbg marker_${index + 1}"></span>` +
+         `<div class="info">` +
+         `   <h5>${place.place_name}</h5>` +
+         (place.road_address_name
+             ? `<span>${place.road_address_name}</span><br>` +
+               `<span class="jibun gray">${place.address_name}</span>`
+             : `<span>${place.address_name}</span>`) +
+         `<span class="tel">${place.phone}</span>` +
+         `</div>`;
+     return el;
+ }
+
+ // 마커를 생성하는 함수
+ function createMarker(position) {
+     var marker = new kakao.maps.Marker({
+         position: position,
+         map: map
+     });
+     return marker;
+ }
+
+ // 선택된 마커만 남기고 기존 마커를 제거하는 함수
+ function setSelectedMarker(place, marker) {
+     // 모든 마커 제거
+     removeMarkers();
+
+     // 새로운 선택된 마커만 지도에 표시
+     selectedMarker = marker;
+     selectedMarker.setMap(map);
+
+     displayOverlay(place, marker); // 선택된 장소의 오버레이 표시
+ }
+
+ // 모든 마커를 제거합니다
+ function removeMarkers() {
+     for (var i = 0; i < markers.length; i++) {
+         markers[i].setMap(null);
+     }
+     markers = []; // 배열 초기화
+ }
+
+ // 선택된 장소의 오버레이를 표시
+ function displayOverlay(place, marker) {
+    console.log("displayOverlay 호출:", place, marker); // 디버깅용 로그
+
+    // 모든 마커 제거
+    removeMarkers();
+
+    // 현재 선택된 마커를 배열에서 제거하지 않고 새롭게 설정
+    markers = [marker];
+    marker.setMap(map);
+
+    var content =
+        `<div class="overlaybox">` +
+        `   <h4>${place.place_name}</h4>` +
+        `   <div>${place.road_address_name || place.address_name}</div>` +
+        `   <button onclick="selectPlace('${place.place_name}', '${place.road_address_name || place.address_name}', ${marker.getPosition().getLat()}, ${marker.getPosition().getLng()})">선택</button>` +
+        `</div>`;
+
+    infowindow.setContent(content);
+    infowindow.open(map, marker);
 }
 
+function selectPlace(name, address, lat, lng) {
+    document.getElementById('location').value = `${name}, ${address}`;
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lng;
+    document.getElementById('placeName').value = name; // placeName 설정
 
-    // 장소 검색이 완료되었을 때 호출되는 콜백 함수입니다
-    function placesSearchCB(data, status, pagination) {
-        if (status === kakao.maps.services.Status.OK) {
-            displayPlaces(data); // 검색 결과 목록 및 마커 표시
-            displayPagination(pagination); // 페이지네이션 표시
-        } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-            alert('검색 결과가 없습니다.');
-        } else if (status === kakao.maps.services.Status.ERROR) {
-            alert('검색 중 오류가 발생했습니다.');
-        }
-    }
+    // 디버깅용 로그 출력
+    console.log("Location:", name, address);
+    console.log("Latitude:", lat);
+    console.log("Longitude:", lng);
+    console.log("Place Name:", name);
 
-    // 검색 결과 목록과 마커를 표시합니다
-    function displayPlaces(places) {
-        var listEl = document.getElementById('placesList'),
-            bounds = new kakao.maps.LatLngBounds();
+    infowindow.close();
+}
 
-        // 기존 검색 결과를 삭제합니다
-        removeAllChildNodes(listEl);
-        removeMarkers();
+ // 페이지 번호를 표시합니다
+ function displayPagination(pagination) {
+     var paginationEl = document.getElementById('pagination');
+     removeAllChildNodes(paginationEl);
 
-        for (var i = 0; i < places.length; i++) {
-            var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x),
-                marker = addMarker(placePosition, i),
-                itemEl = getListItem(i, places[i]);
+     for (var i = 1; i <= pagination.last; i++) {
+         var el = document.createElement('a');
+         el.href = '#';
+         el.innerHTML = i;
 
-            bounds.extend(placePosition);
+         if (i === pagination.current) {
+             el.className = 'on';
+         } else {
+             el.onclick = (function (i) {
+                 return function () {
+                     pagination.gotoPage(i);
+                 };
+             })(i);
+         }
 
-            // 마커 클릭 및 목록 클릭 이벤트 연결
-            (function (marker, place) {
-                kakao.maps.event.addListener(marker, 'click', function () {
-                    displayOverlay(place, marker);
-                });
+         paginationEl.appendChild(el);
+     }
+ }
 
-                itemEl.onclick = function () {
-                    displayOverlay(place, marker);
-                };
-            })(marker, places[i]);
-
-            listEl.appendChild(itemEl);
-        }
-
-        map.setBounds(bounds);
-    }
-
-    // 검색 결과 항목을 생성합니다
-    function getListItem(index, place) {
-        var el = document.createElement('li');
-        el.className = 'item';
-        el.innerHTML =
-            `<span class="markerbg marker_${index + 1}"></span>` +
-            `<div class="info">` +
-            `   <h5>${place.place_name}</h5>` +
-            (place.road_address_name
-                ? `<span>${place.road_address_name}</span><br>` +
-                  `<span class="jibun gray">${place.address_name}</span>`
-                : `<span>${place.address_name}</span>`) +
-            `<span class="tel">${place.phone}</span>` +
-            `</div>`;
-        return el;
-    }
-
-    function addMarker(position, idx) {
-        var marker = new kakao.maps.Marker({
-            position: position
-        });
-
-        marker.setMap(map);
-        markers.push(marker);
-
-        return marker;
-    }
-
-
-    function displayOverlay(place, marker) {
-        console.log("displayOverlay 호출:", place, marker); // 디버깅용 로그
-
-        var content =
-            `<div class="overlaybox">` +
-            `   <h4>${place.place_name}</h4>` +
-            `   <div>${place.road_address_name || place.address_name}</div>` +
-            `   <button onclick="selectPlace('${place.place_name}', '${place.road_address_name || place.address_name}', ${marker.getPosition().getLat()}, ${marker.getPosition().getLng()})">선택</button>` +
-            `</div>`;
-
-        infowindow.setContent(content);
-        infowindow.open(map, marker);
-    }
-
-
-    function selectPlace(name, address, lat, lng) {
-        document.getElementById('location').value = `${name}, ${address}`;
-        document.getElementById('latitude').value = lat;
-        document.getElementById('longitude').value = lng;
-        document.getElementById('placeName').value = name; // placeName 설정
-
-        // 디버깅용 로그 출력
-        console.log("Location:", name, address);
-        console.log("Latitude:", lat);
-        console.log("Longitude:", lng);
-        console.log("Place Name:", name);
-
-        infowindow.close();
-    }
-
-
-
-
-
-    // 기존 마커를 제거합니다
-    function removeMarkers() {
-        for (var i = 0; i < markers.length; i++) {
-            markers[i].setMap(null);
-        }
-        markers = [];
-    }
-
-    // 페이지 번호를 표시합니다
-    function displayPagination(pagination) {
-        var paginationEl = document.getElementById('pagination');
-        removeAllChildNodes(paginationEl);
-
-        for (var i = 1; i <= pagination.last; i++) {
-            var el = document.createElement('a');
-            el.href = '#';
-            el.innerHTML = i;
-
-            if (i === pagination.current) {
-                el.className = 'on';
-            } else {
-                el.onclick = (function (i) {
-                    return function () {
-                        pagination.gotoPage(i);
-                    };
-                })(i);
-            }
-
-            paginationEl.appendChild(el);
-        }
-    }
-
-    // 자식 노드를 모두 삭제합니다
-    function removeAllChildNodes(el) {
-        while (el.hasChildNodes()) {
-            el.removeChild(el.lastChild);
-        }
-    }
+ // 자식 노드를 모두 삭제합니다
+ function removeAllChildNodes(el) {
+     while (el.hasChildNodes()) {
+         el.removeChild(el.lastChild);
+     }
+ }
 </script>
 <script>
 const categories = {
