@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,9 +43,13 @@ public class GroupMapController {
 	@Autowired
 	GroupMapService groupMapService;
 	
-	@GetMapping("/groupmap")
-    public String getGroupMapPage(HttpSession session) {
-        System.out.println(session.getAttribute("user_id"));
+    @GetMapping("/groupmap")
+    public String getGroupMapPage(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("user_id");
+        if (userId == null) {
+            throw new IllegalStateException("User not logged in");
+        }
+        model.addAttribute("userId", userId);
         return "groupmap";
     }
     @GetMapping("/getgroupmappoint")
