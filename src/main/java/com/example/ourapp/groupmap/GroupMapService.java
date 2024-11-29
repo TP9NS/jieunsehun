@@ -1,6 +1,7 @@
 package com.example.ourapp.groupmap;
 
 
+import com.example.ourapp.DTO.GroupMapPointDTO;
 import com.example.ourapp.entity.GroupMapPoint;
 
 import jakarta.transaction.Transactional;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GroupMapService {
@@ -44,5 +46,24 @@ public class GroupMapService {
 
         point.setLocked(false);
         groupMapPointRepository.save(point);
+    }
+ // 모든 GroupMapPoint 데이터를 가져오기
+    public List<GroupMapPointDTO> getAllGroupMapPoints() {
+        List<GroupMapPoint> groupMapPoints = groupMapPointRepository.findAll(); // 데이터베이스에서 조회
+        return groupMapPoints.stream().map(groupMapPoint -> {
+            GroupMapPointDTO dto = new GroupMapPointDTO();
+            dto.setUserId(groupMapPoint.getUserId());
+            dto.setCategory(groupMapPoint.getCategory());
+            dto.setLocationName(groupMapPoint.getLocationName());
+            dto.setLocationAlias(groupMapPoint.getLocationAlias());
+            dto.setLocationDesc(groupMapPoint.getLocationDesc());
+            dto.setLatitude(groupMapPoint.getLatitude());
+            dto.setLongitude(groupMapPoint.getLongitude());
+            dto.setAddress(groupMapPoint.getAddress());
+            dto.setPhone(groupMapPoint.getPhone());
+            dto.setSearchTime(groupMapPoint.getSearchTime());
+            dto.setMarkerColor(groupMapPoint.getMarkerColor());
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

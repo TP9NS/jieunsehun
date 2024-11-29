@@ -25,4 +25,18 @@ public class MyMapPointDTO {
     public void setMarkerColor(String markerColor) {
         this.markerColor = markerColor;
     }
+    
+
+ // Getter 메서드
+ public String getLocationName() {
+     return locationName;
+ }
+
+ // Setter 메서드
+ public void setLocationName(String locationName) {
+     if (locationName == null || locationName.trim().isEmpty()) {
+         throw new IllegalArgumentException("Location name cannot be null or empty.");
+     }
+     this.locationName = locationName;
+ }
 }

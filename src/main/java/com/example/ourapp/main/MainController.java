@@ -18,14 +18,19 @@ import java.time.LocalDateTime;
 import com.example.ourapp.DTO.AdminMapPointDTO;
 import com.example.ourapp.DTO.CategoryDTO;
 import com.example.ourapp.DTO.GroupDTO;
+import com.example.ourapp.DTO.GroupMapPointDTO;
+import com.example.ourapp.DTO.LocationDTO;
 import com.example.ourapp.DTO.MyMapPointDTO;
 import com.example.ourapp.DTO.PostDTO;
+import com.example.ourapp.DTO.VoteResultDTO;
 import com.example.ourapp.entity.Comment;
 import com.example.ourapp.entity.Group;
 import com.example.ourapp.entity.Post;
 import com.example.ourapp.group.GroupService;
+import com.example.ourapp.groupmap.GroupMapService;
 import com.example.ourapp.map.AdminMapPointService;
 import com.example.ourapp.map.MyMapPointService;
+import com.example.ourapp.map.VoteService;
 import com.example.ourapp.post.CategoryService;
 import com.example.ourapp.post.CommentService;
 import com.example.ourapp.post.PostService;
@@ -43,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 public class MainController {
@@ -50,6 +56,8 @@ public class MainController {
     private final String OPENAI_API_KEY = "";
     @Autowired
     private MyMapPointService myMapPointService;
+    @Autowired
+    private GroupMapService groupMapPointService;
     @Autowired
     private AdminMapPointService adminMapPointService;
     @Autowired
@@ -60,6 +68,8 @@ public class MainController {
     private CommentService commentService;
     @Autowired
     private GroupService groupService;
+    @Autowired
+    private VoteService voteService;
     @GetMapping("/main")
     public String main(HttpSession session, Model model) {
         // 세션에서 사용자 권한과 사용자 ID 가져오기
@@ -94,7 +104,66 @@ public class MainController {
     public String index() {
        return "index.html";
     }
-    
+    @GetMapping("/vote")
+    public String getVotePage(HttpSession session, Model model) {
+        // 세션에서 사용자 ID 가져오기
+        Long userId = (Long) session.getAttribute("user_id");
+        if (userId == null) {
+            throw new IllegalStateException("User is not logged in.");
+        }
+
+        // MyMapPointDTO 리스트 로드
+        List<MyMapPointDTO> myMapPoints = myMapPointService.getAllMyMapPoints();
+
+        // GroupMapPointDTO 리스트 로드
+        List<GroupMapPointDTO> groupMapPoints = groupMapPointService.getAllGroupMapPoints();
+
+     // 두 리스트를 LocationDTO로 변환 후 병합하고 중복 제거
+        List<LocationDTO> allPoints = Stream.concat(
+                myMapPoints.stream().map(LocationDTO::new),
+                groupMapPoints.stream().map(LocationDTO::new)
+            )
+            .collect(Collectors.toMap(
+                LocationDTO::getLocationName, // 중복을 판단할 기준: 장소 이름
+                point -> point,               // 중복이 없을 때 사용
+                (existing, replacement) -> existing // 중복일 경우 기존 값을 유지
+            ))
+            .values()
+            .stream()
+            .collect(Collectors.toList());
+     // 투표 결과 계산
+        List<VoteResultDTO> voteResults = voteService.calculateVoteResults();
+
+        // 모델에 데이터 추가
+        model.addAttribute("all_points", allPoints);
+        model.addAttribute("userId", userId); // 사용자 ID도 템플릿으로 전달
+        model.addAttribute("voteResults", voteResults);
+        
+
+        return "vote"; // vote.html 템플릿 반환
+    }
+
+    @PostMapping("/submit-vote")
+    public String submitVote(
+        HttpSession session,
+        @RequestParam String locationName,
+        Model model) {
+        // 세션에서 사용자 ID 가져오기
+        Long userId = (Long) session.getAttribute("user_id");
+        if (userId == null) {
+            throw new IllegalStateException("User is not logged in.");
+        }
+
+        // 투표 저장
+        voteService.saveVote(userId, locationName);
+
+        // 투표 결과를 모델에 추가
+        model.addAttribute("locationName", locationName);
+
+        return "vote-result"; // vote-result.html로 이동
+    }
+
+
     @GetMapping("/board")
     public String board(
         @RequestParam(defaultValue = "0") int page,

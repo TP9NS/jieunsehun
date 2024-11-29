@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GroupMapPointDTO {
+	private Long userId;
     private String category;
     private String locationName;
     private String locationDesc;
@@ -30,4 +31,30 @@ public class GroupMapPointDTO {
     public void setMarkerColor(String markerColor) {
         this.markerColor = markerColor;
     }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    // Setter 메서드
+    public void setUserId(Long userId) {
+        if (userId == null || userId <= 0) {
+            throw new IllegalArgumentException("User ID must be a positive number");
+        }
+        this.userId = userId;
+    }
+    
+
+ // Getter 메서드
+ public String getLocationName() {
+     return locationName;
+ }
+
+ // Setter 메서드
+ public void setLocationName(String locationName) {
+     if (locationName == null || locationName.trim().isEmpty()) {
+         throw new IllegalArgumentException("Location name cannot be null or empty.");
+     }
+     this.locationName = locationName;
+ }
 }

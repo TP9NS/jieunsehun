@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>투표 결과</title>
+</head>
+<body>
+    <h1>투표 결과</h1>
+
+    <div>
+        <p>투표가 성공적으로 저장되었습니다.</p>
+        <h2>선택한 장소:</h2>
+        <p th:text="'장소 이름: ' + ${locationName}"></p>
+    </div>
+
+    <a href="/vote">다시 투표하기</a>
+</body>
+</html>

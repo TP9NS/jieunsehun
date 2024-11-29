@@ -1,5 +1,8 @@
 package com.example.ourapp.map;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,5 +38,25 @@ public class MyMapPointService {
             myMapPoint.setMarkerColor(myMapPointDTO.getMarkerColor());
         }
         myMapPointRepository.save(myMapPoint);
+    }
+    
+ // 모든 MyMapPoint 데이터를 가져오기
+    public List<MyMapPointDTO> getAllMyMapPoints() {
+        List<MyMapPoint> myMapPoints = myMapPointRepository.findAll(); // 데이터베이스에서 조회
+        return myMapPoints.stream().map(myMapPoint -> {
+            MyMapPointDTO dto = new MyMapPointDTO();
+            dto.setUserId(myMapPoint.getUserId());
+            dto.setCategory(myMapPoint.getCategory());
+            dto.setLocationName(myMapPoint.getLocationName());
+            dto.setLocationAlias(myMapPoint.getLocationAlias());
+            dto.setLocationDesc(myMapPoint.getLocationDesc());
+            dto.setLatitude(myMapPoint.getLatitude());
+            dto.setLongitude(myMapPoint.getLongitude());
+            dto.setAddress(myMapPoint.getAddress());
+            dto.setPhone(myMapPoint.getPhone());
+            dto.setSearchTime(myMapPoint.getSearchTime());
+            dto.setMarkerColor(myMapPoint.getMarkerColor());
+            return dto;
+        }).collect(Collectors.toList());
     }
 }
