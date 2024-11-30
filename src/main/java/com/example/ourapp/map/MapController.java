@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -18,6 +19,9 @@ public class MapController {
 
     @Autowired
     private AdminMapPointRepository adminMapPointRepository;
+    
+    @Autowired
+    private MyMapPointService myMapPointService;
 
     @GetMapping("/mymap")
     public String getMyMapPage(HttpSession session) {
@@ -49,6 +53,25 @@ public class MapController {
         points.forEach(point -> System.out.println(point.getLocationDesc()));
         return points;
     }
+    
+    @GetMapping("/api/filter/colors")
+    @ResponseBody
+    public List<Map<String, String>> getColors() {
+        List<Map<String, String>> colors = myMapPointService.getAvailableMarkerColors();
+        // 디버깅: 반환될 색상 데이터를 출력
+        System.out.println("Available Marker Colors: " + colors);
+        return colors;
+    }
+
+    // 카테고리 목록 반환
+    @GetMapping("/api/filter/categories")
+    @ResponseBody
+    public List<Map<String, String>> getCategories() {
+        List<Map<String, String>> categories = myMapPointService.getDynamicCategories();
+        // 디버깅: 반환될 카테고리 데이터를 출력
+        System.out.println("Available Categories: " + categories);
+        return categories;
+    }
 
     // 삭제 엔드포인트
     @DeleteMapping("/api/mymap/delete")
@@ -64,7 +87,12 @@ public class MapController {
             return ResponseEntity.status(403).body("Unauthorized to delete this location");
         }
     }
-
+    @GetMapping("/api/getcategorymymap/{category}")
+    @ResponseBody // Ensures the response is JSON, not a template
+    public List<MyMapPoint> getLocationsByCategory(@PathVariable String category) {
+        System.out.println("Category received: " + category);
+        return myMapPointService.getLocationsByCategory(category); // Return JSON
+    }
     @PutMapping("/api/mymap/update")
     @ResponseBody
     public ResponseEntity<String> editMyMapPoint(

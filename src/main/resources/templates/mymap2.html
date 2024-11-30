@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtered Map - MyMap2</title>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY"></script>
+</head>
+<body>
+    <h1>Filtered Map - MyMap2</h1>
+
+    <div id="filter-container" style="margin: 20px;">
+        <label for="color-filter">마커 색깔:</label>
+        <select id="color-filter" onchange="filterMetadataMarkers()">
+            <!-- 옵션 동적 생성 -->
+        </select>
+
+        <label for="category-filter" style="margin-left: 20px;">카테고리:</label>
+        <select id="category-filter" onchange="filterMetadataMarkers()">
+            <!-- 옵션 동적 생성 -->
+        </select>
+    </div>
+
+    <div id="map" style="width: 100%; height: 600px;"></div>
+
+    <script type="text/javascript">
+        const mapContainer = document.getElementById('map');
+        const mapOption = {
+            center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
+            level: 3 // 지도의 확대 레벨
+        };
+
+        const map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+        const metadataMarkers = []; // 메타데이터 마커 배열
+        const markerColorImages = {
+            red: 'https://i.ibb.co/JKQhd5F/red.png',
+            orange: 'https://i.ibb.co/5GBR3by/orange.png',
+            yellow: 'https://i.ibb.co/M26n9tG/yellow.png',
+            green: 'https://i.ibb.co/hfBPHYB/green.png',
+            blue: 'https://i.ibb.co/6N7BwZ6/blue.png',
+        };
+
+        async function fetchFilterOptions() {
+            try {
+                const [colorResponse, categoryResponse] = await Promise.all([
+                    fetch('/api/filter/colors'),
+                    fetch('/api/filter/categories')
+                ]);
+
+                const colors = await colorResponse.json();
+                const categories = await categoryResponse.json();
+
+                console.log("Fetched Colors:", colors);
+                console.log("Fetched Categories:", categories);
+
+                generateFilterOptions('color-filter', colors, '모두 보기 (마커 색깔)');
+                generateFilterOptions('category-filter', categories, '모두 보기 (카테고리)');
+            } catch (error) {
+                console.error('Error fetching filter options:', error);
+            }
+        }
+
+        function generateFilterOptions(filterId, options, defaultOptionText) {
+            const filterElement = document.getElementById(filterId);
+            filterElement.innerHTML = '';
+
+            const defaultOption = createOptionElement('all', defaultOptionText);
+            filterElement.appendChild(defaultOption);
+
+            options.forEach(option => {
+                const optElement = createOptionElement(option.value, option.label);
+                filterElement.appendChild(optElement);
+                console.log(`Added option to ${filterId}:`, optElement);
+            });
+        }
+
+        function createOptionElement(value, text) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = text;
+            return option;
+        }
+
+        function displayMyMapLocationsWithMetadata() {
+            metadataMarkers.forEach(({ marker }) => marker.setMap(null)); // 기존 마커 삭제
+            metadataMarkers.length = 0;
+
+            fetch(`/api/mymap`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(location => {
+                        const coords = new kakao.maps.LatLng(location.latitude, location.longitude);
+                        const markerImage = new kakao.maps.MarkerImage(
+                            markerColorImages[location.markerColor] || markerColorImages.red,
+                            new kakao.maps.Size(24, 35)
+                        );
+
+                        const marker = new kakao.maps.Marker({
+                            map: map,
+                            position: coords,
+                            image: markerImage,
+                        });
+
+                        metadataMarkers.push({
+                            marker: marker,
+                            position: coords,
+                            category: location.category || "unknown",
+                            color: location.markerColor || "red",
+                            title: location.locationName
+                        });
+                    });
+
+                    console.log("Metadata markers initialized:", metadataMarkers);
+                })
+                .catch(error => {
+                    console.error("Error fetching locations:", error);
+                });
+        }
+
+        function filterMetadataMarkers() {
+            const selectedCategory = document.getElementById('category-filter').value;
+            const selectedColor = document.getElementById('color-filter').value;
+
+            console.log("Selected Category:", selectedCategory);
+            console.log("Selected Color:", selectedColor);
+
+            metadataMarkers.forEach(({ marker }) => {
+                if (marker) {
+                    marker.setMap(null);
+                } else {
+                    console.warn("Invalid marker object detected:", { marker });
+                }
+            });
+
+            metadataMarkers.forEach(({ marker, category, color }) => {
+                if (!marker) return;
+
+                const matchesCategory = selectedCategory === 'all' || category.includes(selectedCategory);
+                const matchesColor = selectedColor === 'all' || color === selectedColor;
+
+                if (matchesCategory && matchesColor) {
+                    marker.setMap(map);
+                }
+            });
+        }
+
+        async function initialize() {
+            await fetchFilterOptions(); // 필터 옵션 가져오기
+            displayMyMapLocationsWithMetadata(); // 마커 표시
+
+            console.log("Metadata markers array:", metadataMarkers); // 마커 배열 확인
+        }
+
+        window.onload = initialize;
+    </script>
+</body>
+</html>
