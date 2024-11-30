@@ -83,6 +83,7 @@ public class GroupMapController {
             map.put("latitude", point.getLatitude());
             map.put("longitude", point.getLongitude());
             map.put("searchTime", point.getSearchTime());
+            map.put("markerColor", point.getMarkerColor());
 
             // 추가한 사용자 이름
             String addedBy = userRepository.findById(point.getUserId())
