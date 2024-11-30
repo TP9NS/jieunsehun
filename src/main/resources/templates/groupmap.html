@@ -310,7 +310,43 @@
     font-size: 10px;
     color: #adb5bd;
   }
+  .places-wrap {
+        flex: 1; /* 장소 리스트 영역 */
+        max-width: 350px; /* 최대 너비 */
+        background-color: #f8f9fa; /* 밝은 배경 */
+        overflow-y: auto; /* 스크롤 지원 */
+        padding: 10px;
+        border-left: 1px solid #ddd; /* 지도와 리스트 사이 구분선 */
+    }
 
+   #locationList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#locationList li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#locationList li button {
+    margin-top: 5px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#locationList li button:hover {
+    background-color: #0056b3;
+}
 
 	</style>
 	</head>
@@ -422,6 +458,17 @@
 </div>
 
 	<div id="map" style="width:100%;height:100%;"></div>
+	<!-- 장소 리스트 영역 -->
+<div class="places-wrap">
+    <div id="menu_wrap" class="bg_white">
+        <h5>장소 리스트</h5>
+        <ul id="locationList"></ul> <!-- ID 변경 -->
+        <div id="pagination"></div>
+    </div>
+</div>
+
+	
+	
 <div id="chat-container" style="margin-top: 20px;">
     <h4>그룹 채팅</h4>
     <div id="chat-box" style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; background: #f9f9f9;"></div>
@@ -916,7 +963,7 @@ kakao.maps.event.addListener(marker, 'click', async function() {
         }
 
         removeMarker(); // 기존 마커 제거
-        const listEl = document.getElementById("placesList"); // 리스트 요소 가져오기
+        const listEl = document.getElementById("locationList"); // ID를 locationList로 변경
         listEl.innerHTML = ""; // 기존 리스트 초기화
 
         try {
@@ -924,6 +971,7 @@ kakao.maps.event.addListener(marker, 'click', async function() {
             if (!response.ok) {
                 throw new Error(`Failed to fetch group map points. Status: ${response.status}`);
             }
+
             const locations = await response.json();
 
             if (!locations || locations.length === 0) {
@@ -969,6 +1017,7 @@ kakao.maps.event.addListener(marker, 'click', async function() {
                     <span>설명: ${location.locationDesc || "N/A"}</span><br>
                     <button onclick="focusMarker(${index})">지도에서 보기</button>
                 `;
+                listItem.className = "list-item"; // 리스트 아이템 스타일 추가
                 listEl.appendChild(listItem); // 리스트 요소에 추가
             });
         } catch (error) {
@@ -976,15 +1025,18 @@ kakao.maps.event.addListener(marker, 'click', async function() {
             alert("그룹 장소를 불러오는 데 실패했습니다.");
         }
     }
+
+
     function focusMarker(index) {
         const marker = markers[index];
         const position = marker.getPosition();
         map.setCenter(position); // 지도 중심을 해당 마커로 이동
         const infowindow = new kakao.maps.InfoWindow({
-            content: `<div style="padding:10px;">${marker.getTitle()}</div>`
+            content: `<div style="padding:10px;">${marker.getTitle() || "장소 정보"}</div>`
         });
         infowindow.open(map, marker); // 해당 마커의 인포윈도우 열기
     }
+
 let selectedGroupId = null; // 선택된 그룹 ID 저장
 
 document.getElementById("groupSelector").addEventListener("change", async (e) => {
