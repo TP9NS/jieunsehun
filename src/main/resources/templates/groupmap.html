@@ -1018,8 +1018,9 @@ async function editLocation(id) {
                 // 인포윈도우 생성 및 이벤트 설정
                 const content = `
                     <div style="padding:10px; max-width:250px;">
-                        <p><strong>장소 이름:</strong> ${location.locationName}</p>
-                        <p><strong>위치:</strong> ${location.address || "N/A"}</p>
+                    		<h5>${location.locationName}</h5>
+                        <p><strong>주소:</strong> ${location.address || "N/A"}</p>
+                        <p><strong>전화번호:</strong> ${location.phone || "N/A"}</p>
                         <p><strong>카테고리:</strong> ${location.category || "N/A"}</p>
                         <p><strong>별칭:</strong> ${location.alias || "N/A"}</p>
                         <p><strong>설명:</strong> ${location.locationDesc || "N/A"}</p>
@@ -1027,14 +1028,27 @@ async function editLocation(id) {
                         ${(location.userPermission === 1 || location.userPermission === 2) ? `
                             <button onclick="editLocation(${location.id})">수정</button>
                             <button onclick="deleteLocation(${location.id})">삭제</button>
+                            <button onclick="closeInfoWindow()" style="margin-top:10px;">닫기</button>
                         ` : ""}
                     </div>
                 `;
 
-                const infowindow = new kakao.maps.InfoWindow({ content });
-                kakao.maps.event.addListener(marker, "click", () => {
-                    infowindow.open(map, marker);
-                });
+                const infowindow = new kakao.maps.InfoWindow({
+	                    content: content,
+	                });
+
+	                // 닫기 버튼을 위한 전역 변수에 저장
+	                window.currentInfoWindow = infowindow;
+
+	                // 마커 클릭 시 InfoWindow 열기/닫기
+	                kakao.maps.event.addListener(marker, 'click', function() {
+	                    if (infowindow.getMap()) {
+	                        infowindow.close();
+	                    } else {
+	                        infowindow.open(map, marker);
+	                        window.currentInfoWindow = infowindow;
+	                    }
+	                });
 
                 // 장소 리스트에 추가
                 const listItem = document.createElement("li");

@@ -529,15 +529,13 @@
 	                const content = `
 	                    <div style="padding:10px; max-width:250px; height:230px">
 	                        <h5>${location.locationName}</h5>
-	                        <p><strong>Phone:</strong> ${location.phone || "N/A"}</p>
-	                        <p><strong>Address:</strong> ${location.address || "N/A"}</p>
-	                        <p><strong>Alias:</strong> ${location.locationAlias || "N/A"}</p>
-	                        <p><strong>Category:</strong> ${location.category || "N/A"}</p>
-	                        <p><strong>Description:</strong> ${location.locationDesc || "N/A"}</p>
-	                        <p><strong>위도:</strong> ${location.latitude}</p>
-	                        <p><strong>경도:</strong> ${location.longitude}</p>
-	                        <button onclick="deleteLocation(${location.id})" style="margin-top:10px;">삭제</button>
+	                        <p><strong>주소:</strong> ${location.address || "N/A"}</p>
+	                        <p><strong>전화번호:</strong> ${location.phone || "N/A"}</p>
+	                        <p><strong>카테고리:</strong> ${location.category || "N/A"}</p>
+	                        <p><strong>별칭:</strong> ${location.locationAlias || "N/A"}</p>
+	                        <p><strong>설명:</strong> ${location.locationDesc || "N/A"}</p>
 	                        <button onclick="editLocation(${location.id})" style="margin-top:10px;">수정</button>
+	                        <button onclick="deleteLocation(${location.id})" style="margin-top:10px;">삭제</button>
 	                        <button onclick="closeInfoWindow()" style="margin-top:10px;">닫기</button>
 	                    </div>
 	                `;

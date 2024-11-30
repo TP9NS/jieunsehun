@@ -80,6 +80,7 @@ public class GroupMapController {
             map.put("alias",point.getLocationAlias());
             map.put("locationName", point.getLocationName());
             map.put("locationDesc", point.getLocationDesc());
+            map.put("phone", point.getPhone());
             map.put("latitude", point.getLatitude());
             map.put("longitude", point.getLongitude());
             map.put("searchTime", point.getSearchTime());
