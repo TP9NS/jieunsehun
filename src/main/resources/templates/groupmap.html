@@ -484,7 +484,7 @@
 	const mapElement = document.getElementById('map');
 
 	var markers = [];
-	
+	var point_markers=[];
 	var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
 	    mapOption = {
 	        center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
@@ -503,8 +503,7 @@
 	// 지도를 생성합니다    
 	var map = new kakao.maps.Map(mapContainer, mapOption); 
 		    
-		  window.onload = function() {
-
+		window.onload = function() {
     searchPlaces();
      fetchUserGroups(); 
 
@@ -515,6 +514,7 @@ function closeInfoWindow() {
         window.currentInfoWindow.close();
     }
 }
+
 function deleteLocation(id) {
     if (confirm("정말로 삭제하시겠습니까?")) {
         fetch(`/groupmap/delete?id=${id}`, { method: "DELETE" })
@@ -530,7 +530,6 @@ function deleteLocation(id) {
             });
     }
 }
-
 
 async function editLocation(id) {
     try {
@@ -889,59 +888,57 @@ async function editLocation(id) {
 	    this.overlay.setMap(visible ? map : null);
 	};
 	
-	function saveLocation(title, latitude, longitude, address_name, road_address_name, phone, category_name) {
-    const alias = document.getElementById("alias") ? document.getElementById("alias").value : ""; // 별칭
-    const note = document.getElementById("note") ? document.getElementById("note").value : ""; // 메모
-    const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
-
- // 선택된 마커 색상 가져오기
-    const markerColor = document.getElementById("selected-marker-color")?.value || "red";
-    
-    let topic = null;
-    let mapType = null;
-
-    if (userPermission === 0) { 
-        // 관리자라면 topic 입력
-        topic = document.getElementById("topic") ? document.getElementById("topic").value : ""; 
-    } else {
-        // 일반 사용자라면 mapType 선택
-        mapType = document.getElementById("mapType") ? document.getElementById("mapType").value : "MY_MAP"; 
-    }
-
-    // 요청 데이터 구성
-    const requestData = {
-        category: category_name || '',
-        locationName: title,
-        locationAlias: alias,
-        locationDesc: note,
-        latitude: latitude,
-        longitude: longitude,
-        address: road_address_name || address_name,
-        phone: phone || '',
-        markerColor: markerColor,
-        topic: topic,    // topic은 관리자만
-        groupId: mapType !== "MY_MAP" ? parseInt(mapType, 10) : null // 그룹 ID 저장
-    };
-
-    // URL 설정
-    const url = mapType === "MY_MAP" ? '/saveMyMapPoint' : '/saveGroupMapPoint';
-
-    // 서버로 요청 전송
-    fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message || data.error);
-        closeOverlay();
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('저장 중 오류가 발생했습니다.');
-    });
-}
+			function saveLocation(title, latitude, longitude, address_name, road_address_name, phone, category_name) {
+	    const alias = document.getElementById("alias") ? document.getElementById("alias").value : ""; // 별칭
+	    const note = document.getElementById("note") ? document.getElementById("note").value : ""; // 메모
+	     const selectedColor = document.getElementById("selected-marker-color").value;
+	    const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
+	
+	    let topic = null;
+	    let mapType = null;
+	
+	    if (userPermission === 0) { 
+	        // 관리자라면 topic 입력
+	        topic = document.getElementById("topic") ? document.getElementById("topic").value : ""; 
+	    } else {
+	        // 일반 사용자라면 mapType 선택
+	        mapType = document.getElementById("mapType") ? document.getElementById("mapType").value : "MY_MAP"; 
+	    }
+	
+	    // 요청 데이터 구성
+	    const requestData = {
+	        category: category_name || '',
+	        locationName: title,
+	        locationAlias: alias,
+	        locationDesc: note,
+	        latitude: latitude,
+	        longitude: longitude,
+	        address: road_address_name || address_name,
+	        phone: phone || '',
+	        markerColor: selectedColor,
+	        topic: topic,    // topic은 관리자만
+	        groupId: mapType !== "MY_MAP" ? parseInt(mapType, 10) : null // 그룹 ID 저장
+	    };
+	
+	    // URL 설정
+	    const url = mapType === "MY_MAP" ? '/saveMyMapPoint' : '/saveGroupMapPoint';
+	
+	    // 서버로 요청 전송
+	    fetch(url, {
+	        method: 'POST',
+	        headers: { 'Content-Type': 'application/json' },
+	        body: JSON.stringify(requestData)
+	    })
+	    .then(response => response.json())
+	    .then(data => {
+	        alert(data.message || data.error);
+	        closeOverlay();
+	    })
+	    .catch(error => {
+	        console.error('Error:', error);
+	        alert('저장 중 오류가 발생했습니다.');
+	    });
+	}
 	// 그룹 목록 불러오기 및 셀렉트 박스 초기화
     async function fetchUserGroups() {
         try {
@@ -976,7 +973,8 @@ async function editLocation(id) {
             return;
         }
 
-        removeMarker(); // 기존 마커 제거
+        		    point_markers.forEach(marker => marker.setMap(null));
+		            point_markers = []; 
         const listEl = document.getElementById("locationList"); // ID를 locationList로 변경
         listEl.innerHTML = ""; // 기존 리스트 초기화
 
@@ -1013,7 +1011,7 @@ async function editLocation(id) {
                     image: markerImage, // 설정된 이미지
                 });
 
-                markers.push(marker); // 마커 배열에 추가
+                point_markers.push(marker); // 마커 배열에 추가
 
                 // 인포윈도우 생성 및 이벤트 설정
                 const content = `

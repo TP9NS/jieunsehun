@@ -93,6 +93,12 @@ public class MapController {
         System.out.println("Category received: " + category);
         return myMapPointService.getLocationsByCategory(category); // Return JSON
     }
+    @GetMapping("/api/getcolormymap/{color}")
+    @ResponseBody // Ensures the response is JSON, not a template
+    public List<MyMapPoint> getLocationsByColor(@PathVariable String color) {
+        System.out.println("color received: " + color);
+        return myMapPointService.getLocationsByColor(color); // Return JSON
+    }
     @PutMapping("/api/mymap/update")
     @ResponseBody
     public ResponseEntity<String> editMyMapPoint(
