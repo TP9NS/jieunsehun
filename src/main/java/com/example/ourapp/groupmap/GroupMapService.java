@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,5 +66,22 @@ public class GroupMapService {
             dto.setMarkerColor(groupMapPoint.getMarkerColor());
             return dto;
         }).collect(Collectors.toList());
+    }
+    
+    public List<Map<String, String>> getGroupMarkerColors(Long groupId) {
+        // GroupMapPoint 테이블에서 색상 정보를 가져옵니다.
+    	System.out.println("asdasdsadads");
+        return groupMapPointRepository.findDistinctMarkerColorsByGroupId(groupId)
+                .stream()
+                .map(color -> Map.of("value", color, "label", color))
+                .collect(Collectors.toList());
+    }
+
+    public List<Map<String, String>> getGroupCategories(Long groupId) {
+        // GroupMapPoint 테이블에서 카테고리 정보를 가져옵니다.
+        return groupMapPointRepository.findDistinctCategoriesByGroupId(groupId)
+                .stream()
+                .map(category -> Map.of("value", category, "label", category))
+                .collect(Collectors.toList());
     }
 }

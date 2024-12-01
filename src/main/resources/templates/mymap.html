@@ -1227,7 +1227,7 @@
         categoryFilterElement.value = allOption.value;
     }
 		    // 카테고리를 서버로 전달하여 해당 카테고리의 데이터만 요청
-		    const url = selectedCategory === '모두보기 (마커 색깔)' ? `/api/mymap` : `/api/getcolormymap/${encodeURIComponent(selectedCategory)}`;
+		    const url = selectedCategory === 'all' ? `/api/mymap` : `/api/getcolormymap/${encodeURIComponent(selectedCategory)}`;
 	
 		    fetch(url)
 		        .then(response => response.json())

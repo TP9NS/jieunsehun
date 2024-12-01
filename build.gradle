@@ -52,6 +52,13 @@ dependencies {
     
     // Spring Boot Starter WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	//채팅 SSE 구현
+	    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // Reactor Core (optional, 포함됨)
+    implementation 'io.projectreactor:reactor-core'
+
 }
 
 tasks.named('test') {

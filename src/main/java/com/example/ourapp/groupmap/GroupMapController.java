@@ -32,6 +32,7 @@ import jakarta.transaction.Transactional;
 
 @Controller
 public class GroupMapController {
+
 	@Autowired
 	GroupRepository groupRepository;
 	@Autowired
@@ -54,6 +55,7 @@ public class GroupMapController {
     }
     @GetMapping("/getgroupmappoint")
     public ResponseEntity<?> getGroupMapPoints(@RequestParam Long groupId, HttpSession session) {
+    	System.out.println(groupId+"호출");
         Long userId = (Long) session.getAttribute("user_id");
 
         if (userId == null) {
@@ -186,5 +188,26 @@ public class GroupMapController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("락 해제 중 오류 발생");
         }
+    }
+    
+    @GetMapping("/api/groupmap/filter/colors")
+    public ResponseEntity<List<Map<String, String>>> getGroupColors(@RequestParam Long groupId) {
+    	
+        return ResponseEntity.ok(groupMapService.getGroupMarkerColors(groupId));
+    }
+
+    @GetMapping("/api/groupmap/filter/categories")
+    public ResponseEntity<List<Map<String, String>>> getGroupCategories(@RequestParam Long groupId) {
+        return ResponseEntity.ok(groupMapService.getGroupCategories(groupId));
+    }
+
+    @GetMapping("/api/groupmap/filter/category")
+    public ResponseEntity<List<GroupMapPoint>> getLocationsByCategory(@RequestParam Long groupId, @RequestParam String category) {
+        return ResponseEntity.ok(groupMapPointRepository.findByGroupIdAndCategory(groupId, category));
+    }
+
+    @GetMapping("/api/groupmap/filter/color")
+    public ResponseEntity<List<GroupMapPoint>> getLocationsByColor(@RequestParam Long groupId, @RequestParam String color) {
+        return ResponseEntity.ok(groupMapPointRepository.findByGroupIdAndMarkerColor(groupId, color));
     }
 }
