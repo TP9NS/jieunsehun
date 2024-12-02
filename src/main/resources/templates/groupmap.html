@@ -1288,7 +1288,7 @@ function filterMarkers_category() {
                         <p><strong>주소:</strong> ${location.address || "N/A"}</p>
                         <p><strong>전화번호:</strong> ${location.phone || "N/A"}</p>
                         <p><strong>카테고리:</strong> ${location.category || "N/A"}</p>
-                        <p><strong>별칭:</strong> ${location.alias || "N/A"}</p>
+                        <p><strong>별칭:</strong> ${location.locationAlias || "N/A"}</p>
                         <p><strong>설명:</strong> ${location.locationDesc || "N/A"}</p>
                         <p><strong>추가한 사람:</strong> ${location.addedBy || "알 수 없음"}</p>
                         ${(location.userPermission === 1 || location.userPermission === 2) ? `
@@ -1321,7 +1321,7 @@ function filterMarkers_category() {
                 listItem.innerHTML = `
                     <strong>${index + 1}. ${location.locationName}</strong><br>
                     <span>주소: ${location.address || "N/A"}</span><br>
-                    <span>별칭: ${location.alias || "N/A"}</span><br>
+                    <span>별칭: ${location.locationAlias || "N/A"}</span><br>
                     <span>설명: ${location.locationDesc || "N/A"}</span><br>
                     <button onclick="focusMarker(${index})">지도에서 보기</button>
                 `;
@@ -1391,7 +1391,7 @@ function filterMarkers_color() {
                         <p><strong>주소:</strong> ${location.address || "N/A"}</p>
                         <p><strong>전화번호:</strong> ${location.phone || "N/A"}</p>
                         <p><strong>카테고리:</strong> ${location.category || "N/A"}</p>
-                        <p><strong>별칭:</strong> ${location.alias || "N/A"}</p>
+                        <p><strong>별칭:</strong> ${location.locationAlias|| "N/A"}</p>
                         <p><strong>설명:</strong> ${location.locationDesc || "N/A"}</p>
                         <p><strong>추가한 사람:</strong> ${location.addedBy || "알 수 없음"}</p>
                         ${(location.userPermission === 1 || location.userPermission === 2) ? `
@@ -1424,7 +1424,7 @@ function filterMarkers_color() {
                 listItem.innerHTML = `
                     <strong>${index + 1}. ${location.locationName}</strong><br>
                     <span>주소: ${location.address || "N/A"}</span><br>
-                    <span>별칭: ${location.alias || "N/A"}</span><br>
+                    <span>별칭: ${location.locationAlias || "N/A"}</span><br>
                     <span>설명: ${location.locationDesc || "N/A"}</span><br>
                     <button onclick="focusMarker(${index})">지도에서 보기</button>
                 `;
