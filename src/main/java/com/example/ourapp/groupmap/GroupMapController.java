@@ -204,9 +204,12 @@ public class GroupMapController {
     @GetMapping("/api/groupmap/filter/category")
     public ResponseEntity<List<Map<String, Object>>> getLocationsByCategory(
             @RequestParam Long groupId,
-            @RequestParam String category) {
+            @RequestParam String category, HttpSession session) {
 
         List<GroupMapPoint> points = groupMapPointRepository.findByGroupIdAndCategory(groupId, category);
+        Long userId = (Long) session.getAttribute("user_id");
+        // 현재 사용자의 그룹 내 권한 조회
+        Optional<GroupMember> member = groupMemberRepository.findByGroup_groupIdAndUser_userId(groupId, userId);
 
         // 응답 데이터 구성
         List<Map<String, Object>> response = points.stream().map(point -> {
@@ -224,7 +227,7 @@ public class GroupMapController {
             map.put("longitude", point.getLongitude());
             map.put("searchTime", point.getSearchTime());
             map.put("markerColor", point.getMarkerColor());
-
+            map.put("userPermission", member.get().getPermission());
             // 추가한 사용자 이름 가져오기
             String addedBy = userRepository.findById(point.getUserId())
                                            .map(User::getName)
@@ -239,10 +242,12 @@ public class GroupMapController {
     @GetMapping("/api/groupmap/filter/color")
     public ResponseEntity<List<Map<String, Object>>> getLocationsByColor(
             @RequestParam Long groupId,
-            @RequestParam String color) {
+            @RequestParam String color,HttpSession session) {
 
         List<GroupMapPoint> points = groupMapPointRepository.findByGroupIdAndMarkerColor(groupId, color);
-
+        Long userId = (Long) session.getAttribute("user_id");
+        // 현재 사용자의 그룹 내 권한 조회
+        Optional<GroupMember> member = groupMemberRepository.findByGroup_groupIdAndUser_userId(groupId, userId);
         // 응답 데이터 구성
         List<Map<String, Object>> response = points.stream().map(point -> {
             Map<String, Object> map = new HashMap<>();
@@ -265,7 +270,7 @@ public class GroupMapController {
                                            .map(User::getName)
                                            .orElse("알 수 없음");
             map.put("addedBy", addedBy);
-
+            map.put("userPermission", member.get().getPermission());
             return map;
         }).collect(Collectors.toList());
 
