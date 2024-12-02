@@ -525,10 +525,14 @@
      fetchUserGroups(); 
 
 };
+let currentInfoWindow = null;
+let currentOverlay = null;
 
+// InfoWindow 닫기 함수 수정
 function closeInfoWindow() {
-    if (window.currentInfoWindow) {
-        window.currentInfoWindow.close();
+    if (currentInfoWindow) {
+        currentInfoWindow.close();
+        currentInfoWindow = null; // 닫았으니 null로 설정
     }
 }
 
@@ -736,6 +740,7 @@ async function editLocation(id) {
 
 	    // 마커 클릭 이벤트 리스너 추가
 	    kakao.maps.event.addListener(marker, 'click', async function () {
+	    	closeOverlay();
 	        console.log("Marker clicked:", title);
 
 	        const latitude = position.getLat();
@@ -811,18 +816,17 @@ async function editLocation(id) {
 	            yAnchor: 1
 	        });
 
-	        customOverlay.setMap(map);
-	        window.currentOverlay = customOverlay;
+	        customOverlay.setMap(map); // 지도에 Overlay 표시
+	        currentOverlay = customOverlay; // 현재 오버레이 저장
 	    });
 
 	    return marker;
 	}
-
-	
-	// 오버레이를 닫는 함수
+	// Overlay 닫기 함수 수정
 	function closeOverlay() {
-	    if (window.currentOverlay) {
-	        window.currentOverlay.setVisible(false);
+	    if (currentOverlay) {
+	        currentOverlay.setMap(null); // 지도에서 제거
+	        currentOverlay = null; // 닫았으니 null로 설정
 	    }
 	}
 	
@@ -1083,16 +1087,42 @@ async function editLocation(id) {
         }
     }
 
-
     function focusMarker(index) {
-        const marker = markers[index];
+        // 모든 기존 마커 숨기기
+        point_markers.forEach(marker => marker.setMap(null));
+
+        // 선택된 마커 가져오기
+        const marker = point_markers[index];
+        if (!marker) {
+            console.error(`Marker at index ${index} does not exist.`);
+            return;
+        }
+
+        // 마커 지도에 표시
+        marker.setMap(map);
+
+        // 마커 위치 가져오기
         const position = marker.getPosition();
-        map.setCenter(position); // 지도 중심을 해당 마커로 이동
+
+        // 지도 중심을 해당 마커 위치로 이동
+        map.setCenter(position);
+
+        // 선택된 마커의 인포윈도우 표시
         const infowindow = new kakao.maps.InfoWindow({
-            content: `<div style="padding:10px;">${marker.getTitle() || "장소 정보"}</div>`
+            content: `<div style="padding:10px;">선택된 장소</div>`
         });
-        infowindow.open(map, marker); // 해당 마커의 인포윈도우 열기
+
+        // 이전에 열려 있는 InfoWindow 닫기
+        closeInfoWindow();
+
+        // 새 InfoWindow 열기
+        infowindow.open(map, marker);
+
+        // 현재 열려 있는 InfoWindow 업데이트
+        currentInfoWindow = infowindow;
     }
+
+
 
 let selectedGroupId = null; // 선택된 그룹 ID 저장
 
@@ -1248,6 +1278,11 @@ function filterMarkers_category() {
     if (allOption) {
         categoryFilterElement.value = allOption.value;
     }
+    // 기존 모든 마커 제거
+    markers.forEach(marker => marker.setMap(null));
+    markers = []; // 검색 마커 초기화
+    point_markers.forEach(marker => marker.setMap(null));
+    point_markers = []; // 필터 마커 초기화
 
     // URL 생성 (색상 선택에 따라 API 엔드포인트 변경)
     const url = selectedCategory === 'all'
@@ -1351,6 +1386,11 @@ function filterMarkers_color() {
     if (allOption) {
         categoryFilterElement.value = allOption.value;
     }
+    // 기존 모든 마커 제거
+    markers.forEach(marker => marker.setMap(null));
+    markers = []; // 검색 마커 초기화
+    point_markers.forEach(marker => marker.setMap(null));
+    point_markers = []; // 필터 마커 초기화
 
     // URL 생성 (색상 선택에 따라 API 엔드포인트 변경)
     const url = selectedColor === 'all'
@@ -1411,14 +1451,12 @@ function filterMarkers_color() {
 	                window.currentInfoWindow = infowindow;
 
 	                // 마커 클릭 시 InfoWindow 열기/닫기
-	                kakao.maps.event.addListener(marker, 'click', function() {
-	                    if (infowindow.getMap()) {
-	                        infowindow.close();
-	                    } else {
-	                        infowindow.open(map, marker);
-	                        window.currentInfoWindow = infowindow;
-	                    }
-	                });
+	                kakao.maps.event.addListener(marker, 'click', function () {
+		                    // 기존 InfoWindow 닫기
+		                    closeInfoWindow();
+		                    infowindow.open(map, marker);
+		                    currentInfoWindow = infowindow;
+		                });
 
                 // 장소 리스트에 추가
                 const listItem = document.createElement("li");

@@ -591,14 +591,11 @@
 		                // 닫기 버튼을 위한 전역 변수에 저장
 		                window.currentInfoWindow = infowindow;
 	
-		                // 마커 클릭 시 InfoWindow 열기/닫기
-		                kakao.maps.event.addListener(marker, 'click', function() {
-		                    if (infowindow.getMap()) {
-		                        infowindow.close();
-		                    } else {
-		                        infowindow.open(map, marker);
-		                        window.currentInfoWindow = infowindow;
-		                    }
+		                kakao.maps.event.addListener(marker, 'click', function () {
+		                    // 기존 InfoWindow 닫기
+		                    closeInfoWindow();
+		                    infowindow.open(map, marker);
+		                    currentInfoWindow = infowindow;
 		                });
 		            });
 		        })
@@ -606,13 +603,16 @@
 		            console.error("Error fetching locations:", error);
 		        });
 		}
-	
-	        // 닫기 버튼에 사용할 함수
-	function closeInfoWindow() {
-	    if (window.currentInfoWindow) {
-	        window.currentInfoWindow.close();
-	    }
-	}
+		let currentInfoWindow = null;
+		let currentOverlay = null;
+		
+		// InfoWindow 닫기 함수 수정
+		function closeInfoWindow() {
+		    if (currentInfoWindow) {
+		        currentInfoWindow.close();
+		        currentInfoWindow = null; // 닫았으니 null로 설정
+		    }
+		}
 	        
 	        
 	function deleteLocation(id) {
@@ -821,6 +821,7 @@
 	}
 		// 마커 클릭 이벤트 리스너 내부
 		kakao.maps.event.addListener(marker, 'click', async function () {
+			  closeOverlay();
 		    console.log("Marker clicked:", title); // 디버깅용
 		    var latitude = position.getLat();
 		    var longitude = position.getLng();
@@ -890,23 +891,24 @@
 		        '    </div>' +
 		        '</div>';
 	
-		    var customOverlay = new kakao.maps.CustomOverlay({
-		        position: position,
-		        content: overlayContent,
-		        xAnchor: 0.5,
-		        yAnchor: 1
-		    });
-	
-		    customOverlay.setMap(map);
-		    window.currentOverlay = customOverlay;
-		});
-		    return marker;
-		}
-		
-		// 오버레이를 닫는 함수
+		    const customOverlay = new kakao.maps.CustomOverlay({
+	            position: position,
+	            content: overlayContent,
+	            xAnchor: 0.5,
+	            yAnchor: 1
+	        });
+
+	        customOverlay.setMap(map); // 지도에 Overlay 표시
+	        currentOverlay = customOverlay; // 현재 오버레이 저장
+	    });
+
+	    return marker;
+	}
+		// Overlay 닫기 함수 수정
 		function closeOverlay() {
-		    if (window.currentOverlay) {
-		        window.currentOverlay.setVisible(false);
+		    if (currentOverlay) {
+		        currentOverlay.setMap(null); // 지도에서 제거
+		        currentOverlay = null; // 닫았으니 null로 설정
 		    }
 		}
 		
@@ -1040,8 +1042,6 @@
 	        alert('저장 중 오류가 발생했습니다.');
 	    });
 	}
-		// 현재 활성 오버레이를 저장하는 전역 변수
-		let currentOverlay = null;
 	
 		function fetchMyMapLocationsList() {
 		    fetch(`/api/mymap`)
@@ -1133,141 +1133,58 @@
 	
 		function filterMarkers_category() {
 		    const selectedCategory = document.getElementById('category-filter').value;
-	const categoryFilterElement = document.getElementById('color-filter');
-    const options = Array.from(categoryFilterElement.options);
+		    const categoryFilterElement = document.getElementById('color-filter');
+		    const options = Array.from(categoryFilterElement.options);
 
-    // "모두 보기 (카테고리)"를 찾아 선택
-    const allOption = options.find(option => option.text === '모두 보기 (마커 색깔)');
-    if (allOption) {
-        categoryFilterElement.value = allOption.value;
-    }
+		    // "모두 보기 (카테고리)"를 찾아 선택
+		    const allOption = options.find(option => option.text === '모두 보기 (마커 색깔)');
+		    if (allOption) {
+		        categoryFilterElement.value = allOption.value;
+		    }
+
+		    // 기존 모든 마커 제거
+		    markers.forEach(marker => marker.setMap(null));
+		    markers = [];
+		    point_markers.forEach(marker => marker.setMap(null));
+		    point_markers = [];
+		    
+		    if (window.currentOverlay) {
+		        window.currentOverlay.setMap(null); // 기존 오버레이 닫기
+		        window.currentOverlay = null;
+		    }
+
 		    // 카테고리를 서버로 전달하여 해당 카테고리의 데이터만 요청
 		    const url = selectedCategory === 'all' ? `/api/mymap` : `/api/getcategorymymap/${encodeURIComponent(selectedCategory)}`;
-	
-		    fetch(url)
-		        .then(response => response.json())
-		        .then(data => {
-		        		
-		            const savedLocationsList = document.getElementById('saved-locations-list');
-		            savedLocationsList.innerHTML = ''; // 기존 리스트 초기화
-	
-		            // 모든 마커 숨기기
-		            point_markers.forEach(marker => marker.setMap(null));
-		            point_markers = []; // 마커 배열 초기화
-		            
-		            data.forEach(location => {
-		            	  console.log(location.category);
-		                const coords = new kakao.maps.LatLng(location.latitude, location.longitude);
-	
-		                // 색상에 따른 마커 이미지 설정
-		                const markerImage = new kakao.maps.MarkerImage(
-		                    markerColorImages[location.markerColor] || markerColorImages.red, // 기본값은 빨강
-		                    new kakao.maps.Size(24, 35) // 마커 크기
-		                );
-	
-		                const marker = new kakao.maps.Marker({
-		                    position: coords,
-		                    image: markerImage,
-		                    map: map
-		                });
-	
-										point_markers.push(marker);
-		                // 리스트에 추가할 항목 생성
-		                const listItem = document.createElement('li');
-		                listItem.className = 'list-item';
-		                listItem.style.padding = '10px 0';
-		                listItem.style.borderBottom = '1px solid #ddd';
-		                listItem.style.cursor = 'pointer';
-		                listItem.textContent = location.locationName;
-	
-		                // 리스트 클릭 시 마커로 이동
-		                listItem.addEventListener('click', () => {
-		                    map.setCenter(coords); // 지도 중심 이동
-		                    const content = `
-		                        <div style="padding:10px; max-width:250px; background:white; border:1px solid #ddd; border-radius:5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-		                            <h5>${location.locationName}</h5>
-		                            <p><strong>Phone:</strong> ${location.phone || "N/A"}</p>
-		                            <p><strong>Address:</strong> ${location.address || "N/A"}</p>
-		                            <p><strong>Alias:</strong> ${location.locationAlias || "N/A"}</p>
-		                            <p><strong>Category:</strong> ${location.category || "N/A"}</p>
-		                            <p><strong>Description:</strong> ${location.locationDesc || "N/A"}</p>
-		                            <p><strong>위도:</strong> ${location.latitude}</p>
-		                            <p><strong>경도:</strong> ${location.longitude}</p>
-		                        </div>
-		                    `;
-	
-		                    // 오버레이 설정
-		                    const overlay = new kakao.maps.CustomOverlay({
-		                        position: coords,
-		                        content: content,
-		                        xAnchor: 0.5,
-		                        yAnchor: 1.1,
-		                        zIndex: 3
-		                    });
-	
-		                    overlay.setMap(map);
-		                    window.currentOverlay = overlay; // 현재 오버레이 저장
-		                    
-		                });
-	
-		                savedLocationsList.appendChild(listItem);
-		            });
-		        })
-		        .catch(error => console.error("Error fetching locations by category:", error));
-		}
-	function filterMarkers_color() {
-		    const selectedCategory = document.getElementById('color-filter').value;
-		    
-	const categoryFilterElement = document.getElementById('category-filter');
-    const options = Array.from(categoryFilterElement.options);
 
-    // "모두 보기 (카테고리)"를 찾아 선택
-    const allOption = options.find(option => option.text === '모두 보기 (카테고리)');
-    if (allOption) {
-        categoryFilterElement.value = allOption.value;
-    }
-		    // 카테고리를 서버로 전달하여 해당 카테고리의 데이터만 요청
-		    const url = selectedCategory === 'all' ? `/api/mymap` : `/api/getcolormymap/${encodeURIComponent(selectedCategory)}`;
-	
 		    fetch(url)
 		        .then(response => response.json())
 		        .then(data => {
-		        		
 		            const savedLocationsList = document.getElementById('saved-locations-list');
 		            savedLocationsList.innerHTML = ''; // 기존 리스트 초기화
-	
-		            // 모든 마커 숨기기
-		            point_markers.forEach(marker => marker.setMap(null));
-		            point_markers = []; // 마커 배열 초기화
-		            
+
 		            data.forEach(location => {
-		            	  console.log(location.category);
 		                const coords = new kakao.maps.LatLng(location.latitude, location.longitude);
-	
+
 		                // 색상에 따른 마커 이미지 설정
 		                const markerImage = new kakao.maps.MarkerImage(
-		                    markerColorImages[location.markerColor] || markerColorImages.red, // 기본값은 빨강
-		                    new kakao.maps.Size(24, 35) // 마커 크기
+		                    markerColorImages[location.markerColor] || markerColorImages.red,
+		                    new kakao.maps.Size(24, 35)
 		                );
-	
+
 		                const marker = new kakao.maps.Marker({
 		                    position: coords,
 		                    image: markerImage,
 		                    map: map
 		                });
-	
-										point_markers.push(marker);
-		                // 리스트에 추가할 항목 생성
-		                const listItem = document.createElement('li');
-		                listItem.className = 'list-item';
-		                listItem.style.padding = '10px 0';
-		                listItem.style.borderBottom = '1px solid #ddd';
-		                listItem.style.cursor = 'pointer';
-		                listItem.textContent = location.locationName;
-	
-		                // 리스트 클릭 시 마커로 이동
-		                listItem.addEventListener('click', () => {
-		                    map.setCenter(coords); // 지도 중심 이동
+
+		                point_markers.push(marker);
+
+		                // 마커 클릭 이벤트 추가
+		                kakao.maps.event.addListener(marker, 'click', () => {
+		                	 // 기존 Overlay 닫기
+		                    if (window.currentOverlay) {
+		                        window.currentOverlay.setMap(null);
+		                    }
 		                    const content = `
 		                        <div style="padding:10px; max-width:250px; background:white; border:1px solid #ddd; border-radius:5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 		                            <h5>${location.locationName}</h5>
@@ -1280,8 +1197,7 @@
 		                            <p><strong>경도:</strong> ${location.longitude}</p>
 		                        </div>
 		                    `;
-	
-		                    // 오버레이 설정
+
 		                    const overlay = new kakao.maps.CustomOverlay({
 		                        position: coords,
 		                        content: content,
@@ -1289,17 +1205,124 @@
 		                        yAnchor: 1.1,
 		                        zIndex: 3
 		                    });
-	
+
 		                    overlay.setMap(map);
-		                    window.currentOverlay = overlay; // 현재 오버레이 저장
-		                    
+		                    window.currentOverlay = overlay;
 		                });
-	
+
+		                // 리스트에 추가할 항목 생성
+		                const listItem = document.createElement('li');
+		                listItem.className = 'list-item';
+		                listItem.style.padding = '10px 0';
+		                listItem.style.borderBottom = '1px solid #ddd';
+		                listItem.style.cursor = 'pointer';
+		                listItem.textContent = location.locationName;
+
+		                // 리스트 클릭 시 마커로 이동
+		                listItem.addEventListener('click', () => {
+		                    map.setCenter(coords);
+		                });
+
 		                savedLocationsList.appendChild(listItem);
 		            });
 		        })
 		        .catch(error => console.error("Error fetching locations by category:", error));
 		}
+
+		function filterMarkers_color() {
+		    const selectedColor = document.getElementById('color-filter').value;
+		    const categoryFilterElement = document.getElementById('category-filter');
+		    const options = Array.from(categoryFilterElement.options);
+
+		    // "모두 보기 (카테고리)"를 찾아 선택
+		    const allOption = options.find(option => option.text === '모두 보기 (카테고리)');
+		    if (allOption) {
+		        categoryFilterElement.value = allOption.value;
+		    }
+
+		    // 기존 모든 마커 제거
+		    markers.forEach(marker => marker.setMap(null));
+		    markers = [];
+		    point_markers.forEach(marker => marker.setMap(null));
+		    point_markers = [];
+		    
+		    if (window.currentOverlay) {
+		        window.currentOverlay.setMap(null); // 기존 오버레이 닫기
+		        window.currentOverlay = null;
+		    }
+
+		    const url = selectedColor === 'all' ? `/api/mymap` : `/api/getcolormymap/${encodeURIComponent(selectedColor)}`;
+
+		    fetch(url)
+		        .then(response => response.json())
+		        .then(data => {
+		            const savedLocationsList = document.getElementById('saved-locations-list');
+		            savedLocationsList.innerHTML = '';
+
+		            data.forEach(location => {
+		                const coords = new kakao.maps.LatLng(location.latitude, location.longitude);
+
+		                const markerImage = new kakao.maps.MarkerImage(
+		                    markerColorImages[location.markerColor] || markerColorImages.red,
+		                    new kakao.maps.Size(24, 35)
+		                );
+
+		                const marker = new kakao.maps.Marker({
+		                    position: coords,
+		                    image: markerImage,
+		                    map: map
+		                });
+
+		                point_markers.push(marker);
+
+		                // 마커 클릭 이벤트 추가
+		                kakao.maps.event.addListener(marker, 'click', () => {
+		                	 // 기존 Overlay 닫기
+		                    if (window.currentOverlay) {
+		                        window.currentOverlay.setMap(null);
+		                    }
+		                    const content = `
+		                        <div style="padding:10px; max-width:250px; background:white; border:1px solid #ddd; border-radius:5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+		                            <h5>${location.locationName}</h5>
+		                            <p><strong>Phone:</strong> ${location.phone || "N/A"}</p>
+		                            <p><strong>Address:</strong> ${location.address || "N/A"}</p>
+		                            <p><strong>Alias:</strong> ${location.locationAlias || "N/A"}</p>
+		                            <p><strong>Category:</strong> ${location.category || "N/A"}</p>
+		                            <p><strong>Description:</strong> ${location.locationDesc || "N/A"}</p>
+		                            <p><strong>위도:</strong> ${location.latitude}</p>
+		                            <p><strong>경도:</strong> ${location.longitude}</p>
+		                        </div>
+		                    `;
+
+		                    const overlay = new kakao.maps.CustomOverlay({
+		                        position: coords,
+		                        content: content,
+		                        xAnchor: 0.5,
+		                        yAnchor: 1.1,
+		                        zIndex: 3
+		                    });
+
+		                    overlay.setMap(map);
+		                    window.currentOverlay = overlay;
+		                });
+
+		                const listItem = document.createElement('li');
+		                listItem.className = 'list-item';
+		                listItem.style.padding = '10px 0';
+		                listItem.style.borderBottom = '1px solid #ddd';
+		                listItem.style.cursor = 'pointer';
+		                listItem.textContent = location.locationName;
+
+		                listItem.addEventListener('click', () => {
+		                    map.setCenter(coords);
+		                });
+
+		                savedLocationsList.appendChild(listItem);
+		            });
+		        })
+		        .catch(error => console.error("Error fetching locations by color:", error));
+		}
+
 		async function fetchFilterOptions() {
 		    try {
 		        const [colorResponse, categoryResponse] = await Promise.all([

@@ -202,12 +202,73 @@ public class GroupMapController {
     }
 
     @GetMapping("/api/groupmap/filter/category")
-    public ResponseEntity<List<GroupMapPoint>> getLocationsByCategory(@RequestParam Long groupId, @RequestParam String category) {
-        return ResponseEntity.ok(groupMapPointRepository.findByGroupIdAndCategory(groupId, category));
-    }
+    public ResponseEntity<List<Map<String, Object>>> getLocationsByCategory(
+            @RequestParam Long groupId,
+            @RequestParam String category) {
 
+        List<GroupMapPoint> points = groupMapPointRepository.findByGroupIdAndCategory(groupId, category);
+
+        // 응답 데이터 구성
+        List<Map<String, Object>> response = points.stream().map(point -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", point.getId());
+            map.put("address", point.getAddress());
+            map.put("userId", point.getUserId());
+            map.put("groupId", point.getGroupId());
+            map.put("category", point.getCategory());
+            map.put("alias", point.getLocationAlias());
+            map.put("locationName", point.getLocationName());
+            map.put("locationDesc", point.getLocationDesc());
+            map.put("phone", point.getPhone());
+            map.put("latitude", point.getLatitude());
+            map.put("longitude", point.getLongitude());
+            map.put("searchTime", point.getSearchTime());
+            map.put("markerColor", point.getMarkerColor());
+
+            // 추가한 사용자 이름 가져오기
+            String addedBy = userRepository.findById(point.getUserId())
+                                           .map(User::getName)
+                                           .orElse("알 수 없음");
+            map.put("addedBy", addedBy);
+
+            return map;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
     @GetMapping("/api/groupmap/filter/color")
-    public ResponseEntity<List<GroupMapPoint>> getLocationsByColor(@RequestParam Long groupId, @RequestParam String color) {
-        return ResponseEntity.ok(groupMapPointRepository.findByGroupIdAndMarkerColor(groupId, color));
+    public ResponseEntity<List<Map<String, Object>>> getLocationsByColor(
+            @RequestParam Long groupId,
+            @RequestParam String color) {
+
+        List<GroupMapPoint> points = groupMapPointRepository.findByGroupIdAndMarkerColor(groupId, color);
+
+        // 응답 데이터 구성
+        List<Map<String, Object>> response = points.stream().map(point -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", point.getId());
+            map.put("address", point.getAddress());
+            map.put("userId", point.getUserId());
+            map.put("groupId", point.getGroupId());
+            map.put("category", point.getCategory());
+            map.put("alias", point.getLocationAlias());
+            map.put("locationName", point.getLocationName());
+            map.put("locationDesc", point.getLocationDesc());
+            map.put("phone", point.getPhone());
+            map.put("latitude", point.getLatitude());
+            map.put("longitude", point.getLongitude());
+            map.put("searchTime", point.getSearchTime());
+            map.put("markerColor", point.getMarkerColor());
+
+            // 추가한 사용자 이름 가져오기
+            String addedBy = userRepository.findById(point.getUserId())
+                                           .map(User::getName)
+                                           .orElse("알 수 없음");
+            map.put("addedBy", addedBy);
+
+            return map;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 }
