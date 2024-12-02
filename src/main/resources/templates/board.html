@@ -113,12 +113,28 @@
     <div class="container d-flex align-items-center justify-content-between">
       <!-- 보물 지도 로고를 상단에 고정 -->
       <a href="/main" class="navbar-brand">
-        <strong>보물 지도</strong>
+        <strong>보물 지도-게시판</strong>
       </a>
 
       <!-- 로고 아래 가로로 메뉴와 버튼 배치 -->
       <div class="d-flex justify-content-between w-100 mt-2">
         <ul class="navbar-nav flex-row">
+
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/mymap">나만의 지도</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/groupmap">그룹 지도</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/friends">친구 목록</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/groups">그룹 관리</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/vote">장소 투표</a>
+          </li>
         </ul>
 
         <!-- 로그인 여부에 따라 버튼 표시 -->
@@ -128,9 +144,6 @@
     					<a class="nav-link" th:if="${session.permission == 0}" th:href="@{/user/manage-locations}">관리자님 어서오세요!</a>
     					<a class="nav-link" th:if="${session.permission != 0}" th:href="@{/user/mypage}">마이페이지</a>
  						 </li>
- 					<li th:if="${session.user_id != null}" class="nav-item me-3">
-            <a class="nav-link" th:href="@{/main}">메인으로 돌아가기</a>
-          </li>
           <li th:if="${session.user_id != null}" class="nav-item">
             <a class="nav-link" th:href="@{/user/logout}">로그아웃</a>
           </li>
