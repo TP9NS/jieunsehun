@@ -1049,74 +1049,81 @@
 		        .then(data => {
 		            const savedLocationsList = document.getElementById('saved-locations-list');
 		            savedLocationsList.innerHTML = ''; // 기존 리스트 초기화
-	
+
 		            data.forEach(location => {
 		                const listItem = document.createElement('li');
 		                listItem.className = 'list-item';
 		                listItem.style.padding = '10px 0';
 		                listItem.style.borderBottom = '1px solid #ddd';
 		                listItem.style.cursor = 'pointer';
-	
+
 		                // 장소명 표시
 		                listItem.textContent = location.locationName;
-	
-		                // 클릭 이벤트로 지도에서 해당 위치로 이동 및 마커와 오버레이 추가
+
+		                // 리스트 클릭 이벤트로 지도에서 해당 위치로 이동 및 마커와 인포윈도우 추가
 		                listItem.addEventListener('click', () => {
 		                    const coords = new kakao.maps.LatLng(location.latitude, location.longitude);
-	
+
 		                    // 지도 중심 설정
 		                    map.setCenter(coords);
-	
+
 		                    // 기존 마커와 오버레이 삭제
 		                    removeAllMarkersAndOverlays();
-	
+
 		                    // 색상에 따른 마커 이미지 설정
 		                    const markerImage = new kakao.maps.MarkerImage(
 		                        markerColorImages[location.markerColor] || markerColorImages.red, // 기본값은 빨강
 		                        new kakao.maps.Size(24, 35) // 마커 크기
 		                    );
-	
+
 		                    // 새로운 마커 생성
 		                    const marker = new kakao.maps.Marker({
 		                        position: coords,
 		                        image: markerImage,
 		                        map: map
 		                    });
-	
-		                    // 오버레이 내용
+
+		                    point_markers.push(marker);
+
+		                    // 인포윈도우 내용
 		                    const content = `
-		                        <div style="padding:10px; max-width:250px; background:white; border:1px solid #ddd; border-radius:5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+		                        <div style="padding:10px; max-width:250px; height:230px">
 		                            <h5>${location.locationName}</h5>
-		                            <p><strong>Phone:</strong> ${location.phone || "N/A"}</p>
-		                            <p><strong>Address:</strong> ${location.address || "N/A"}</p>
-		                            <p><strong>Alias:</strong> ${location.locationAlias || "N/A"}</p>
-		                            <p><strong>Category:</strong> ${location.category || "N/A"}</p>
-		                            <p><strong>Description:</strong> ${location.locationDesc || "N/A"}</p>
-		                            <p><strong>위도:</strong> ${location.latitude}</p>
-		                            <p><strong>경도:</strong> ${location.longitude}</p>
+		                            <p><strong>주소:</strong> ${location.address || "N/A"}</p>
+		                            <p><strong>전화번호:</strong> ${location.phone || "N/A"}</p>
+		                            <p><strong>카테고리:</strong> ${location.category || "N/A"}</p>
+		                            <p><strong>별칭:</strong> ${location.locationAlias || "N/A"}</p>
+		                            <p><strong>설명:</strong> ${location.locationDesc || "N/A"}</p>
+		                            <button onclick="editLocation(${location.id})" style="margin-top:10px;">수정</button>
+		                            <button onclick="deleteLocation(${location.id})" style="margin-top:10px;">삭제</button>
+		                            <button onclick="closeInfoWindow()" style="margin-top:10px;">닫기</button>
 		                        </div>
 		                    `;
-	
-		                    // 새로운 오버레이 생성
-		                    const overlay = new kakao.maps.CustomOverlay({
-		                        position: coords,
-		                        content: content,
-		                        xAnchor: 0.5,
-		                        yAnchor: 1.1,
-		                        zIndex: 3
+
+		                    // 새로운 인포윈도우 생성
+		                    const infowindow = new kakao.maps.InfoWindow({
+		                        content: content
 		                    });
-	
-		                    // 지도에 마커와 오버레이 추가
-		                    overlay.setMap(map);
-		                    point_markers.push(marker);
-		                    window.currentOverlay = overlay; // 현재 오버레이 저장
+
+		                    // 마커 클릭 이벤트
+		                    kakao.maps.event.addListener(marker, 'click', function () {
+		                        // 기존 InfoWindow 닫기
+		                        closeInfoWindow();
+		                        infowindow.open(map, marker);
+		                        currentInfoWindow = infowindow;
+		                    });
+
+		                    // 인포윈도우 열기
+		                    infowindow.open(map, marker);
+		                    currentInfoWindow = infowindow;
 		                });
-	
+
 		                savedLocationsList.appendChild(listItem); // 리스트 항목 추가
 		            });
 		        })
 		        .catch(error => console.error("Error fetching locations:", error));
 		}
+
 	
 		// 기존 마커와 오버레이 제거
 		function removeAllMarkersAndOverlays() {
@@ -1147,7 +1154,7 @@
 		    markers = [];
 		    point_markers.forEach(marker => marker.setMap(null));
 		    point_markers = [];
-		    
+
 		    if (window.currentOverlay) {
 		        window.currentOverlay.setMap(null); // 기존 오버레이 닫기
 		        window.currentOverlay = null;
@@ -1168,7 +1175,7 @@
 		                // 색상에 따른 마커 이미지 설정
 		                const markerImage = new kakao.maps.MarkerImage(
 		                    markerColorImages[location.markerColor] || markerColorImages.red,
-		                    new kakao.maps.Size(24, 35)
+		                    new kakao.maps.Size(24, 35) // 마커 크기
 		                );
 
 		                const marker = new kakao.maps.Marker({
@@ -1181,20 +1188,23 @@
 
 		                // 마커 클릭 이벤트 추가
 		                kakao.maps.event.addListener(marker, 'click', () => {
-		                	 // 기존 Overlay 닫기
+		                    // 기존 Overlay 닫기
 		                    if (window.currentOverlay) {
 		                        window.currentOverlay.setMap(null);
 		                    }
+
+		                 // 인포윈도우 내용
 		                    const content = `
 		                        <div style="padding:10px; max-width:250px; background:white; border:1px solid #ddd; border-radius:5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 		                            <h5>${location.locationName}</h5>
-		                            <p><strong>Phone:</strong> ${location.phone || "N/A"}</p>
-		                            <p><strong>Address:</strong> ${location.address || "N/A"}</p>
-		                            <p><strong>Alias:</strong> ${location.locationAlias || "N/A"}</p>
-		                            <p><strong>Category:</strong> ${location.category || "N/A"}</p>
-		                            <p><strong>Description:</strong> ${location.locationDesc || "N/A"}</p>
-		                            <p><strong>위도:</strong> ${location.latitude}</p>
-		                            <p><strong>경도:</strong> ${location.longitude}</p>
+		                            <p><strong>주소:</strong> ${location.address || "N/A"}</p>
+		                            <p><strong>전화번호:</strong> ${location.phone || "N/A"}</p>
+		                            <p><strong>카테고리:</strong> ${location.category || "N/A"}</p>
+		                            <p><strong>별칭:</strong> ${location.locationAlias || "N/A"}</p>
+		                            <p><strong>설명:</strong> ${location.locationDesc || "N/A"}</p>
+		                            <button onclick="editLocation(${location.id})" style="margin-top:10px;">수정</button>
+		                            <button onclick="deleteLocation(${location.id})" style="margin-top:10px;">삭제</button>
+		                            <button onclick="closeInfoWindow()" style="margin-top:10px;">닫기</button>
 		                        </div>
 		                    `;
 
@@ -1210,7 +1220,7 @@
 		                    window.currentOverlay = overlay;
 		                });
 
-		                // 리스트에 추가할 항목 생성
+		                // 리스트 항목 생성
 		                const listItem = document.createElement('li');
 		                listItem.className = 'list-item';
 		                listItem.style.padding = '10px 0';
@@ -1218,7 +1228,7 @@
 		                listItem.style.cursor = 'pointer';
 		                listItem.textContent = location.locationName;
 
-		                // 리스트 클릭 시 마커로 이동
+		                // 리스트 클릭 이벤트 추가
 		                listItem.addEventListener('click', () => {
 		                    map.setCenter(coords);
 		                });
@@ -1226,8 +1236,9 @@
 		                savedLocationsList.appendChild(listItem);
 		            });
 		        })
-		        .catch(error => console.error("Error fetching locations by category:", error));
+		        .catch(error => console.error("Error fetching locations by color:", error));
 		}
+
 
 		function filterMarkers_color() {
 		    const selectedColor = document.getElementById('color-filter').value;
@@ -1245,7 +1256,7 @@
 		    markers = [];
 		    point_markers.forEach(marker => marker.setMap(null));
 		    point_markers = [];
-		    
+
 		    if (window.currentOverlay) {
 		        window.currentOverlay.setMap(null); // 기존 오버레이 닫기
 		        window.currentOverlay = null;
@@ -1257,16 +1268,18 @@
 		        .then(response => response.json())
 		        .then(data => {
 		            const savedLocationsList = document.getElementById('saved-locations-list');
-		            savedLocationsList.innerHTML = '';
+		            savedLocationsList.innerHTML = ''; // 기존 리스트 초기화
 
 		            data.forEach(location => {
 		                const coords = new kakao.maps.LatLng(location.latitude, location.longitude);
 
+		                // 색상에 따른 마커 이미지 설정
 		                const markerImage = new kakao.maps.MarkerImage(
 		                    markerColorImages[location.markerColor] || markerColorImages.red,
-		                    new kakao.maps.Size(24, 35)
+		                    new kakao.maps.Size(24, 35) // 마커 크기
 		                );
 
+		                // 마커 생성
 		                const marker = new kakao.maps.Marker({
 		                    position: coords,
 		                    image: markerImage,
@@ -1277,20 +1290,23 @@
 
 		                // 마커 클릭 이벤트 추가
 		                kakao.maps.event.addListener(marker, 'click', () => {
-		                	 // 기존 Overlay 닫기
+		                    // 기존 Overlay 닫기
 		                    if (window.currentOverlay) {
 		                        window.currentOverlay.setMap(null);
 		                    }
+
+		                    // 인포윈도우 내용
 		                    const content = `
 		                        <div style="padding:10px; max-width:250px; background:white; border:1px solid #ddd; border-radius:5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 		                            <h5>${location.locationName}</h5>
-		                            <p><strong>Phone:</strong> ${location.phone || "N/A"}</p>
-		                            <p><strong>Address:</strong> ${location.address || "N/A"}</p>
-		                            <p><strong>Alias:</strong> ${location.locationAlias || "N/A"}</p>
-		                            <p><strong>Category:</strong> ${location.category || "N/A"}</p>
-		                            <p><strong>Description:</strong> ${location.locationDesc || "N/A"}</p>
-		                            <p><strong>위도:</strong> ${location.latitude}</p>
-		                            <p><strong>경도:</strong> ${location.longitude}</p>
+		                            <p><strong>주소:</strong> ${location.address || "N/A"}</p>
+		                            <p><strong>전화번호:</strong> ${location.phone || "N/A"}</p>
+		                            <p><strong>카테고리:</strong> ${location.category || "N/A"}</p>
+		                            <p><strong>별칭:</strong> ${location.locationAlias || "N/A"}</p>
+		                            <p><strong>설명:</strong> ${location.locationDesc || "N/A"}</p>
+		                            <button onclick="editLocation(${location.id})" style="margin-top:10px;">수정</button>
+		                            <button onclick="deleteLocation(${location.id})" style="margin-top:10px;">삭제</button>
+		                            <button onclick="closeInfoWindow()" style="margin-top:10px;">닫기</button>
 		                        </div>
 		                    `;
 
@@ -1306,6 +1322,7 @@
 		                    window.currentOverlay = overlay;
 		                });
 
+		                // 리스트 항목 생성
 		                const listItem = document.createElement('li');
 		                listItem.className = 'list-item';
 		                listItem.style.padding = '10px 0';
@@ -1313,6 +1330,7 @@
 		                listItem.style.cursor = 'pointer';
 		                listItem.textContent = location.locationName;
 
+		                // 리스트 클릭 이벤트 추가
 		                listItem.addEventListener('click', () => {
 		                    map.setCenter(coords);
 		                });
@@ -1322,6 +1340,7 @@
 		        })
 		        .catch(error => console.error("Error fetching locations by color:", error));
 		}
+
 
 		async function fetchFilterOptions() {
 		    try {
