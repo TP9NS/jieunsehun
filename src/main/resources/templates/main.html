@@ -405,11 +405,18 @@
       </symbol>
     </svg>
 <body th:data-user-permission="${session.permission}">
+<body th:data-user-id="${userId}" th:data-user-permission="${userPermission}">
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const userId = document.body.getAttribute("data-user-id"); // userId를 가져옵니다
+    const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10); // userPermission 값을 가져옵니다
 
-    if (!userId) {
+    console.log("User ID:", userId);
+    console.log("User Permission:", userPermission);
+
+    // 비로그인 상태 확인
+    if (!userId || isNaN(userPermission)) {
         console.log("User is not logged in. Restricting access to protected links.");
 
         // 제한할 링크(로그인 및 회원가입 제외)
@@ -431,8 +438,18 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         console.log("Unrestricted login and signup buttons.");
+    } else if (userPermission === 1 || userPermission === 0) {
+        console.log("User is logged in with permission:", userPermission);
+
+        // 로그인한 사용자와 관리자는 제한 없음. 모든 버튼 활성화.
+        const restrictedButtons = document.querySelectorAll('button');
+        restrictedButtons.forEach(button => {
+            button.disabled = false; // 버튼 활성화
+        });
+
+        console.log("All buttons are active.");
     } else {
-        console.log("User is logged in. No restrictions applied.");
+        console.error("Unexpected user permission value:", userPermission);
     }
 });
 

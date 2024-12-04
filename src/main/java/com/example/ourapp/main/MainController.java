@@ -90,10 +90,12 @@ public class MainController {
         // 모델에 데이터 추가
         model.addAttribute("adminMapPoints", adminMapPoints); // 전체 장소
         model.addAttribute("distinctTopics", distinctTopics); // 고유 주제
-        model.addAttribute("userPermission", userPermission);
+        model.addAttribute("userPermission", userPermission); // 사용자 권한
+        model.addAttribute("userId", adminUserId); // 사용자 ID
 
         return "main.html";
     }
+
 
 
     @GetMapping("/map")
