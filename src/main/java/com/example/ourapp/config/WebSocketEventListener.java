@@ -15,23 +15,36 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleSessionConnect(SessionConnectEvent event) {
+        // STOMP 헤더 접근
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         System.out.println("Headers: " + headerAccessor.getMessageHeaders());
 
-        // userId 확인
+        // userId 값 가져오기
         String userIdString = headerAccessor.getFirstNativeHeader("userId");
-        if (userIdString == null) {
-            System.err.println("userId is null! Headers: " + headerAccessor.getMessageHeaders());
-            return;
+
+        // userId 값 검증
+        if (userIdString == null || userIdString.trim().isEmpty() || userIdString.equalsIgnoreCase("null")) {
+            System.err.println("Invalid userId detected! userId=" + userIdString + 
+                               ", Headers: " + headerAccessor.getMessageHeaders());
+            return; // 잘못된 userId는 처리하지 않고 종료
         }
 
-        Long userId = Long.valueOf(userIdString);
+        Long userId;
+        try {
+            userId = Long.valueOf(userIdString);
+        } catch (NumberFormatException e) {
+            System.err.println("Failed to parse userId: " + userIdString + 
+                               ", Headers: " + headerAccessor.getMessageHeaders());
+            e.printStackTrace();
+            return; // 파싱 실패 시 종료
+        }
+
         String sessionId = headerAccessor.getSessionId();
 
+        // 세션 등록
         sessionRegistry.registerSession(sessionId, userId);
         System.out.println("Connected: sessionId=" + sessionId + ", userId=" + userId);
     }
-
 
     @EventListener
     public void handleSessionDisconnect(SessionDisconnectEvent event) {
