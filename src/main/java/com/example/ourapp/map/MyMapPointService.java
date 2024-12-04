@@ -151,4 +151,19 @@ public class MyMapPointService {
                 })
                 .collect(Collectors.toList()); // 필터링된 데이터 반환
     }
+    
+ // 사용자 저장 장소 가져오기
+    public List<MyMapPointDTO> getSavedLocationsByUserId(Long userId) {
+        return myMapPointRepository.findByUserId(userId)
+            .stream()
+            .map(entity -> {
+                MyMapPointDTO dto = new MyMapPointDTO();
+                dto.setUserId(entity.getUserId());
+                dto.setLocationName(entity.getLocationName());
+                dto.setLocationAlias(entity.getLocationAlias());
+                dto.setAddress(entity.getAddress());
+                return dto;
+            })
+            .collect(Collectors.toList());
+    }
 }

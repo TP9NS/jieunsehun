@@ -182,6 +182,7 @@
     top: 120px;
     left: 0;
     bottom: 0;
+    margin-bottom: 20px;
     width: 300px;
     height: calc(100% - 150px); /* 상단과 하단 간격 고려 */
     margin: 10px 0 30px 10px;
@@ -385,7 +386,140 @@
     font-size: 12px; /* 글자 크기 설정 */
     margin: 2px 0; /* 입력 필드 간의 간격 조정 */
 }
-    
+.review-section {
+    margin-top: 20px; /* 위와의 간격 */
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+/* 리뷰 작성 섹션 */
+.review-form {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+}
+
+.review-form .rating-stars {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+    justify-content: start;
+    align-items: center;
+}
+
+.review-form .rating-stars span {
+    font-size: 30px; /* 별 크기 */
+    cursor: pointer;
+    color: #ffc107; /* 선택된 별 색상 */
+    transition: all 0.3s ease-in-out;
+}
+
+/* 선택되지 않은 별은 '☆' */
+.review-form .rating-stars span::before {
+    content: '☆'; /* 기본 빈 별 */
+}
+
+/* 선택된 별은 '★' */
+.review-form .rating-stars span.selected::before {
+    content: '★'; /* 채워진 별 */
+}
+
+
+
+.review-form textarea {
+    width: 100%;
+    height: 80px;
+    resize: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+
+.review-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.review-form button:hover {
+    background-color: #0056b3;
+}
+
+/* 리뷰 리스트 섹션 */
+.review-list {
+    margin-top: 20px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.review-list .review-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.review-list .review-item:last-child {
+    border-bottom: none;
+}
+
+.review-list .review-author {
+    font-weight: bold;
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.review-list .review-rating {
+    color: #ffc107; /* 별점 색상 */
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.review-list .review-text {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* 별점 평균 */
+.average-rating {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.average-rating .stars {
+    margin-right: 10px;
+    color: #ffc107; /* 별점 색상 */
+    font-size: 20px;
+}
+
+.average-rating .value {
+    font-weight: bold;
+    font-size: 18px;
+}
+
 </style>
 </head>
 <body>
@@ -547,82 +681,122 @@ document.addEventListener("DOMContentLoaded", function () {
   </div>
 </header>
 <main class="container">
-<div id="menu_wrap" class="bg_white">
-        <div class="option">
-            <div>
-                <form onsubmit="searchPlaces(); return false;">
-                    키워드 : <input type="text" value="이태원 맛집" id="keyword" size="15"> 
-                    <button type="submit">검색하기</button> 
-                </form>
-            </div>
-        </div>
-        <hr>
-        <ul id="placesList"></ul>
-        <div id="pagination"></div>
+  <div id="menu_wrap" class="bg_white">
+    <div class="option">
+      <div>
+        <form onsubmit="searchPlaces(); return false;">
+          키워드 : <input type="text" value="이태원 맛집" id="keyword" size="15"> 
+          <button type="submit">검색하기</button> 
+        </form>
+      </div>
     </div>
-<div class="map_wrap">
-    <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
-    <div class="container mt-3 d-flex justify-content-center" style="position: absolute; top: 10px; width: 100%; z-index: 1;">
-    <button class="btn btn-primary me-2" onclick="searchCategory('음식점')">음식점</button>
-    <button class="btn btn-primary me-2" onclick="searchCategory('카페')">카페</button>
-    <button class="btn btn-primary me-2" onclick="searchCategory('은행')">은행</button>
-    <button class="btn btn-primary me-2" onclick="searchCategory('약국')">약국</button>
-    <button class="btn btn-primary me-2" onclick="searchCategory('주유소')">주유소</button>
-    <button class="btn btn-primary me-2" onclick="searchCategory('편의점')">편의점</button>
-    <button class="btn btn-primary me-2" onclick="searchCategory('마트')">마트</button>
-    <button class="btn btn-primary" onclick="searchCategory('패션')">쇼핑몰</button>
+    <hr>
+    <ul id="placesList"></ul>
+    <div id="pagination"></div>
+   <!-- 리뷰 섹션 -->
+  <div class="review-section mt-4">
+    <!-- 저장된 장소 드롭다운 -->
+    <div class="form-group">
+      <label for="savedLocations">저장된 장소 선택:</label>
+      <select id="savedLocations" class="form-select">
+        <option value="" disabled selected>장소를 선택하세요</option>
+        <!-- 사용자 저장 장소 목록 -->
+        <th:block th:each="location : ${userSavedLocations}">
+          <option th:value="${location.locationName}" th:text="${location.locationName}"></option>
+        </th:block>
+      </select>
+    </div>
+
+
+    <!-- 별점 평균 표시 -->
+    <div class="average-rating mt-3">
+      <span class="stars">⭐⭐⭐⭐☆</span>
+      <span class="value">4/5</span>
+    </div>
+
+    <!-- 리뷰 작성 폼 -->
+    <div class="review-form">
+      <div class="rating-stars">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+      <textarea id="reviewText" placeholder="리뷰를 작성하세요..."></textarea>
+      <button onclick="submitReview()">리뷰 등록</button>
+    </div>
+
+    <!-- 리뷰 리스트 -->
+    <div class="review-list">
+      <div class="review-item">
+      </div>
+    </div>
   </div>
 </div>
 
-
-<!-- GPT 채팅 박스 -->
-    <div id="chatbox">
-        <div class="messages" id="messages">
-            <!-- 대화 기록이 여기에 추가됩니다 -->
-        </div>
-        <input type="text" id="user-input" placeholder="GPT와 대화하세요..." onkeypress="sendMessage(event)">
+  <div class="map_wrap">
+    <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
+    <div class="container mt-3 d-flex justify-content-center" style="position: absolute; top: 10px; width: 100%; z-index: 1;">
+      <button class="btn btn-primary me-2" onclick="searchCategory('음식점')">음식점</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('카페')">카페</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('은행')">은행</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('약국')">약국</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('주유소')">주유소</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('편의점')">편의점</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('마트')">마트</button>
+      <button class="btn btn-primary" onclick="searchCategory('패션')">쇼핑몰</button>
     </div>
-    
-    <div id="admin-places">
+  </div>
+
+  <!-- GPT 채팅 박스 -->
+  <div id="chatbox">
+    <div class="messages" id="messages">
+      <!-- 대화 기록이 여기에 추가됩니다 -->
+    </div>
+    <input type="text" id="user-input" placeholder="GPT와 대화하세요..." onkeypress="sendMessage(event)">
+  </div>
+  
+  <div id="admin-places">
     <h3>관리자가 저장한 장소들</h3>
 
     <!-- 주제 선택 드롭다운 -->
     <div class="mb-3">
-        <label for="topicFilter" class="form-label">주제를 선택하세요:</label>
-        <select id="topicFilter" class="form-select">
-            <option value="ALL">전체</option>
-            <th:block th:each="topic : ${distinctTopics}">
-                <option th:value="${topic}" th:text="${topic}"></option>
-            </th:block>
-            <option value="NONE">없음</option>
-        </select>
+      <label for="topicFilter" class="form-label">주제를 선택하세요:</label>
+      <select id="topicFilter" class="form-select">
+        <option value="ALL">전체</option>
+        <th:block th:each="topic : ${distinctTopics}">
+          <option th:value="${topic}" th:text="${topic}"></option>
+        </th:block>
+        <option value="NONE">없음</option>
+      </select>
     </div>
 
     <!-- 장소 리스트 -->
     <div id="place-list" class="list-group">
-        <th:block th:each="point : ${adminMapPoints}">
-            <div class="list-group-item mb-3" th:attr="data-topic-th=${point.topic}">
-                <h4 th:text="${point.topic}"></h4>
-                <h5>
-                    <a href="javascript:void(0);" 
-                       class="location-link" 
-                       th:text="${point.locationName}"
-                       th:data-lat="${point.latitude}"
-                       th:data-lng="${point.longitude}"
-                       th:data-name="${point.locationName}">
-                    </a>
-                </h5>
-                <p th:text="'Alias: ' + ${point.locationAlias}"></p>
-                <p th:text="'Address: ' + ${point.address}"></p>
-                <p th:text="'Phone: ' + ${point.phone}"></p>
-                <img th:src="${point.imageUrl}" alt="Image" class="img-thumbnail" style="max-width: 200px;">
-            </div>
-        </th:block>
+      <th:block th:each="point : ${adminMapPoints}">
+        <div class="list-group-item mb-3" th:attr="data-topic-th=${point.topic}">
+          <h4 th:text="${point.topic}"></h4>
+          <h5>
+            <a href="javascript:void(0);" 
+              class="location-link" 
+              th:text="${point.locationName}"
+              th:data-lat="${point.latitude}"
+              th:data-lng="${point.longitude}"
+              th:data-name="${point.locationName}">
+            </a>
+          </h5>
+          <p th:text="'Alias: ' + ${point.locationAlias}"></p>
+          <p th:text="'Address: ' + ${point.address}"></p>
+          <p th:text="'Phone: ' + ${point.phone}"></p>
+          <img th:src="${point.imageUrl}" alt="Image" class="img-thumbnail" style="max-width: 200px;">
+        </div>
+      </th:block>
     </div>
-</div>
+  </div>
+</main>
 
-    
-    </main>
 <script type="text/javascript">
 //JavaScript to retrieve user permission dynamically
 const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
@@ -1651,6 +1825,128 @@ function removeMarkersAndOverlays() {
         currentInfowindow = null;
     }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    // 저장된 장소 데이터 로드
+    fetch("/api/mySavedLocations")
+        .then((response) => response.json())
+        .then((data) => {
+            const savedLocations = document.getElementById("savedLocations");
+            data.forEach((location) => {
+                const option = document.createElement("option");
+                option.value = location.locationName; // 장소 이름
+                option.textContent = location.locationName; // 표시 텍스트
+                savedLocations.appendChild(option);
+            });
+        })
+        .catch((error) => console.error("Error fetching locations:", error));
+
+    // 별점 선택 이벤트 추가
+    const stars = document.querySelectorAll(".rating-stars span");
+    stars.forEach((star, index) => {
+        star.addEventListener("click", function () {
+            console.log(`Star clicked: ${index + 1}`); // 디버깅 로그
+            selectStars(index + 1); // 클릭한 별까지 선택
+        });
+    });
+});
+
+// 별점 선택 함수
+function selectStars(rating) {
+    const stars = document.querySelectorAll(".rating-stars span");
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add("selected"); // 선택된 별 표시
+        } else {
+            star.classList.remove("selected"); // 선택되지 않은 별 표시
+        }
+    });
+}
+
+//리뷰 등록 함수
+function submitReview() {
+    const selectedLocation = document.getElementById("savedLocations").value;
+    const reviewText = document.getElementById("reviewText").value;
+    const ratingStars = document.querySelectorAll(".rating-stars span.selected").length;
+
+    if (!selectedLocation) {
+        alert("장소를 선택해주세요.");
+        return;
+    }
+
+    if (!reviewText) {
+        alert("리뷰 내용을 입력해주세요.");
+        return;
+    }
+
+    if (ratingStars === 0) {
+        alert("별점을 선택해주세요.");
+        return;
+    }
+
+    // 리뷰 데이터를 서버로 전송
+    fetch("/api/saveReview", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            locationName: selectedLocation,
+            reviewText: reviewText,
+            rating: ratingStars,
+        }),
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("리뷰 저장 중 오류 발생");
+            }
+            return response.json(); // JSON 응답 처리
+        })
+        .then((data) => {
+            alert(data.message); // 서버 응답 메시지를 알림으로 표시
+            loadReviews(selectedLocation); // 리뷰 리스트 갱신
+        })
+        .catch((error) => console.error("Error submitting review:", error));
+}
+
+document.getElementById("savedLocations").addEventListener("change", function () {
+    const selectedLocation = this.value;
+    if (selectedLocation) {
+        loadReviews(selectedLocation); // 선택된 장소의 리뷰 가져오기
+    }
+});
+
+
+//리뷰 리스트 로드
+function loadReviews(locationName) {
+    console.log("Loading reviews for location:", locationName); // 디버깅용 로그 추가
+
+    fetch(`/api/reviews?locationName=${encodeURIComponent(locationName)}`)
+        .then((response) => {
+            console.log("Response status:", response.status); // 응답 상태 확인
+            return response.json();
+        })
+        .then((reviews) => {
+            console.log("Received reviews:", reviews); // 서버에서 받은 데이터 확인
+
+            const reviewList = document.querySelector(".review-list");
+            reviewList.innerHTML = ""; // 기존 리뷰 초기화
+
+            reviews.forEach((review) => {
+                const reviewItem = document.createElement("div");
+                reviewItem.classList.add("review-item");
+                reviewItem.innerHTML = `
+                    <div class="review-author">${review.author}</div>
+                    <div class="review-rating">${"⭐".repeat(review.rating)}</div>
+                    <div class="review-text">${review.text}</div>
+                `;
+                reviewList.appendChild(reviewItem);
+            });
+        })
+        .catch((error) => console.error("Error loading reviews:", error));
+}
+
+
 
 
 </script>

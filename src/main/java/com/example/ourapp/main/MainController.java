@@ -74,10 +74,13 @@ public class MainController {
     public String main(HttpSession session, Model model) {
         // 세션에서 사용자 권한과 사용자 ID 가져오기
         Integer userPermission = (Integer) session.getAttribute("permission");
-        Long adminUserId = (Long) session.getAttribute("user_id");
+        Long userId = (Long) session.getAttribute("user_id");
 
         // 모든 장소 가져오기
         List<AdminMapPointDTO> adminMapPoints = adminMapPointService.getAllAdminMapPoints();
+        
+        // 사용자가 저장한 장소 가져오기
+        List<MyMapPointDTO> userSavedLocations = myMapPointService.getSavedLocationsByUserId(userId);
 
         // 주제(topic) 리스트 생성
         List<String> distinctTopics = adminMapPoints.stream()
@@ -89,9 +92,10 @@ public class MainController {
 
         // 모델에 데이터 추가
         model.addAttribute("adminMapPoints", adminMapPoints); // 전체 장소
+        model.addAttribute("userSavedLocations", userSavedLocations); // 사용자 저장 장소
         model.addAttribute("distinctTopics", distinctTopics); // 고유 주제
         model.addAttribute("userPermission", userPermission); // 사용자 권한
-        model.addAttribute("userId", adminUserId); // 사용자 ID
+        model.addAttribute("userId", userId); // 사용자 ID
 
         return "main.html";
     }
