@@ -33,7 +33,9 @@ public class GroupChat {
 
     @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
-
+    
+    @Column(name = "is_file", nullable = false)
+    private boolean isFile = false;
     // Constructors, getters, setters
     public GroupChat() {}
 
