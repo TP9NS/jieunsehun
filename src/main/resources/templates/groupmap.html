@@ -271,45 +271,66 @@
     margin: 10px 0;
     display: flex;
     flex-direction: column;
-  }
+}
 
-  .chat-message.me {
+.chat-message.me {
     align-items: flex-end; /* 오른쪽 정렬 */
     text-align: right;
-  }
+}
 
-  .chat-message.others {
+.chat-message.others {
     align-items: flex-start; /* 왼쪽 정렬 */
     text-align: left;
-  }
+}
 
-  .chat-bubble {
+.chat-bubble {
     max-width: 60%;
     padding: 10px;
     border-radius: 15px;
     margin: 5px;
     word-wrap: break-word;
-  }
+    position: relative; /* 상대 위치 */
+    display: inline-block;
+}
 
-  .chat-bubble.me {
+.chat-bubble.me {
     background-color: #d1e7dd;
     color: #0f5132;
-  }
+}
 
-  .chat-bubble.others {
+.chat-bubble.others {
     background-color: #e2e3e5;
     color: #495057;
-  }
+}
 
-  .chat-username {
+.chat-username {
     font-size: 12px;
     color: #6c757d;
-  }
+}
 
-  .chat-time {
+.chat-time {
     font-size: 10px;
     color: #adb5bd;
-  }
+    margin-top: 5px; /* 시간 표시 간격 */
+}
+
+.chat-image {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 5px;
+    margin-top: 5px; /* 이미지와 텍스트 간격 */
+    display: block;
+    object-fit: cover; /* 이미지를 적절히 잘라내서 보여줌 */
+}
+
+/* 사진만 있을 때 스타일 */
+.chat-bubble img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px;
+    margin-top: 5px;
+}
   .places-wrap {
         flex: 1; /* 장소 리스트 영역 */
         max-width: 350px; /* 최대 너비 */
@@ -487,9 +508,35 @@
 	
 <div id="chat-container" style="margin-top: 20px;">
     <h4>그룹 채팅</h4>
-    <div id="chat-box" style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; background: #f9f9f9;"></div>
-    <input type="text" id="chat-message" placeholder="메시지를 입력하세요" style="width: calc(100% - 120px); padding: 10px;">
-    <button onclick="sendMessage()" style="width: 100px; height: 40px;">보내기</button>
+    
+    <!-- 채팅 박스 -->
+    <div id="chat-box" 
+         style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; background: #f9f9f9; border-radius: 5px; margin-bottom: 10px;">
+    </div>
+    
+    <!-- 파일 및 텍스트 입력 -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <!-- 파일 선택 -->
+        <label for="chat-file" style="cursor: pointer; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
+                <path d="M5.5 12.5a3 3 0 1 1-6-6l7-7a3 3 0 0 1 4.243 4.243L5.5 12.5a1 1 0 0 1-1.415-1.415l5.036-5.036a2 2 0 1 0-2.828-2.828l-7 7a2 2 0 1 0 2.828 2.828l5.036-5.036a.5.5 0 0 1 .707.707L5.5 12.5z"/>
+            </svg>
+            <span style="margin-left: 5px;" id="file-name-display">이미지 선택</span>
+        </label>
+        <input type="file" id="chat-file" accept="image/*" style="display: none;">
+
+        <!-- 텍스트 입력 -->
+        <input type="text" 
+               id="chat-message" 
+               placeholder="메시지를 입력하세요" 
+               style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+
+        <!-- 보내기 버튼 -->
+        <button onclick="sendMessage()" 
+                style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            보내기
+        </button>
+    </div>
 </div>
 	    </main>
 	
@@ -1131,29 +1178,50 @@ document.getElementById("groupSelector").addEventListener("change", async (e) =>
     loadChatHistory();
     initializeSSE();
 });
-
+function scrollToBottom() {
+    const chatBox = document.getElementById("chat-box");
+    chatBox.scrollTop = chatBox.scrollHeight; // 스크롤을 맨 아래로 설정
+}
 // 채팅 메시지 전송
 async function sendMessage() {
     const messageInput = document.getElementById("chat-message");
+    const fileInput = document.getElementById("chat-file");
+     const fileNameDisplay = document.getElementById("file-name-display");
     const message = messageInput.value.trim();
+    const file = fileInput.files[0]; // 선택된 파일
 
-    if (!message || !selectedGroupId) {
-        alert("메시지를 입력하고 그룹을 선택하세요.");
+    if (!selectedGroupId) {
+        alert("그룹을 선택하세요.");
         return;
     }
 
+    const formData = new FormData();
+    formData.append("groupId", selectedGroupId);
+    formData.append("message", message);
+    if (file) {
+        formData.append("file", file); // 파일 추가
+    }
+
     try {
-        await fetch("/groupchat/send", {
+        const response = await fetch("/groupchat/send", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ groupId: selectedGroupId, message: message })
+            body: formData, // FormData 전송
         });
 
-        messageInput.value = ""; // 입력창 초기화
-        loadChatHistory(); // 채팅 기록 새로고침
+        if (response.ok) {
+					fileNameDisplay.textContent = "이미지 선택";
+            messageInput.value = ""; // 입력창 초기화
+            fileInput.value = ""; // 파일 선택 초기화
+            loadChatHistory(); // 채팅 기록 새로고침
+        } else {
+            const error = await response.text();
+            console.error("Error sending message:", error);
+            alert("메시지 전송 실패");
+        }
     } catch (error) {
         console.error("Error sending message:", error);
     }
+    scrollToBottom(); 
 }
 
 async function loadChatHistory() {
@@ -1166,24 +1234,25 @@ async function loadChatHistory() {
         const response = await fetch(`/groupchat/history?groupId=${selectedGroupId}`);
         const chatHistory = await response.json();
 
-        chatHistory.forEach((chat) => {
-            const isMe = chat.userId === userId; // 내가 보낸 메시지인지 확인
-            const messageElement = document.createElement("div");
+      chatHistory.forEach((chat) => {
+    const isMe = chat.userId === userId; // 내가 보낸 메시지인지 확인
+    const messageElement = document.createElement("div");
+    messageElement.className = `chat-message ${isMe ? "me" : "others"}`;
 
-            // 클래스 추가 (내 메시지는 `me`, 다른 메시지는 `others`)
-            messageElement.className = `chat-message ${isMe ? "me" : "others"}`;
+    const content = `
+        <span class="chat-username">${chat.name}</span>
+        ${chat.message ? `<div class="chat-bubble">${chat.message}</div>` : ""}
+        ${chat.imageUrl ? `<img src="${chat.imageUrl}" alt="이미지" class="chat-image">` : ""}
+        <span class="chat-time">${new Date(chat.timestamp).toLocaleTimeString()}</span>
+    `;
 
-            messageElement.innerHTML = `
-                <span class="chat-username">${chat.name}</span> <!-- 유저 이름 표시 -->
-                <div class="chat-bubble ${isMe ? "me" : "others"}">${chat.message}</div>
-                <span class="chat-time">${new Date(chat.timestamp).toLocaleTimeString()}</span>
-            `;
-
-            chatBox.appendChild(messageElement);
-        });
+    messageElement.innerHTML = content;
+    chatBox.appendChild(messageElement);
+});
 
         // 스크롤을 가장 아래로 이동
         chatBox.scrollTop = chatBox.scrollHeight;
+        scrollToBottom(); 
     } catch (error) {
         console.error("Error loading chat history:", error);
     }
@@ -1203,14 +1272,31 @@ function initializeSSE() {
 
         const messageElement = document.createElement("div");
         messageElement.className = `chat-message ${isMe ? "me" : "others"}`;
-        messageElement.innerHTML = `
-            <span class="chat-username">${chat.name}</span>
-            <div class="chat-bubble ${isMe ? "me" : "others"}">${chat.message}</div>
-            <span class="chat-time">${new Date(chat.timestamp).toLocaleTimeString()}</span>
-        `;
+
+        // 이미지 메시지인지 확인
+        if (chat.imageUrl) {
+            messageElement.innerHTML = `
+                <span class="chat-username">${chat.name}</span>
+                <div class="chat-bubble ${isMe ? "me" : "others"}">
+                    <img src="${chat.imageUrl}" alt="Uploaded Image"  onload="scrollToBottom()" style="max-width: 200px; max-height: 200px;">
+                </div>
+                <span class="chat-time">${new Date(chat.timestamp).toLocaleTimeString()}</span>
+            `;
+        } else {
+            messageElement.innerHTML = `
+                <span class="chat-username">${chat.name}</span>
+                <div class="chat-bubble ${isMe ? "me" : "others"}">${chat.message}</div>
+                <span class="chat-time">${new Date(chat.timestamp).toLocaleTimeString()}</span>
+            `;
+        }
 
         chatBox.appendChild(messageElement);
         chatBox.scrollTop = chatBox.scrollHeight; // 스크롤을 아래로 이동
+
+        // 사진 메시지일 경우에만 채팅 기록을 다시 로드
+        if (chat.imageUrl!="") {
+            loadChatHistory();
+        }
     });
 
     // SSE 오류 처리
@@ -1513,7 +1599,32 @@ function clearAllMarkers() {
 		            point_markers.forEach(marker => marker.setMap(null));
 		            point_markers = []; // 마커 배열 초기화
 }
+async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append("file", file);
 
+    const response = await fetch("/groupchat/upload", {
+        method: "POST",
+        body: formData
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        return data.imageUrl; // 업로드된 이미지의 URL 반환
+    } else {
+        throw new Error("이미지 업로드 실패");
+    }
+}
+document.getElementById("chat-file").addEventListener("change", function () {
+    const fileInput = this;
+    const fileNameDisplay = document.getElementById("file-name-display");
+
+    if (fileInput.files && fileInput.files[0]) {
+        fileNameDisplay.textContent = fileInput.files[0].name; // 선택된 파일의 이름 표시
+    } else {
+        fileNameDisplay.textContent = "이미지 선택"; // 파일이 선택되지 않은 경우 기본 텍스트
+    }
+});
 	</script>
 	</body>
 	</html>

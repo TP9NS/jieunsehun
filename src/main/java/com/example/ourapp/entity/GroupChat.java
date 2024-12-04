@@ -30,21 +30,24 @@ public class GroupChat {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
-
+    
+    @Column(name = "image_url")
+    private String imageUrl;
+    
     @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
     
-    @Column(name = "is_file", nullable = false)
-    private boolean isFile = false;
+
     // Constructors, getters, setters
     public GroupChat() {}
 
-    public GroupChat(Long groupId, Long userId, String username, String name,String message) {
+    public GroupChat(Long groupId, Long userId, String username, String name,String message,String imageUrl) {
         this.groupId = groupId;
         this.userId = userId;
         this.username = username;
         this.message = message;
         this.name = name;
+        this.imageUrl = imageUrl;
         this.timestamp = LocalDateTime.now();
     }
 }
