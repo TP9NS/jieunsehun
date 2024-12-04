@@ -966,7 +966,7 @@ function getListItem(index, places) {
     var el = document.createElement('li'),
     itemStr = '<span class="markerbg marker_' + (index+1) + '"></span>' +
                 '<div class="info">' +
-                '   <h5>' + places.place_name + '</h5>';
+                '   <h5>' + places.place_name +"asdasd"+ '</h5>';
 
                 // 카테고리 추가
                 if (places.category_name) {
@@ -985,7 +985,7 @@ function getListItem(index, places) {
 
     el.innerHTML = itemStr;
     el.className = 'item';
-
+		
     return el;
 }
 
