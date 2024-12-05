@@ -34,6 +34,7 @@ import com.example.ourapp.map.VoteService;
 import com.example.ourapp.post.CategoryService;
 import com.example.ourapp.post.CommentService;
 import com.example.ourapp.post.PostService;
+import com.example.ourapp.post.ReportService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -70,6 +71,8 @@ public class MainController {
     private GroupService groupService;
     @Autowired
     private VoteService voteService;
+    @Autowired
+    private ReportService reportService;
     @GetMapping("/main")
     public String main(HttpSession session, Model model) {
         // 세션에서 사용자 권한과 사용자 ID 가져오기
@@ -223,6 +226,18 @@ public class MainController {
 
         return "view";
     }
+    @PostMapping("/comments/report")
+    public String reportComment(@RequestParam Long commentId, 
+                                @RequestParam String reportType, 
+                                @RequestParam(required = false) String additionalReason) {
+        String reason = reportType;
+        if ("기타".equals(reportType) && additionalReason != null) {
+            reason += " - " + additionalReason;
+        }
+        reportService.reportComment(commentId, reason);
+        return "redirect:/board";
+    }
+
     @PostMapping("/comments/add")
     public String addComment(@ModelAttribute Comment comment, @RequestParam("postId") Long postId, HttpSession session) {
         String username = (String) session.getAttribute("username");
@@ -287,6 +302,19 @@ public class MainController {
         model.addAttribute("post", new PostDTO());
         return "post.html";
     }
+    
+    @PostMapping("/post/report")
+    public String reportPost(@RequestParam Long postId, 
+                             @RequestParam String reportType, 
+                             @RequestParam(required = false) String additionalReason) {
+        String reason = reportType;
+        if ("기타".equals(reportType) && additionalReason != null) {
+            reason += " - " + additionalReason;
+        }
+        reportService.reportPost(postId, reason);
+        return "redirect:/board";
+    }
+
     
     @PostMapping("/post/save")
     public String savePost(
