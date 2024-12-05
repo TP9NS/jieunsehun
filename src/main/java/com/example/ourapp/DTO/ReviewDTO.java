@@ -13,4 +13,12 @@ public class ReviewDTO {
     private int rating;
     private String reviewText;
     private LocalDateTime createdAt;
+
+    public ReviewDTO(Long userId, String locationName, int rating, String reviewText, LocalDateTime createdAt) {
+        this.userId = userId;
+        this.locationName = locationName;
+        this.rating = rating;
+        this.reviewText = reviewText;
+        this.createdAt = createdAt;
+    }
 }

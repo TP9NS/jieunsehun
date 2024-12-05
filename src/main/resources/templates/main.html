@@ -254,7 +254,7 @@
     left: 0;
     bottom: 40px;
     width: 400px;
-    height: 400px; /* 높이 증가 */
+    height: 450px; /* 높이 증가 */
     margin-left: -144px;
     text-align: left;
     overflow: auto; /* 내부 요소가 넘치면 스크롤 추가 */
@@ -519,6 +519,30 @@
     font-weight: bold;
     font-size: 18px;
 }
+.rating-stars {
+    display: inline-flex;
+    gap: 5px; /* 별 사이 간격 */
+}
+
+.rating-stars span {
+    font-size: 24px; /* 별 크기 */
+    color: #ffc107; /* 채워진 별 색상 */
+}
+
+.rating-stars span::before {
+    content: '☆'; /* 기본 빈 별 */
+}
+
+.rating-stars span.filled::before {
+    content: '★'; /* 채워진 별 */
+}
+
+.rating-stars span.half::before {
+    content: '★'; /* 반쪽 별도 동일하게 표시 */
+    color: #ffc107;
+    clip-path: inset(0 50% 0 0); /* 왼쪽 절반만 채우기 */
+}
+
 
 </style>
 </head>
@@ -707,13 +731,6 @@ document.addEventListener("DOMContentLoaded", function () {
       </select>
     </div>
 
-
-    <!-- 별점 평균 표시 -->
-    <div class="average-rating mt-3">
-      <span class="stars">⭐⭐⭐⭐☆</span>
-      <span class="value">4/5</span>
-    </div>
-
     <!-- 리뷰 작성 폼 -->
     <div class="review-form">
       <div class="rating-stars">
@@ -726,12 +743,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       <textarea id="reviewText" placeholder="리뷰를 작성하세요..."></textarea>
       <button onclick="submitReview()">리뷰 등록</button>
-    </div>
-
-    <!-- 리뷰 리스트 -->
-    <div class="review-list">
-      <div class="review-item">
-      </div>
     </div>
   </div>
 </div>
@@ -962,32 +973,46 @@ function displayPlaces(places) {
 
 // 검색결과 항목을 Element로 반환하는 함수입니다
 function getListItem(index, places) {
+    var el = document.createElement('li');
+    el.className = 'item';
 
-    var el = document.createElement('li'),
-    itemStr = '<span class="markerbg marker_' + (index+1) + '"></span>' +
-                '<div class="info">' +
-                '   <h5>' + places.place_name +"asdasd"+ '</h5>';
+    // 기본 정보 HTML
+    var itemStr = `
+        <span class="markerbg marker_${index + 1}"></span>
+        <div class="info">
+            <h5>${places.place_name}</h5>
+            ${places.category_name ? `<span class="category">${places.category_name}</span><br>` : ''}
+            ${places.road_address_name 
+                ? `<span>${places.road_address_name}</span><br><span class="jibun gray">${places.address_name}</span>` 
+                : `<span>${places.address_name}</span>`
+            }
+            <span class="tel">${places.phone || '전화번호 없음'}</span>
+        </div>
+    `;
 
-                // 카테고리 추가
-                if (places.category_name) {
-                    itemStr += '   <span class="category">' + places.category_name + '</span><br>'; // 카테고리 정보 표시
-                }
-                
-    if (places.road_address_name) {
-        itemStr += '    <span>' + places.road_address_name + '</span>' +
-                    '   <span class="jibun gray">' +  places.address_name  + '</span>';
-    } else {
-        itemStr += '    <span>' +  places.address_name  + '</span>'; 
-    }
-                 
-      itemStr += '  <span class="tel">' + places.phone  + '</span>' +
-                '</div>';           
+    // 별점 평균 섹션 추가 (초기값은 로딩 중으로 표시)
+    itemStr += `
+        <div class="average-rating mt-3">
+            <span class="stars">⭐⭐⭐⭐⭐</span> <!-- 기본 별점 예시 -->
+            <span class="value">평균 별점 계산 중...</span> <!-- 기본 평균값 -->
+        </div>
+    `;
+
+    // 리뷰 리스트 섹션 추가 (빈 상태로 생성)
+    itemStr += `
+        <div class="review-list">
+            <p>리뷰를 불러오는 중...</p> <!-- 로딩 메시지 -->
+        </div>
+    `;
 
     el.innerHTML = itemStr;
-    el.className = 'item';
-		
+
+    // 장소 이름을 이용해 리뷰를 로드하고 업데이트
+    loadReviews(places.place_name, el);
+
     return el;
 }
+
 
 //카테고리 검색 결과를 처리하는 콜백 함수
 function categorySearchCB(data, status, pagination) {
@@ -1124,6 +1149,7 @@ function addCategoryMarker(position, idx, title, place) {
         currentOverlay.setMap(map);
     });
 }
+
 function addMarker(position, idx, title, place) {
     var markerImage = new kakao.maps.MarkerImage(
         'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png',
@@ -1137,11 +1163,6 @@ function addMarker(position, idx, title, place) {
     });
     marker.setMap(map);
     markers.push(marker);
-    
-
-
-
-    // 마커 클릭 이벤트 리스너 추가
 // 가입된 그룹 목록을 서버에서 가져오는 함수
 async function fetchUserGroups() {
     try {
@@ -1158,7 +1179,6 @@ async function fetchUserGroups() {
     }
 }
 
-// 마커 클릭 이벤트 리스너 내부
 kakao.maps.event.addListener(marker, 'click', async function () {
 	// 기존 overlay 닫기
     if (currentOverlay) {
@@ -1194,24 +1214,28 @@ kakao.maps.event.addListener(marker, 'click', async function () {
 
     // 오버레이 내용 생성
     var overlayContent =
-        '<div class="wrap">' +
-        '    <div class="info">' +
-        '        <div class="title">' + title +
-        '            <div class="close" onclick="closeOverlay()"></div>' +
-        '        </div>' +
-        '        <div class="body">' +
-        '            <div class="desc">' +
-        '                <span>' + (place.road_address_name ? '주소: ' + place.road_address_name : place.address_name) + '</span><br>' +
-        '                <span class="tel">' + (place.phone ? '전화: ' + place.phone : '') + '</span><br>' +
-        '                <span class="category">' + '카테고리: ' + (place.category_name ? place.category_name : '') + '</span><br>' +
-        '                <span>위도: ' + latitude + '</span><br>' +
-        '                <span>경도: ' + longitude + '</span><br>' +
-        '                <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>' +
-        '                <input type="text" placeholder="메모" id="note" class="input"><br>' +
-        '                <label>마커 색상 선택:</label>' +
-        '                <input type="hidden" id="selected-marker-color" value="red">' + // 기본값은 빨강
-        markerSelectionUI +
-        '<p id="color-feedback" style="margin-top: 10px; font-weight: bold; color: #333;">현재 선택된 색상: 빨강</p>'; // 초기 텍스트
+    '<div class="wrap">' +
+    '    <div class="info">' +
+    '        <div class="title">' + title +
+    '            <div class="close" onclick="closeOverlay()"></div>' +
+    '        </div>' +
+    '        <div class="body">' +
+    '            <div class="desc">' +
+    '                <div class="average-rating">평균 별점: ' +
+    '                    <div id="average-stars" class="rating-stars" style="display: inline-flex; gap: 5px;"></div>' +
+    '                    <span id="average-rating" style="margin-left: 5px;">로딩 중...</span>' +
+    '                </div>' +
+    '                <span>' + (place.road_address_name ? '주소: ' + place.road_address_name : place.address_name) + '</span><br>' +
+    '                <span class="tel">' + (place.phone ? '전화: ' + place.phone : '전화번호 없음') + '</span><br>' +
+    '                <span class="category">' + '카테고리: ' + (place.category_name ? place.category_name : '카테고리 정보 없음') + '</span><br>' +
+    '                <span>위도: ' + latitude + '</span><br>' +
+    '                <span>경도: ' + longitude + '</span><br>' +
+    '                <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>' +
+    '                <input type="text" placeholder="메모" id="note" class="input"><br>' +
+    '                <label>마커 색상 선택:</label>' +
+    '                <input type="hidden" id="selected-marker-color" value="red">' + // 기본값은 빨강
+    markerSelectionUI +
+    '<p id="color-feedback" style="margin-top: 10px; font-weight: bold; color: #333;">현재 선택된 색상: 빨강</p>'
 
     if (userPermission === 0) {
         console.log("관리자 권한: topic 필드 추가"); // 디버깅용
@@ -1242,6 +1266,7 @@ kakao.maps.event.addListener(marker, 'click', async function () {
     });
 
     currentOverlay.setMap(map);
+    fetchAverageRating(title);
 });
 
     return marker;
@@ -1917,20 +1942,39 @@ document.getElementById("savedLocations").addEventListener("change", function ()
 });
 
 
-//리뷰 리스트 로드
-function loadReviews(locationName) {
-    console.log("Loading reviews for location:", locationName); // 디버깅용 로그 추가
+function loadReviews(locationName, listItem) {
+    console.log("Loading reviews for location:", locationName);
 
     fetch(`/api/reviews?locationName=${encodeURIComponent(locationName)}`)
-        .then((response) => {
-            console.log("Response status:", response.status); // 응답 상태 확인
-            return response.json();
-        })
+        .then((response) => response.json())
         .then((reviews) => {
-            console.log("Received reviews:", reviews); // 서버에서 받은 데이터 확인
+            console.log("Received reviews:", reviews);
 
-            const reviewList = document.querySelector(".review-list");
+            const reviewList = listItem.querySelector(".review-list");
             reviewList.innerHTML = ""; // 기존 리뷰 초기화
+
+            // 별점 평균 계산
+            const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+            const averageRating = reviews.length > 0 ? (totalRating / reviews.length).toFixed(1) : 0;
+
+            // 별점 평균 섹션 업데이트
+            const starsElement = listItem.querySelector(".average-rating .stars");
+            const valueElement = listItem.querySelector(".average-rating .value");
+
+            // 별점 표시 로직
+            if (reviews.length > 0) {
+                starsElement.textContent = "⭐".repeat(Math.floor(averageRating)) + (averageRating % 1 >= 0.5 ? "☆" : "");
+                valueElement.textContent = `${averageRating}/5`;
+            } else {
+                starsElement.textContent = "⭐☆☆☆☆"; // 기본값 (평가 없음)
+                valueElement.textContent = "0/5";
+            }
+
+            // 리뷰 리스트 생성
+            if (reviews.length === 0) {
+                reviewList.innerHTML = `<p>리뷰가 없습니다.</p>`;
+                return;
+            }
 
             reviews.forEach((review) => {
                 const reviewItem = document.createElement("div");
@@ -1943,10 +1987,76 @@ function loadReviews(locationName) {
                 reviewList.appendChild(reviewItem);
             });
         })
-        .catch((error) => console.error("Error loading reviews:", error));
+        .catch((error) => {
+            console.error("Error loading reviews:", error);
+
+            const reviewList = listItem.querySelector(".review-list");
+            reviewList.innerHTML = `<p>리뷰를 불러오는 데 실패했습니다.</p>`;
+
+            // 평균 별점도 초기화
+            const starsElement = listItem.querySelector(".average-rating .stars");
+            const valueElement = listItem.querySelector(".average-rating .value");
+            starsElement.textContent = "⭐☆☆☆☆";
+            valueElement.textContent = "0/5";
+        });
 }
 
+function fetchAverageRating(locationName) {
+    fetch(`/api/reviews?locationName=${encodeURIComponent(locationName)}`)
+        .then((response) => response.json())
+        .then((reviews) => {
+            // 평균 별점 계산
+            const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+            const averageRating = reviews.length > 0 ? (totalRating / reviews.length).toFixed(1) : 0;
 
+            // 오버레이 내 별점 표시 업데이트
+            const starsContainer = document.getElementById('average-stars');
+            const ratingText = document.getElementById('average-rating');
+
+            if (starsContainer && ratingText) {
+                starsContainer.innerHTML = ''; // 기존 별 초기화
+                ratingText.textContent = `${averageRating} / 5`; // 숫자 점수 업데이트
+
+                const fullStars = Math.floor(averageRating); // 꽉 찬 별
+                const halfStar = averageRating % 1 >= 0.5; // 반쪽 별 여부
+                const emptyStars = 5 - fullStars - (halfStar ? 1 : 0); // 빈 별
+
+                // 꽉 찬 별 추가
+                for (let i = 0; i < fullStars; i++) {
+                    const star = document.createElement('span');
+                    star.classList.add('filled');
+                    starsContainer.appendChild(star);
+                }
+
+                // 반쪽 별 추가
+                if (halfStar) {
+                    const star = document.createElement('span');
+                    star.classList.add('half'); // CSS로 반쪽 별 스타일링
+                    starsContainer.appendChild(star);
+                }
+
+                // 빈 별 추가
+                for (let i = 0; i < emptyStars; i++) {
+                    const star = document.createElement('span');
+                    starsContainer.appendChild(star);
+                }
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching average rating:", error);
+
+            const starsContainer = document.getElementById('average-stars');
+            const ratingText = document.getElementById('average-rating');
+
+            if (starsContainer) {
+                starsContainer.innerHTML = ''; // 별 초기화
+            }
+
+            if (ratingText) {
+                ratingText.textContent = "불러오기 실패";
+            }
+        });
+}
 
 
 </script>

@@ -24,11 +24,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.ourapp.DTO.PostDTO;
+import com.example.ourapp.DTO.ReviewDTO;
 import com.example.ourapp.DTO.UserDTO;
 import com.example.ourapp.entity.AdminMapPoint;
 import com.example.ourapp.entity.User;
 import com.example.ourapp.map.AdminMapPointRepository;
 import com.example.ourapp.post.PostService;
+import com.example.ourapp.review.ReviewService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,7 +44,8 @@ public class UserController {
     private PostService postService;
     @Autowired
     private AdminMapPointRepository adminMapPointRepository;
-
+    @Autowired
+    private ReviewService reviewService;
 
     @GetMapping("/login")
     public String login() {
@@ -108,8 +111,13 @@ public class UserController {
         List<PostDTO> userPosts = postService.findPostsByUsername(username);
         model.addAttribute("userPosts", userPosts);
 
+        // userId로 리뷰 가져오기
+        List<ReviewDTO> userReviews = reviewService.getReviewsByUserId(userId);
+        model.addAttribute("userReviews", userReviews);
+
         return "mypage.html";
     }
+
 
 
     

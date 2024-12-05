@@ -319,8 +319,23 @@
             </div>
         </div>
     </div>
+            <!-- 내가 작성한 리뷰 -->
+<!-- 내가 작성한 리뷰 -->
+<div class="col-md-6">
+    <div id="user-reviews">
+        <h3>내가 작성한 리뷰</h3>
+        <ul class="list-group">
+            <li class="list-group-item" th:each="review : ${userReviews}">
+                <h5 th:text="${review.locationName}"></h5>
+                <p th:text="${'⭐'.repeat(review.rating)}"></p>
+                <p th:text="${review.reviewText}"></p>
+                <p><small th:text="'작성일: ' + ${review.createdAt}"></small></p>
+            </li>
+        </ul>
+    </div>
 </div>
 
+</div>
 
 
 
@@ -426,6 +441,39 @@
       console.error('There has been a problem with your fetch operation:', error);
     });
   }
+  
+  
+  document.addEventListener("DOMContentLoaded", function () {
+	    // 내가 작성한 리뷰 가져오기
+	    fetch("/api/user/reviews")
+	        .then((response) => response.json())
+	        .then((reviews) => {
+	            const reviewList = document.getElementById("review-list");
+
+	            if (reviews.length === 0) {
+	                reviewList.innerHTML = "<li class='list-group-item'>작성한 리뷰가 없습니다.</li>";
+	                return;
+	            }
+
+	            reviews.forEach((review) => {
+	                const reviewItem = document.createElement("li");
+	                reviewItem.classList.add("list-group-item");
+	                reviewItem.innerHTML = `
+	                    <h5>${review.locationName}</h5>
+	                    <p>${"⭐".repeat(review.rating)}</p>
+	                    <p>${review.reviewText}</p>
+	                    <p><small>작성일: ${review.createdAt}</small></p>
+	                `;
+	                reviewList.appendChild(reviewItem);
+	            });
+	        })
+	        .catch((error) => {
+	            console.error("Error loading user reviews:", error);
+	            const reviewList = document.getElementById("review-list");
+	            reviewList.innerHTML = "<li class='list-group-item'>리뷰를 불러오는 중 오류가 발생했습니다.</li>";
+	        });
+	});
+
 </script>
 </body>
 </html>

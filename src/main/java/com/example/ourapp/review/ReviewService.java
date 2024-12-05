@@ -26,15 +26,31 @@ public class ReviewService {
     public List<ReviewDTO> getReviewsByLocationName(String locationName) {
         return reviewRepository.findByLocationName(locationName)
                 .stream()
-                .map(review -> {
-                    ReviewDTO dto = new ReviewDTO();
-                    dto.setUserId(review.getUserId());
-                    dto.setLocationName(review.getLocationName());
-                    dto.setRating(review.getRating());
-                    dto.setReviewText(review.getReviewText());
-                    dto.setCreatedAt(review.getCreatedAt());
-                    return dto;
-                })
+                .map(review -> new ReviewDTO(
+                    review.getUserId(),
+                    review.getLocationName(),
+                    review.getRating(),
+                    review.getReviewText(),
+                    review.getCreatedAt()
+                ))
                 .collect(Collectors.toList());
     }
+
+
+    public List<ReviewDTO> getReviewsByUserId(Long userId) {
+        List<Review> reviews = reviewRepository.findByUserId(userId);
+
+        // 엔티티를 DTO로 변환
+        return reviews.stream()
+                      .map(review -> new ReviewDTO(
+                          review.getUserId(),
+                          review.getLocationName(),
+                          review.getRating(),
+                          review.getReviewText(),
+                          review.getCreatedAt()
+                      ))
+                      .collect(Collectors.toList());
+    }
+
+
 }
