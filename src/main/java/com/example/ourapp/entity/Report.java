@@ -2,34 +2,86 @@ package com.example.ourapp.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
+@Table(name = "report")
 public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long targetId; // 신고 대상 ID (게시글 ID 또는 댓글 ID)
-    private String reason; // 신고 사유
+    @Column(name = "target_id", nullable = false)
+    private Long targetId;
+
+    @Column(nullable = false)
+    private String reason;
 
     @Enumerated(EnumType.STRING)
-    private ReportType type; // 신고 타입 (POST 또는 COMMENT)
+    @Column(nullable = false)
+    private ReportType type;
 
-    private LocalDateTime reportedAt; // 신고 시간
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    public Report() {
-        this.reportedAt = LocalDateTime.now(); // 기본 신고 시간 설정
-    }
+    @ManyToOne
+    @JoinColumn(name = "post_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Post post;
 
+    // Default constructor
+    public Report() {}
+
+    // Custom constructor for service layer
     public Report(Long targetId, String reason, ReportType type) {
         this.targetId = targetId;
         this.reason = reason;
         this.type = type;
-        this.reportedAt = LocalDateTime.now();
     }
-
     public enum ReportType {
-        POST,   // 게시글 신고
-        COMMENT // 댓글 신고
+        POST,
+        COMMENT
     }
 
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTargetId() {
+        return targetId;
+    }
+
+    public void setTargetId(Long targetId) {
+        this.targetId = targetId;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public ReportType getType() {
+        return type;
+    }
+
+    public void setType(ReportType type) {
+        this.type = type;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
