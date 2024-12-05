@@ -72,6 +72,18 @@ public class ReviewController {
         }).collect(Collectors.toList());
     }
 
+    @PutMapping("/reviews/{id}")
+    public ResponseEntity<String> updateReview(@PathVariable Long id, @RequestBody ReviewDTO updatedReview) {
+        updatedReview.setId(id); // DTO에 ID 설정
+        reviewService.updateReview(updatedReview);
+        return ResponseEntity.ok("리뷰가 수정되었습니다.");
+    }
+
+    @DeleteMapping("/reviews/{id}")
+    public ResponseEntity<String> deleteReview(@PathVariable Long id) {
+        reviewService.deleteReview(id);
+        return ResponseEntity.ok("리뷰가 삭제되었습니다.");
+    }
 
 
 }

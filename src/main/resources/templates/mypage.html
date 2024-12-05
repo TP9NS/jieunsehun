@@ -325,15 +325,35 @@
     <div id="user-reviews">
         <h3>내가 작성한 리뷰</h3>
         <ul class="list-group">
-            <li class="list-group-item" th:each="review : ${userReviews}">
+            <li class="list-group-item" th:each="review : ${userReviews}" th:attr="data-review-id=${review.id}">
                 <h5 th:text="${review.locationName}"></h5>
-                <p th:text="${'⭐'.repeat(review.rating)}"></p>
-                <p th:text="${review.reviewText}"></p>
+                
+                <!-- 리뷰 평점 -->
+                <p data-display="true" th:attr="hidden=${review.editMode}" th:text="${'⭐'.repeat(review.rating)}"></p>
+                <input data-edit="true" type="number" min="1" max="5" class="form-control"
+                       th:value="${review.rating}" th:id="'rating-' + ${review.id}" th:attr="hidden=${!review.editMode}">
+                
+                <!-- 리뷰 텍스트 -->
+                <p data-display="true" th:attr="hidden=${review.editMode}" th:text="${review.reviewText}"></p>
+                <textarea data-edit="true" class="form-control" th:text="${review.reviewText}"
+                          th:id="'text-' + ${review.id}" th:attr="hidden=${!review.editMode}"></textarea>
+                
+                <!-- 작성일 -->
                 <p><small th:text="'작성일: ' + ${review.createdAt}"></small></p>
+
+                <!-- 버튼들 -->
+                <button data-display="true" th:attr="hidden=${review.editMode}" class="btn btn-warning"
+                        th:onclick="'toggleEditMode(' + ${review.id} + ')'">수정</button>
+                <button data-edit="true" th:attr="hidden=${!review.editMode}" class="btn btn-success"
+                        th:onclick="'saveReview(' + ${review.id} + ')'">저장</button>
+                <button data-edit="true" th:attr="hidden=${!review.editMode}" class="btn btn-secondary"
+                        th:onclick="'cancelEditMode(' + ${review.id} + ')'">취소</button>
+                <button class="btn btn-danger" th:onclick="'deleteReview(' + ${review.id} + ')'">삭제</button>
             </li>
         </ul>
     </div>
 </div>
+
 
 </div>
 
@@ -473,7 +493,75 @@
 	            reviewList.innerHTML = "<li class='list-group-item'>리뷰를 불러오는 중 오류가 발생했습니다.</li>";
 	        });
 	});
-
 </script>
+<script>
+    // 수정 모드로 전환
+    function toggleEditMode(reviewId) {
+        const reviewItem = document.querySelector(`[data-review-id="${reviewId}"]`);
+        if (!reviewItem) return; // 리뷰 아이템이 없으면 종료
+
+        // "data-display"와 "data-edit" 속성 기반으로 hidden 속성 토글
+        reviewItem.querySelectorAll('[data-display]').forEach(el => el.hidden = true);
+        reviewItem.querySelectorAll('[data-edit]').forEach(el => el.hidden = false);
+    }
+
+    // 리뷰 저장
+    function saveReview(reviewId) {
+        const newRating = document.getElementById(`rating-${reviewId}`).value;
+        const newText = document.getElementById(`text-${reviewId}`).value;
+
+        fetch(`/api/reviews/${reviewId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ rating: newRating, reviewText: newText }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('리뷰가 성공적으로 저장되었습니다.');
+                    location.reload(); // 페이지 새로고침
+                } else {
+                    alert('리뷰 저장에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('리뷰 저장 오류:', error);
+                alert('저장 중 오류가 발생했습니다.');
+            });
+    }
+
+    // 수정 모드 취소
+    function cancelEditMode(reviewId) {
+        const reviewItem = document.querySelector(`[data-review-id="${reviewId}"]`);
+        if (!reviewItem) return; // 리뷰 아이템이 없으면 종료
+
+        // "data-display"와 "data-edit" 속성 기반으로 hidden 속성 복원
+        reviewItem.querySelectorAll('[data-display]').forEach(el => el.hidden = false);
+        reviewItem.querySelectorAll('[data-edit]').forEach(el => el.hidden = true);
+    }
+
+    // 리뷰 삭제
+    function deleteReview(reviewId) {
+        if (!confirm('정말 이 리뷰를 삭제하시겠습니까?')) return; // 사용자 확인
+
+        fetch(`/api/reviews/${reviewId}`, {
+            method: 'DELETE',
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('리뷰가 성공적으로 삭제되었습니다.');
+                    location.reload(); // 페이지 새로고침
+                } else {
+                    alert('리뷰 삭제에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('리뷰 삭제 오류:', error);
+                alert('삭제 중 오류가 발생했습니다.');
+            });
+    }
+</script>
+
 </body>
 </html>
