@@ -543,7 +543,13 @@
     clip-path: inset(0 50% 0 0); /* 왼쪽 절반만 채우기 */
 }
 
-
+.badge {
+    font-size: 10px;
+    color: white;
+    padding: 5px 7px;
+    border-radius: 50%;
+    position: absolute;
+}
 </style>
 </head>
 <body>
@@ -671,9 +677,11 @@ document.addEventListener("DOMContentLoaded", function () {
           </li>
           <li class="nav-item me-3">
             <a class="nav-link" href="/friends">친구 목록</a>
+            <span id="friend-badge" class="badge bg-danger" style="display: none; position: relative; top: -10px; left: -5px;">0</span>
           </li>
           <li class="nav-item me-3">
             <a class="nav-link" href="/groups">그룹 관리</a>
+            <span id="group-badge" class="badge bg-danger" style="display: none; position: relative; top: -10px; left: -5px;">0</span>
           </li>
           <li class="nav-item me-3">
             <a class="nav-link" href="/vote">장소 투표</a>
@@ -2060,7 +2068,35 @@ function fetchAverageRating(locationName) {
             }
         });
 }
+async function checkNotifications() {
+    try {
+        const response = await fetch('/notifications/pending');
+        const data = await response.json();
 
+        if (response.ok) {
+            const friendRequests = data.friendRequests || 0;
+            const groupRequests = data.groupRequests || 0;
+
+            // 친구 요청 배지 업데이트
+            const friendBadge = document.getElementById('friend-badge');
+            friendBadge.textContent = friendRequests > 0 ? friendRequests : '';
+            friendBadge.style.display = friendRequests > 0 ? 'inline' : 'none';
+
+            // 그룹 요청 배지 업데이트
+            const groupBadge = document.getElementById('group-badge');
+            groupBadge.textContent = groupRequests > 0 ? groupRequests : '';
+            groupBadge.style.display = groupRequests > 0 ? 'inline' : 'none';
+        } else {
+            console.error('Error fetching notifications:', data);
+        }
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+    }
+}
+
+// 페이지 로드 시 알림 체크
+document.addEventListener('DOMContentLoaded', checkNotifications);
+setInterval(checkNotifications, 10000);
 
 </script>
 </body>

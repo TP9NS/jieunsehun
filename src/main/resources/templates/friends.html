@@ -714,7 +714,7 @@ function loadFriendRequests() {
         .then(data => {
             const requests = document.getElementById('friend-requests');
             requests.innerHTML = ''; // 기존 요청 초기화
-
+					console.log('aasdasd');
             // 데이터가 배열인지 확인
             if (!Array.isArray(data)) {
                 console.error('Unexpected data format:', data);
