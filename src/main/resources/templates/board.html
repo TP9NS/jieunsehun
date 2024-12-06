@@ -163,6 +163,10 @@
 <body>
     <main class="container board-container">
         <h1>게시판</h1>
+         <script th:if="${alertMessage != null}">
+    alert("[[${alertMessage}]]");
+</script>
+
         <div class="d-flex justify-content-between mb-3">
             <div class="mb-3">
     <label for="parentCategoryFilter" class="form-label">상위 카테고리</label>

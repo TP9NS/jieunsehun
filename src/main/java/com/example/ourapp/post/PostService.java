@@ -284,4 +284,11 @@ public class PostService {
                 .map(PostDTO::new) // PostDTO 생성자를 활용
                 .collect(Collectors.toList());
     }
+    
+    public void hidePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid post ID"));
+        post.setHidden(true); // 게시글 숨김 처리
+        postRepository.save(post); // 변경 사항 저장
+    }
 }

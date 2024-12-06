@@ -227,8 +227,8 @@
             <p th:text="'신고 시간: ' + ${report.reportedAt}">신고 시간</p>
         </div>
         <div class="report-item-action">
-            <input type="checkbox" checked />
-        </div>
+                            <button th:onclick="'deleteReport(' + ${report.id} + ', \'post\')'">삭제</button>
+                        </div>
     </div>
 </div>
 
@@ -263,8 +263,8 @@
             <p th:text="'신고 시간: ' + ${report.reportedAt}">신고 시간</p>
         </div>
         <div class="report-item-action">
-            <input type="checkbox" checked />
-        </div>
+                            <button th:onclick="'deleteReport(' + ${report.id} + ', \'comment\')'">삭제</button>
+                        </div>
     </div>
 </div>
 
@@ -289,7 +289,9 @@ function filterReports(type, reason) {
         console.log(`Filtering type: ${type}, Reason: ${reason}, Item reason: ${itemReason}`);
         
         // Show or hide the item based on the filter criteria
-        if (reason === 'all' || itemReason === reason) {
+        if (reason === 'all' || 
+            (reason === '기타' && itemReason.startsWith('기타')) || 
+            itemReason === reason) {
             item.style.display = 'block'; // Show the item
         } else {
             item.style.display = 'none'; // Hide the item
@@ -297,8 +299,27 @@ function filterReports(type, reason) {
     });
 }
 
-</script>
 
+</script>
+<script>
+function deleteReport(reportId, type) {
+    if (confirm("정말 이 신고를 삭제하시겠습니까?")) {
+        fetch(`/user/report/delete/${type}/${reportId}`, { // '/user' 추가
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("신고가 성공적으로 삭제되었습니다.");
+                location.reload(); // 페이지 새로고침
+            } else {
+                alert("삭제에 실패했습니다. 다시 시도해주세요.");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+}
+
+</script>
 
 </body>
 </html>

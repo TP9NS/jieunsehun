@@ -80,5 +80,24 @@ public class ReportService {
                 })
                 .toList();
     }
+ // 게시글 신고 삭제
+    public void deletePostReport(Long id) {
+        reportRepository.deleteById(id);
+    }
 
+    // 댓글 신고 삭제
+    public void deleteCommentReport(Long id) {
+        reportRepository.deleteById(id);
+    }
+    
+    public void deleteReport(String type, Long id) {
+        // 삭제 로직: type에 따라 분기 처리
+        if (type.equals("post") || type.equals("comment")) {
+            reportRepository.deleteById(id);
+        } else {
+            throw new IllegalArgumentException("잘못된 타입입니다: " + type);
+        }
+    }
+    
+    
 }

@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.io.IOException;
@@ -208,24 +209,35 @@ public class MainController {
     }
 
     @GetMapping("/board/view/{id}")
-    public String viewPost(@PathVariable Long id, Model model, HttpSession session) {
+    public String viewPost(@PathVariable Long id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         PostDTO post = postService.getPostById(id);
         if (post == null) {
             throw new IllegalArgumentException("Post not found");
         }
 
+        // Check if the post is hidden
+        Integer permission = (Integer) session.getAttribute("permission");
+     // If post is hidden and the user is not an admin
+        if (post.isHidden() && (permission == null || permission != 0)) {
+            redirectAttributes.addFlashAttribute("alertMessage", "이 게시글은 관리자가 숨김 처리했습니다.");
+            return "redirect:/board"; // Redirect non-admin users to the board
+        }
+
         List<Comment> comments = commentService.findCommentsByPostId(id);
 
-        // 세션에서 사용자 이름 가져오기
         String username = (String) session.getAttribute("username");
 
         model.addAttribute("post", post);
         model.addAttribute("comments", comments);
         model.addAttribute("newComment", new Comment());
-        model.addAttribute("username", username); // 사용자 이름 모델에 추가
+        model.addAttribute("username", username);
 
         return "view";
     }
+
+
+
+
     @PostMapping("/posts/report")
     public String reportPost(@RequestParam Long postId, 
                              @RequestParam String reportType, 

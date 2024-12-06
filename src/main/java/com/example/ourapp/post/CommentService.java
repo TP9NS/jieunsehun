@@ -11,9 +11,11 @@ import java.util.Optional;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-
-    public CommentService(CommentRepository commentRepository) {
+    private final ReportRepository reportRepository;
+    
+    public CommentService(CommentRepository commentRepository, ReportRepository reportRepository) {
         this.commentRepository = commentRepository;
+        this.reportRepository = reportRepository;
     }
 
     /**
@@ -69,6 +71,19 @@ public class CommentService {
      */
     public int countCommentsByPostId(Long postId) {
         return commentRepository.findByPostId(postId).size();
+    }
+    
+    public void hideComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid comment ID"));
+        comment.setHidden(true); // 댓글 숨김 처리
+        commentRepository.save(comment); // 변경 사항 저장
+    }
+
+    public Long getPostIdByCommentId(Long commentId) {
+        // 댓글 ID로 게시글 ID 조회
+        return reportRepository.findPostIdByCommentId(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid comment ID"));
     }
 }
 

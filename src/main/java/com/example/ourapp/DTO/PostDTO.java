@@ -33,6 +33,7 @@ public class PostDTO {
     private Double longitude;
     private String address;
     private String placeName;
+    private boolean hidden;
 
     public PostDTO(Post post) {
         this.id = post.getId();
@@ -53,6 +54,7 @@ public class PostDTO {
         this.longitude = post.getLongitude();
         this.address = post.getAddress();
         this.placeName = post.getPlaceName();
+        this.hidden = post.isHidden();
         
      // 날짜를 원하는 형식으로 변환
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -64,6 +66,7 @@ public class PostDTO {
         System.out.println("Parent Category Name: " + this.parentCategoryName);
         System.out.println("Category Name: " + this.categoryName);
         System.out.println("Detailed Category: " + this.detailedCategory);
+        System.out.println("Hidden: " + this.hidden);
     }
 
     
@@ -108,6 +111,13 @@ public class PostDTO {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
     
 }

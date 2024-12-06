@@ -58,6 +58,10 @@ public class Post {
 
     @Column(length = 255, nullable = true)
     private String placeName;
+    
+ // 숨김 상태를 나타내는 필드 추가
+    @Column(nullable = false)
+    private boolean hidden = false;
 
     public Post() {}
 
@@ -138,5 +142,14 @@ public class Post {
 
     public void setPlaceName(String placeName) {
         this.placeName = placeName;
+    }
+    
+ // Getter 및 Setter
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 }

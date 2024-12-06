@@ -15,8 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +34,7 @@ import com.example.ourapp.entity.AdminMapPoint;
 import com.example.ourapp.entity.Report;
 import com.example.ourapp.entity.User;
 import com.example.ourapp.map.AdminMapPointRepository;
+import com.example.ourapp.post.CommentService;
 import com.example.ourapp.post.PostService;
 import com.example.ourapp.post.ReportService;
 import com.example.ourapp.review.ReviewService;
@@ -46,6 +49,8 @@ public class UserController {
     private final UserService userService;
     @Autowired
     private PostService postService;
+    @Autowired
+    private CommentService commentService;
     @Autowired
     private AdminMapPointRepository adminMapPointRepository;
     @Autowired
@@ -188,6 +193,38 @@ public class UserController {
 
         return "manageReport";
     }
+
+    @DeleteMapping("/report/delete/{type}/{id}")
+    public ResponseEntity<String> deleteReport(@PathVariable String type, @PathVariable Long id) {
+        try {
+            // 신고 삭제 서비스 호출
+            reportService.deleteReport(type, id);
+            return ResponseEntity.ok("신고가 삭제되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("신고 삭제에 실패했습니다.");
+        }
+    }
+    
+    @PostMapping("/post/hide")
+    public String hidePost(@RequestParam Long id, HttpSession session) {
+        Integer permission = (Integer) session.getAttribute("permission");
+        if (permission == null || permission != 0) {
+            return "redirect:/user/login"; // 관리자가 아니면 로그인 페이지로 리다이렉트
+        }
+        postService.hidePost(id); // 게시글 숨김 처리 서비스 호출
+        return "redirect:/board/view/" + id; // 숨긴 후 게시글로 리다이렉트
+    }
+
+    @PostMapping("/comments/hide")
+    public String hideComment(@RequestParam Long commentId, HttpSession session) {
+        Integer permission = (Integer) session.getAttribute("permission");
+        if (permission == null || permission != 0) {
+            return "redirect:/user/login"; // 관리자가 아니면 로그인 페이지로 리다이렉트
+        }
+        commentService.hideComment(commentId); // 댓글 숨김 처리 서비스 호출
+        return "redirect:/board/view/" + commentService.getPostIdByCommentId(commentId); // 숨긴 후 게시글로 리다이렉트
+    }
+
 
     
     @PostMapping("/checkid")
