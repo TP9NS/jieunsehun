@@ -28,9 +28,8 @@ public class Comment {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt; // 댓글 작성 시간
     
- // 숨김 상태를 나타내는 필드 추가
-    @Column(nullable = false)
-    private boolean hidden = false;
+    @Column(name = "hidden", nullable = false)
+    private boolean hidden;
 
     public Comment() {}
 
@@ -50,7 +49,7 @@ public class Comment {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     
- // Getter 및 Setter
+    // Getters and setters
     public boolean isHidden() {
         return hidden;
     }

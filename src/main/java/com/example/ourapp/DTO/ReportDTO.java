@@ -8,9 +8,11 @@ public class ReportDTO {
     private String reportedAt; // 포맷된 시간
     private String username; // 신고자 이름
     private Long reportedBy;
+    private boolean isHidden; // 숨김 여부 추가
+    private Long postId;
 
     // 생성자
-    public ReportDTO(Long id, Long targetId, String reason, String type, String reportedAt, String username, Long reportedBy) {
+    public ReportDTO(Long id, Long targetId, String reason, String type, String reportedAt, String username, Long reportedBy, boolean isHidden, Long postId) {
         this.id = id;
         this.targetId = targetId;
         this.reason = reason;
@@ -18,6 +20,8 @@ public class ReportDTO {
         this.reportedAt = reportedAt;
         this.username = username;
         this.reportedBy = reportedBy;
+        this.isHidden = isHidden; // 숨김 여부 초기화
+        this.postId = postId;
     }
 
     // Getter와 Setter
@@ -41,4 +45,16 @@ public class ReportDTO {
     
     public Long getReportedBy() { return reportedBy; }
     public void setReportedBy(Long reportedBy) { this.reportedBy = reportedBy; }
+
+    public boolean isHidden() { return isHidden; } // Getter for isHidden
+    public void setHidden(boolean hidden) { this.isHidden = hidden; } // Setter for isHidden
+
+    // 기존의 Getter와 Setter들
+    public Long getPostId() {
+        return postId;
+    }
+
+    public void setPostId(Long postId) {
+        this.postId = postId;
+    }
 }

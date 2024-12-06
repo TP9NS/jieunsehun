@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.ourapp.DTO.ReportDTO;
+import com.example.ourapp.entity.Comment;
 import com.example.ourapp.entity.Report;
 import com.example.ourapp.user.UserService;
 
@@ -19,23 +20,47 @@ public class ReportService {
     private final CommentRepository commentRepository;
 
     public void reportPost(Long postId, String reason, Long reportedBy) {
-        Report report = new Report(postId, reason, Report.ReportType.POST, reportedBy);
+        // 게시글 신고 시, 해당 게시글에 속한 모든 댓글을 가져옵니다.
+        List<Comment> comments = commentRepository.findByPostId(postId);
+        
+        // 게시글 신고
+        Report postReport = new Report(postId, reason, Report.ReportType.POST, reportedBy, postId);
+        postReport.setHidden(false); // 기본 숨김 여부는 false로 설정
+        reportRepository.save(postReport); // 게시글 신고를 저장
+
+        // 게시글에 속한 댓글 신고
+        for (Comment comment : comments) {
+            // 댓글 신고 시, 댓글 ID와 게시글 ID를 함께 저장
+            Report commentReport = new Report(comment.getId(), reason, Report.ReportType.COMMENT, reportedBy, postId);
+            commentReport.setHidden(false); // 기본 숨김 여부는 false로 설정
+            reportRepository.save(commentReport); // 댓글 신고를 저장
+        }
+    }
+
+
+    public void reportComment(Long commentId, String reason, Long reportedBy) {
+        // 댓글 ID로 해당 댓글을 조회하여 게시글 ID를 가져옵니다.
+        Comment comment = commentRepository.findById(commentId)
+                                           .orElseThrow(() -> new IllegalArgumentException("Invalid comment ID"));
+
+        // 댓글이 속한 게시글의 ID
+        Long postId = comment.getPost().getId(); // 게시글 ID 추출
+
+        // 댓글 신고 시, 댓글 ID와 게시글 ID를 함께 저장
+        Report report = new Report(commentId, reason, Report.ReportType.COMMENT, reportedBy, postId);
+        report.setHidden(false); // 기본 숨김 여부는 false
+
+        // 신고 레포트를 DB에 저장
         reportRepository.save(report);
     }
 
-    public void reportComment(Long commentId, String reason, Long reportedBy) {
-        // 댓글 ID를 기반으로 게시글 ID 조회
-        Long postId = commentRepository.findPostIdByCommentId(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid comment ID"));
-        Report report = new Report(postId, reason, Report.ReportType.COMMENT, reportedBy);
-        reportRepository.save(report);
-    }
+
     
     public Long getPostIdByCommentId(Long commentId) {
-        // 댓글 ID로 게시글 ID 조회
-        return reportRepository.findPostIdByCommentId(commentId)
+        return commentRepository.findPostIdByCommentId(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid comment ID"));
     }
+
 
     public List<Report> getReportsByType(Report.ReportType type) {
         return reportRepository.findByType(type);
@@ -57,7 +82,9 @@ public class ReportService {
                             report.getType().name(),
                             report.getReportedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                             username,
-                            report.getReportedBy()
+                            report.getReportedBy(),
+                            report.isHidden(), // 숨김 여부 매핑
+                            report.getPostId()
                     );
                 })
                 .toList();
@@ -68,18 +95,24 @@ public class ReportService {
                 .stream()
                 .map(report -> {
                     String username = userService.findUserById(report.getReportedBy()).getUsername();
+                    Long postId = commentRepository.findPostIdByCommentId(report.getTargetId())
+                            .orElseThrow(() -> new IllegalArgumentException("Invalid comment ID"));
                     return new ReportDTO(
                             report.getId(),
-                            report.getTargetId(),
+                            postId, // 실제로 표시되는 '대상 ID'는 게시글 ID로 설정
                             report.getReason(),
                             report.getType().name(),
                             report.getReportedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                             username,
-                            report.getReportedBy()
+                            report.getReportedBy(),
+                            report.isHidden(),
+                            report.getPostId()
                     );
                 })
                 .toList();
     }
+
+
  // 게시글 신고 삭제
     public void deletePostReport(Long id) {
         reportRepository.deleteById(id);
@@ -99,5 +132,51 @@ public class ReportService {
         }
     }
     
-    
+ // Fetch hidden reports related to posts
+    public List<ReportDTO> getHiddenPostReports() {
+        return reportRepository.findReportsByPostHidden(Report.ReportType.POST, true)
+                .stream()
+                .map(this::mapToReportDTO)
+                .toList();
+    }
+
+    // Fetch visible reports related to posts
+    public List<ReportDTO> getVisiblePostReports() {
+        return reportRepository.findReportsByPostHidden(Report.ReportType.POST, false)
+                .stream()
+                .map(this::mapToReportDTO)
+                .toList();
+    }
+
+    // Fetch hidden reports related to comments
+    public List<ReportDTO> getHiddenCommentReports() {
+        return reportRepository.findReportsByCommentHidden(Report.ReportType.COMMENT, true)
+            .stream()
+            .map(this::mapToReportDTO)
+            .toList();
+    }
+
+
+
+    // Fetch visible reports related to comments
+    public List<ReportDTO> getVisibleCommentReports() {
+        return reportRepository.findReportsByCommentHidden(Report.ReportType.COMMENT, false)
+                .stream()
+                .map(this::mapToReportDTO)
+                .toList();
+    }
+    private ReportDTO mapToReportDTO(Report report) {
+        String username = userService.findUserById(report.getReportedBy()).getUsername();
+        return new ReportDTO(
+            report.getId(),
+            report.getTargetId(),
+            report.getReason(),
+            report.getType().name(),
+            report.getReportedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+            username,
+            report.getReportedBy(),
+            report.isHidden(),
+            report.getPostId()
+        );
+    }
 }

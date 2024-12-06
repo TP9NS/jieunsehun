@@ -158,6 +158,7 @@ public class UserController {
     
     @GetMapping("/report")
     public String manageReports(HttpSession session, Model model) {
+        // Check user permission
         Integer permission = (Integer) session.getAttribute("permission");
 
         if (permission == null || permission != 0) {
@@ -173,7 +174,9 @@ public class UserController {
                                ", Reported By: " + report.getUsername() +
                                ", Target ID: " + report.getTargetId() +
                                ", Type: " + report.getType() +
-                               ", Reported At: " + report.getReportedAt());
+                               ", Hidden: " + report.isHidden() +
+                               ", Reported At: " + report.getReportedAt() +
+                               ", Post ID: " + report.getPostId());
         });
 
         // Fetch all comment reports
@@ -185,14 +188,31 @@ public class UserController {
                                ", Reported By: " + report.getUsername() +
                                ", Target ID: " + report.getTargetId() +
                                ", Type: " + report.getType() +
-                               ", Reported At: " + report.getReportedAt());
+                               ", Hidden: " + report.isHidden() +
+                               ", Reported At: " + report.getReportedAt() +
+                               ", Post ID: " + report.getPostId());
         });
 
-        model.addAttribute("postReports", postReports);
-        model.addAttribute("commentReports", commentReports);
+        // Filter reports to show hidden items only for admins
+        if (permission == 0) { // Admin user
+            System.out.println("Admin viewing all reports, including hidden ones.");
+        } else { // Non-admin users (additional safety check, should already redirect)
+            postReports = postReports.stream()
+                    .filter(report -> !report.isHidden())
+                    .toList();
+            commentReports = commentReports.stream()
+                    .filter(report -> !report.isHidden())
+                    .toList();
+        }
+
+        model.addAttribute("postReports", reportService.getVisiblePostReports());
+        model.addAttribute("hiddenPostReports", reportService.getHiddenPostReports());
+        model.addAttribute("commentReports", reportService.getVisibleCommentReports());
+        model.addAttribute("hiddenCommentReports", reportService.getHiddenCommentReports());
 
         return "manageReport";
     }
+
 
     @DeleteMapping("/report/delete/{type}/{id}")
     public ResponseEntity<String> deleteReport(@PathVariable String type, @PathVariable Long id) {

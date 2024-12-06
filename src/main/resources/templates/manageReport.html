@@ -106,6 +106,14 @@
         .report-item-action input[type="checkbox"] {
             transform: scale(1.2);
         }
+        .hidden-report {
+    background-color: #f8d7da; /* Light red for hidden reports */
+    border: 1px solid #f5c6cb;
+}
+.hidden-report .text-danger {
+    font-weight: bold;
+}
+        
 </style>
 </head>
 <body>
@@ -213,25 +221,26 @@
             </div>
             <div id="postReportsContainer">
                 <div th:each="report : ${postReports}" 
-     class="post-report-item" 
-     th:attr="data-reason=${report.reason}">
-    <div class="report-item">
-        <div class="report-item-details">
-            <p th:text="'신고 ID: ' + ${report.id}">신고 ID</p>
-            <p th:text="'신고 유형: ' + ${report.reason}">신고 유형</p>
-            <p th:text="'신고자: ' + ${report.username}">신고자</p>
-            <p>
-        <span>대상 ID: </span>
-        <a th:href="@{/board/view/{id}(id=${report.targetId})}" th:text="${report.targetId}">대상 ID</a>
-    </p>
-            <p th:text="'신고 시간: ' + ${report.reportedAt}">신고 시간</p>
-        </div>
-        <div class="report-item-action">
+                     class="post-report-item" 
+                     th:attr="data-id=${report.id}, data-reason=${report.reason}">
+                    <div class="report-item" th:classappend="${report.hidden} ? 'hidden-report' : ''">
+                        <div class="report-item-details">
+                            <p th:text="'신고 ID: ' + ${report.id}">신고 ID</p>
+                            <p th:text="'신고 유형: ' + ${report.reason}">신고 유형</p>
+                            <p th:text="'신고자: ' + ${report.username}">신고자</p>
+                            <p th:text="'대상 ID: ' + ${report.targetId}">대상 ID</p>
+                            <p th:text="'신고 시간: ' + ${report.reportedAt}">신고 시간</p>
+                            <p>
+                                <span>해당 게시물: </span>
+                                <a th:href="@{/board/view/{id}(id=${report.postId})}" th:text="${report.postId}">해당 게시물</a>
+                            </p>
+                            <p th:if="${report.hidden}" class="text-danger">관리자가 숨김 처리한 게시글입니다.</p>
+                        </div>
+                        <div class="report-item-action">
                             <button th:onclick="'deleteReport(' + ${report.id} + ', \'post\')'">삭제</button>
                         </div>
-    </div>
-</div>
-
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -249,56 +258,111 @@
             </div>
             <div id="commentReportsContainer">
                 <div th:each="report : ${commentReports}" 
-     class="comment-report-item" 
-     th:attr="data-reason=${report.reason}">
-    <div class="report-item">
-        <div class="report-item-details">
-            <p th:text="'신고 ID: ' + ${report.id}">신고 ID</p>
-            <p th:text="'신고 유형: ' + ${report.reason}">신고 유형</p>
-            <p th:text="'신고자: ' + ${report.username}">신고자</p>
-           <p>
-        <span>대상 ID: </span>
-        <a th:href="@{/board/view/{id}(id=${report.targetId})}" th:text="${report.targetId}">대상 ID</a>
-    </p>
-            <p th:text="'신고 시간: ' + ${report.reportedAt}">신고 시간</p>
-        </div>
-        <div class="report-item-action">
+                     class="comment-report-item" 
+                     th:attr="data-id=${report.id}, data-reason=${report.reason}">
+                    <div class="report-item" th:classappend="${report.hidden} ? 'hidden-report' : ''">
+                        <div class="report-item-details">
+                            <p th:text="'신고 ID: ' + ${report.id}">신고 ID</p>
+                            <p th:text="'신고 유형: ' + ${report.reason}">신고 유형</p>
+                            <p th:text="'신고자: ' + ${report.username}">신고자</p>
+                            <p th:text="'대상 ID: ' + ${report.targetId}">대상 ID</p>
+                            <p th:text="'신고 시간: ' + ${report.reportedAt}">신고 시간</p>
+                            <p>
+                                <span>해당 게시물: </span>
+                                <a th:href="@{/board/view/{id}(id=${report.postId})}" th:text="${report.postId}">해당 게시물</a>
+                            </p>
+                            <p th:if="${report.hidden}" class="text-danger">관리자가 숨김 처리한 댓글입니다.</p>
+                        </div>
+                        <div class="report-item-action">
                             <button th:onclick="'deleteReport(' + ${report.id} + ', \'comment\')'">삭제</button>
                         </div>
-    </div>
-</div>
-
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    <!-- 숨김 처리된 게시글 신고 -->
+        <div class="report-list">
+            <h2>숨김 처리된 게시글 신고 목록</h2>
+            <div id="hiddenPostReportsContainer">
+                <div th:each="report : ${hiddenPostReports}" 
+                     class="post-report-item" 
+                     th:attr="data-id=${report.id}, data-reason=${report.reason}">
+                    <div class="report-item hidden-report">
+                        <div class="report-item-details">
+                            <p th:text="'신고 ID: ' + ${report.id}">신고 ID</p>
+                            <p th:text="'신고 유형: ' + ${report.reason}">신고 유형</p>
+                            <p th:text="'신고자: ' + ${report.username}">신고자</p>
+                            <p>
+                                <span>대상 ID: </span>
+                                <a th:href="@{/board/view/{id}(id=${report.targetId})}" th:text="${report.targetId}">대상 ID</a>
+                            </p>
+                            <p th:text="'신고 시간: ' + ${report.reportedAt}">신고 시간</p>
+                            <p class="text-danger">관리자가 숨김 처리한 게시글입니다.</p>
+                        </div>
+                        <div class="report-item-action">
+                            <button th:onclick="'deleteReport(' + ${report.id} + ', \'post\')'">삭제</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+         <!-- 숨김 처리된 댓글 신고 -->
+        <div class="report-list">
+            <h2>숨김 처리된 댓글 신고 목록</h2>
+            <div id="hiddenCommentReportsContainer">
+                <div th:each="report : ${hiddenCommentReports}" 
+                     class="comment-report-item" 
+                     th:attr="data-id=${report.id}, data-reason=${report.reason}">
+                    <div class="report-item hidden-report">
+                        <div class="report-item-details">
+                            <p th:text="'신고 ID: ' + ${report.id}">신고 ID</p>
+                            <p th:text="'신고 유형: ' + ${report.reason}">신고 유형</p>
+                            <p th:text="'신고자: ' + ${report.username}">신고자</p>
+                            <p>
+                                <span>대상 ID: </span>
+                                <a th:href="@{/board/view/{id}(id=${report.targetId})}" th:text="${report.targetId}">대상 ID</a>
+                            </p>
+                            <p th:text="'신고 시간: ' + ${report.reportedAt}">신고 시간</p>
+                            <p class="text-danger">관리자가 숨김 처리한 댓글입니다.</p>
+                        </div>
+                        <div class="report-item-action">
+                            <button th:onclick="'deleteReport(' + ${report.id} + ', \'comment\')'">삭제</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
 </main>
 
 <script>
 function filterReports(type, reason) {
-    // Determine which container to filter
     const containerId = type === 'post' ? 'postReportsContainer' : 'commentReportsContainer';
     const container = document.getElementById(containerId);
-
-    // Get all report items within the container
     const items = container.getElementsByClassName(type + '-report-item');
 
-    // Iterate through each item and apply the filter
     Array.from(items).forEach(item => {
-        // Retrieve the reason from the data attribute
         const itemReason = item.getAttribute('data-reason');
-        console.log(`Filtering type: ${type}, Reason: ${reason}, Item reason: ${itemReason}`);
-        
-        // Show or hide the item based on the filter criteria
-        if (reason === 'all' || 
+        const isHidden = item.getAttribute('data-hidden') === 'true';
+
+        if (
+            reason === 'all' || 
             (reason === '기타' && itemReason.startsWith('기타')) || 
-            itemReason === reason) {
+            itemReason === reason
+        ) {
             item.style.display = 'block'; // Show the item
         } else {
             item.style.display = 'none'; // Hide the item
         }
+
+        // Always show hidden items for admin users
+        const userPermission = document.body.getAttribute('data-user-permission');
+        if (isHidden && userPermission === '0') {
+            item.style.display = 'block'; // Admins see all hidden items
+        }
     });
 }
-
 
 </script>
 <script>

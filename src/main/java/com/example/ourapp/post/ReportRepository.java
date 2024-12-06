@@ -21,4 +21,17 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     
     @Query("SELECT c.post.id FROM Comment c WHERE c.id = :commentId")
     Optional<Long> findPostIdByCommentId(@Param("commentId") Long commentId);
+    
+    
+ // ReportRepository
+    @Query("SELECT r FROM Report r JOIN Post p ON r.targetId = p.id WHERE r.type = :type AND p.hidden = :hidden")
+    List<Report> findReportsByPostHidden(@Param("type") Report.ReportType type, @Param("hidden") boolean hidden);
+
+    @Query("SELECT r FROM Report r JOIN Comment c ON r.targetId = c.id WHERE r.type = :type AND c.hidden = :hidden")
+    List<Report> findReportsByCommentHidden(@Param("type") Report.ReportType type, @Param("hidden") boolean hidden);
+
+
+
+
+
 }
