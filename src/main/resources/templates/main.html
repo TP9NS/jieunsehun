@@ -688,7 +688,7 @@ document.addEventListener("DOMContentLoaded", function () {
     <a class="nav-link" th:if="${session.permission != 0}" th:href="@{/user/mypage}">마이페이지</a>
   </li>
   <li th:if="${session.permission == 0}" class="nav-item me-3">
-    <a class="nav-link" th:href="@{/admin/reposts}">신고 관리</a>
+    <a class="nav-link" th:href="@{/user/report}">신고 관리</a>
   </li>
   <li th:if="${session.user_id != null}" class="nav-item">
     <a class="nav-link" th:href="@{/user/logout}">로그아웃</a>

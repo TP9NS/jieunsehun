@@ -1,35 +1,43 @@
 package com.example.ourapp.post;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.ourapp.DTO.ReportedCommentDTO;
-import com.example.ourapp.DTO.ReportedPostDTO;
+import com.example.ourapp.DTO.ReportDTO;
 import com.example.ourapp.entity.Report;
-import com.example.ourapp.entity.Report.ReportType;
+import com.example.ourapp.user.UserService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ReportService {
     private final ReportRepository reportRepository;
+    private final UserService userService;
+    private final CommentRepository commentRepository;
 
-    public ReportService(ReportRepository reportRepository) {
-        this.reportRepository = reportRepository;
-    }
-
-    public void reportPost(Post post, String reason) {
-        Report report = new Report(post.getId(), reason, ReportType.POST);
-        report.setPost(post); // 관계 매핑
+    public void reportPost(Long postId, String reason, Long reportedBy) {
+        Report report = new Report(postId, reason, Report.ReportType.POST, reportedBy);
         reportRepository.save(report);
     }
 
-    public void reportComment(Comment comment, String reason) {
-        Report report = new Report(comment.getId(), reason, ReportType.COMMENT);
-        report.setComment(comment); // 관계 매핑
+    public void reportComment(Long commentId, String reason, Long reportedBy) {
+        // 댓글 ID를 기반으로 게시글 ID 조회
+        Long postId = commentRepository.findPostIdByCommentId(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid comment ID"));
+        Report report = new Report(postId, reason, Report.ReportType.COMMENT, reportedBy);
         reportRepository.save(report);
     }
+    
+    public Long getPostIdByCommentId(Long commentId) {
+        // 댓글 ID로 게시글 ID 조회
+        return reportRepository.findPostIdByCommentId(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid comment ID"));
+    }
 
-    public List<Report> getReportsByType(ReportType type) {
+    public List<Report> getReportsByType(Report.ReportType type) {
         return reportRepository.findByType(type);
     }
 
@@ -37,43 +45,40 @@ public class ReportService {
         return reportRepository.findByTargetId(targetId);
     }
 
-    public List<ReportedPostDTO> getAllReportedPosts() {
-        return reportRepository.findAllReportedPosts();
+    public List<ReportDTO> getAllPostReports() {
+        return reportRepository.findByType(Report.ReportType.POST)
+                .stream()
+                .map(report -> {
+                    String username = userService.findUserById(report.getReportedBy()).getUsername();
+                    return new ReportDTO(
+                            report.getId(),
+                            report.getTargetId(),
+                            report.getReason(),
+                            report.getType().name(),
+                            report.getReportedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                            username,
+                            report.getReportedBy()
+                    );
+                })
+                .toList();
     }
 
-    public List<ReportedCommentDTO> getAllReportedComments() {
-        return reportRepository.findAllReportedComments();
+    public List<ReportDTO> getAllCommentReports() {
+        return reportRepository.findByType(Report.ReportType.COMMENT)
+                .stream()
+                .map(report -> {
+                    String username = userService.findUserById(report.getReportedBy()).getUsername();
+                    return new ReportDTO(
+                            report.getId(),
+                            report.getTargetId(),
+                            report.getReason(),
+                            report.getType().name(),
+                            report.getReportedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                            username,
+                            report.getReportedBy()
+                    );
+                })
+                .toList();
     }
 
-    public List<ReportedPostDTO> getReportsByUsername(String username, ReportType type) {
-        return reportRepository.findReportsByUsername(username, type);
-    }
-
-    public List<ReportedPostDTO> getReportsByReason(String reason, ReportType type) {
-        return reportRepository.findReportsByReason(reason, type);
-    }
-
-    public void ignoreReport(Long reportId) {
-        if (reportRepository.existsById(reportId)) {
-            reportRepository.deleteById(reportId);
-        } else {
-            throw new IllegalArgumentException("Report ID not found: " + reportId);
-        }
-    }
-
-    public void deletePost(Long postId) {
-        if (reportRepository.existsByTargetIdAndType(postId, ReportType.POST)) {
-            reportRepository.deleteByTargetIdAndType(postId, ReportType.POST);
-        } else {
-            throw new IllegalArgumentException("No reports found for post ID: " + postId);
-        }
-    }
-
-    public void deleteComment(Long commentId) {
-        if (reportRepository.existsByTargetIdAndType(commentId, ReportType.COMMENT)) {
-            reportRepository.deleteByTargetIdAndType(commentId, ReportType.COMMENT);
-        } else {
-            throw new IllegalArgumentException("No reports found for comment ID: " + commentId);
-        }
-    }
 }

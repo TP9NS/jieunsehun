@@ -2,86 +2,74 @@ package com.example.ourapp.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
-
 @Entity
-@Table(name = "report")
 public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "target_id", nullable = false)
-    private Long targetId;
-
-    @Column(nullable = false)
-    private String reason;
+    private Long targetId; // 신고 대상 ID (게시글 ID 또는 댓글 ID)
+    private String reason; // 신고 사유
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ReportType type;
+    private ReportType type; // 신고 타입 (POST 또는 COMMENT)
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime reportedAt; // 신고 시간
+    
+    private Long reportedBy;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Post post;
+    public Report() {
+        this.reportedAt = LocalDateTime.now(); // 기본 신고 시간 설정
+    }
 
-    // Default constructor
-    public Report() {}
-
-    // Custom constructor for service layer
-    public Report(Long targetId, String reason, ReportType type) {
+    public Report(Long targetId, String reason, ReportType type, Long reportedBy) {
         this.targetId = targetId;
         this.reason = reason;
         this.type = type;
+        this.reportedBy = reportedBy;
+        this.reportedAt = LocalDateTime.now();
     }
+
     public enum ReportType {
-        POST,
-        COMMENT
+        POST,   // 게시글 신고
+        COMMENT // 댓글 신고
+    }
+    
+    @Transient
+    private String formattedReportedAt;
+
+    public String getFormattedReportedAt() {
+        return formattedReportedAt;
     }
 
+    public void setFormattedReportedAt(String formattedReportedAt) {
+        this.formattedReportedAt = formattedReportedAt;
+    }
 
-    // Getters and Setters
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getTargetId() {
         return targetId;
     }
 
-    public void setTargetId(Long targetId) {
-        this.targetId = targetId;
-    }
-
     public String getReason() {
         return reason;
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
+    public LocalDateTime getReportedAt() {
+        return reportedAt;
     }
 
     public ReportType getType() {
         return type;
     }
-
-    public void setType(ReportType type) {
-        this.type = type;
+    public Long getReportedBy() {
+        return reportedBy;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setReportedBy(Long reportedBy) {
+        this.reportedBy = reportedBy;
     }
 }

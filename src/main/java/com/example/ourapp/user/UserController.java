@@ -3,6 +3,7 @@ package com.example.ourapp.user;
 import jakarta.servlet.http.HttpSession;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,12 +25,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.ourapp.DTO.PostDTO;
+import com.example.ourapp.DTO.ReportDTO;
 import com.example.ourapp.DTO.ReviewDTO;
 import com.example.ourapp.DTO.UserDTO;
 import com.example.ourapp.entity.AdminMapPoint;
+import com.example.ourapp.entity.Report;
 import com.example.ourapp.entity.User;
 import com.example.ourapp.map.AdminMapPointRepository;
 import com.example.ourapp.post.PostService;
+import com.example.ourapp.post.ReportService;
 import com.example.ourapp.review.ReviewService;
 
 import lombok.RequiredArgsConstructor;
@@ -46,6 +50,8 @@ public class UserController {
     private AdminMapPointRepository adminMapPointRepository;
     @Autowired
     private ReviewService reviewService;
+    @Autowired
+    private ReportService reportService;
 
     @GetMapping("/login")
     public String login() {
@@ -143,6 +149,44 @@ public class UserController {
         model.addAttribute("locations", allLocations);
 
         return "manageLocations";
+    }
+    
+    @GetMapping("/report")
+    public String manageReports(HttpSession session, Model model) {
+        Integer permission = (Integer) session.getAttribute("permission");
+
+        if (permission == null || permission != 0) {
+            return "redirect:/user/login";
+        }
+
+        // Fetch all post reports
+        List<ReportDTO> postReports = reportService.getAllPostReports();
+        System.out.println("Post Reports Retrieved: ");
+        postReports.forEach(report -> {
+            System.out.println("ID: " + report.getId() +
+                               ", Reason: " + report.getReason() +
+                               ", Reported By: " + report.getUsername() +
+                               ", Target ID: " + report.getTargetId() +
+                               ", Type: " + report.getType() +
+                               ", Reported At: " + report.getReportedAt());
+        });
+
+        // Fetch all comment reports
+        List<ReportDTO> commentReports = reportService.getAllCommentReports();
+        System.out.println("Comment Reports Retrieved: ");
+        commentReports.forEach(report -> {
+            System.out.println("ID: " + report.getId() +
+                               ", Reason: " + report.getReason() +
+                               ", Reported By: " + report.getUsername() +
+                               ", Target ID: " + report.getTargetId() +
+                               ", Type: " + report.getType() +
+                               ", Reported At: " + report.getReportedAt());
+        });
+
+        model.addAttribute("postReports", postReports);
+        model.addAttribute("commentReports", commentReports);
+
+        return "manageReport";
     }
 
     

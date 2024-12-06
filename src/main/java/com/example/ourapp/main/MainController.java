@@ -226,17 +226,48 @@ public class MainController {
 
         return "view";
     }
-    @PostMapping("/comments/report")
-    public String reportComment(@RequestParam Long commentId, 
-                                @RequestParam String reportType, 
-                                @RequestParam(required = false) String additionalReason) {
+    @PostMapping("/posts/report")
+    public String reportPost(@RequestParam Long postId, 
+                             @RequestParam String reportType, 
+                             @RequestParam(required = false) String additionalReason,
+                             HttpSession session) {
+        Long userId = (Long) session.getAttribute("user_id"); // 세션에서 사용자 ID 가져오기
+        if (userId == null) {
+            return "redirect:/user/login"; // 로그인되지 않은 경우 리다이렉트
+        }
+
         String reason = reportType;
         if ("기타".equals(reportType) && additionalReason != null) {
             reason += " - " + additionalReason;
         }
-        reportService.reportComment(commentId, reason);
+
+        reportService.reportPost(postId, reason, userId); // 신고자 ID 전달
         return "redirect:/board";
     }
+
+    @PostMapping("/comments/report")
+    public String reportComment(@RequestParam Long commentId, 
+                                @RequestParam String reportType, 
+                                @RequestParam(required = false) String additionalReason,
+                                HttpSession session) {
+        Long userId = (Long) session.getAttribute("user_id"); // 세션에서 사용자 ID 가져오기
+        if (userId == null) {
+            return "redirect:/user/login"; // 로그인되지 않은 경우 리다이렉트
+        }
+
+        String reason = reportType;
+        if ("기타".equals(reportType) && additionalReason != null) {
+            reason += " - " + additionalReason;
+        }
+
+        // 댓글 신고 처리
+        reportService.reportComment(commentId, reason, userId);
+        Long postId = reportService.getPostIdByCommentId(commentId); // 댓글 ID를 통해 게시글 ID를 가져옴
+
+        return "redirect:/board/view/" + postId; // 해당 게시글로 리다이렉트
+    }
+
+
 
     @PostMapping("/comments/add")
     public String addComment(@ModelAttribute Comment comment, @RequestParam("postId") Long postId, HttpSession session) {
@@ -302,19 +333,6 @@ public class MainController {
         model.addAttribute("post", new PostDTO());
         return "post.html";
     }
-    
-    @PostMapping("/post/report")
-    public String reportPost(@RequestParam Long postId, 
-                             @RequestParam String reportType, 
-                             @RequestParam(required = false) String additionalReason) {
-        String reason = reportType;
-        if ("기타".equals(reportType) && additionalReason != null) {
-            reason += " - " + additionalReason;
-        }
-        reportService.reportPost(postId, reason);
-        return "redirect:/board";
-    }
-
     
     @PostMapping("/post/save")
     public String savePost(
