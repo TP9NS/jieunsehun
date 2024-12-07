@@ -271,6 +271,13 @@
 <div class="form-group row mb-3">
     <div class="col-sm-12 text-end">
         <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#reportPostModal" type="button">글 신고</button>
+        <!-- 관리자 전용 숨김 버튼 -->
+        <span th:if="${session.permission == 0}">
+            <form th:action="@{/user/post/hide}" method="post" style="display:inline;">
+                <input type="hidden" name="id" th:value="${post.id}">
+                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('게시글을 숨기시겠습니까?')">숨김 처리</button>
+            </form>
+        </span>
     </div>
 </div>
         <div class="form-group row">
@@ -285,13 +292,7 @@
                 <button type="submit" class="btn btn-danger" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
             </form>
         </span>
-         <!-- 관리자 전용 숨김 버튼 -->
-        <span th:if="${session.permission == 0}">
-            <form th:action="@{/user/post/hide}" method="post" style="display:inline;">
-                <input type="hidden" name="id" th:value="${post.id}">
-                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('게시글을 숨기시겠습니까?')">숨김 처리</button>
-            </form>
-        </span>
+         
         </div>
     </div>
 <div class="comments-section">
@@ -322,15 +323,16 @@
             <option value="기타">기타</option>
         </select>
         <textarea class="form-control mt-2" name="additionalReason" rows="1" placeholder="기타 사유(선택)"></textarea>
-        <button type="submit" class="btn btn-sm btn-outline-danger mt-2">신고</button>
-    </form>
-    <!-- 관리자 전용 숨김 처리 버튼 -->
+        <button type="submit" class="btn btn-sm btn-outline-danger">신고</button>
+        <!-- 관리자 전용 숨김 처리 버튼 -->
     <span th:if="${session.permission == 0}">
         <form th:action="@{/user/comments/hide}" method="post" class="d-inline">
             <input type="hidden" name="commentId" th:value="${comment.id}">
             <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('댓글을 숨기시겠습니까?')">숨김 처리</button>
         </form>
     </span>
+    </form>
+
 </div>
 
 

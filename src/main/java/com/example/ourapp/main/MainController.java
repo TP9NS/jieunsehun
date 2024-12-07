@@ -116,19 +116,14 @@ public class MainController {
     }
     @GetMapping("/vote")
     public String getVotePage(HttpSession session, Model model) {
-        // 세션에서 사용자 ID 가져오기
         Long userId = (Long) session.getAttribute("user_id");
         if (userId == null) {
             throw new IllegalStateException("User is not logged in.");
         }
 
-        // MyMapPointDTO 리스트 로드
         List<MyMapPointDTO> myMapPoints = myMapPointService.getAllMyMapPoints();
-
-        // GroupMapPointDTO 리스트 로드
         List<GroupMapPointDTO> groupMapPoints = groupMapPointService.getAllGroupMapPoints();
 
-     // 두 리스트를 LocationDTO로 변환 후 병합하고 중복 제거
         List<LocationDTO> allPoints = Stream.concat(
                 myMapPoints.stream().map(LocationDTO::new),
                 groupMapPoints.stream().map(LocationDTO::new)
@@ -141,16 +136,13 @@ public class MainController {
             .values()
             .stream()
             .collect(Collectors.toList());
-     // 투표 결과 계산
         List<VoteResultDTO> voteResults = voteService.calculateVoteResults();
 
-        // 모델에 데이터 추가
         model.addAttribute("all_points", allPoints);
-        model.addAttribute("userId", userId); // 사용자 ID도 템플릿으로 전달
+        model.addAttribute("userId", userId);
         model.addAttribute("voteResults", voteResults);
         
-
-        return "vote"; // vote.html 템플릿 반환
+        return "vote";
     }
 
     @PostMapping("/submit-vote")
@@ -158,21 +150,17 @@ public class MainController {
         HttpSession session,
         @RequestParam String locationName,
         Model model) {
-        // 세션에서 사용자 ID 가져오기
         Long userId = (Long) session.getAttribute("user_id");
         if (userId == null) {
             throw new IllegalStateException("User is not logged in.");
         }
 
-        // 투표 저장
         voteService.saveVote(userId, locationName);
 
-        // 투표 결과를 모델에 추가
         model.addAttribute("locationName", locationName);
 
-        return "vote-result"; // vote-result.html로 이동
+        return "vote-result";
     }
-
 
     @GetMapping("/board")
     public String board(
@@ -215,12 +203,10 @@ public class MainController {
             throw new IllegalArgumentException("Post not found");
         }
 
-        // Check if the post is hidden
         Integer permission = (Integer) session.getAttribute("permission");
-     // If post is hidden and the user is not an admin
         if (post.isHidden() && (permission == null || permission != 0)) {
             redirectAttributes.addFlashAttribute("alertMessage", "이 게시글은 관리자가 숨김 처리했습니다.");
-            return "redirect:/board"; // Redirect non-admin users to the board
+            return "redirect:/board";
         }
 
         List<Comment> comments = commentService.findCommentsByPostId(id);
@@ -236,16 +222,14 @@ public class MainController {
     }
 
 
-
-
     @PostMapping("/posts/report")
     public String reportPost(@RequestParam Long postId, 
                              @RequestParam String reportType, 
                              @RequestParam(required = false) String additionalReason,
                              HttpSession session) {
-        Long userId = (Long) session.getAttribute("user_id"); // 세션에서 사용자 ID 가져오기
+        Long userId = (Long) session.getAttribute("user_id");
         if (userId == null) {
-            return "redirect:/user/login"; // 로그인되지 않은 경우 리다이렉트
+            return "redirect:/user/login";
         }
 
         String reason = reportType;
@@ -262,9 +246,9 @@ public class MainController {
                                 @RequestParam String reportType, 
                                 @RequestParam(required = false) String additionalReason,
                                 HttpSession session) {
-        Long userId = (Long) session.getAttribute("user_id"); // 세션에서 사용자 ID 가져오기
+        Long userId = (Long) session.getAttribute("user_id");
         if (userId == null) {
-            return "redirect:/user/login"; // 로그인되지 않은 경우 리다이렉트
+            return "redirect:/user/login";
         }
 
         String reason = reportType;
@@ -272,11 +256,10 @@ public class MainController {
             reason += " - " + additionalReason;
         }
 
-        // 댓글 신고 처리
         reportService.reportComment(commentId, reason, userId);
-        Long postId = reportService.getPostIdByCommentId(commentId); // 댓글 ID를 통해 게시글 ID를 가져옴
+        Long postId = reportService.getPostIdByCommentId(commentId);
 
-        return "redirect:/board/view/" + postId; // 해당 게시글로 리다이렉트
+        return "redirect:/board/view/" + postId;
     }
 
 
