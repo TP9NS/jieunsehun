@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
 import jakarta.servlet.http.HttpSession;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import org.json.JSONObject;
 
 @Controller
@@ -52,6 +56,11 @@ public class KakaoController {
                 String email = userInfo.getJSONObject("kakao_account").getString("email");
                 return userRepository.findByUsername(kakaoId)
                         .map(user -> {
+                        	 if (user.getDate() != null && user.getDate().isAfter(LocalDateTime.now())) {
+                                 session.setAttribute("error", "정지된 계정입니다. 정지 해제 날짜: " 
+                                         + user.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+                                 return "redirect:/user/login"; // 로그인 화면으로 리다이렉트
+                             }
                             session.setAttribute("user_id", user.getUserId());
                             session.setAttribute("username", user.getUsername());
                             session.setAttribute("permission", user.getPermission());

@@ -695,6 +695,9 @@ document.addEventListener("DOMContentLoaded", function () {
     <a class="nav-link" th:if="${session.permission == 0}" th:href="@{/user/manage-locations}">관리자님 어서오세요!</a>
     <a class="nav-link" th:if="${session.permission != 0}" th:href="@{/user/mypage}">마이페이지</a>
   </li>
+  		<li th:if="${session.permission == 0}" class="nav-item me-3">
+  		<a class="nav-link" th:href="@{/admin/manageuser}">유저 관리</a>
+  		</li>
   <li th:if="${session.permission == 0}" class="nav-item me-3">
     <a class="nav-link" th:href="@{/user/report}">신고 관리</a>
   </li>

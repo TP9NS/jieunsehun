@@ -1,0 +1,523 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <script src="/docs/5.3/assets/js/color-modes.js"></script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.118.2">
+    <title>우리의 보물 지도와 GPT 대화</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/album/">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      .b-example-divider {
+        width: 100%;
+        height: 3rem;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 1px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+      }
+
+      .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+      }
+
+      .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+      }
+
+      .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+      }
+
+      .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .btn-bd-primary {
+        --bd-violet-bg: #712cf9;
+        --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
+
+        --bs-btn-font-weight: 600;
+        --bs-btn-color: var(--bs-white);
+        --bs-btn-bg: var(--bd-violet-bg);
+        --bs-btn-border-color: var(--bd-violet-bg);
+        --bs-btn-hover-color: var(--bs-white);
+        --bs-btn-hover-bg: #6528e0;
+        --bs-btn-hover-border-color: #6528e0;
+        --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
+        --bs-btn-active-color: var(--bs-btn-hover-color);
+        --bs-btn-active-bg: #5a23c8;
+        --bs-btn-active-border-color: #5a23c8;
+      }
+
+      .bd-mode-toggle {
+        z-index: 1500;
+      }
+
+      .bd-mode-toggle .dropdown-menu .active .bi {
+        display: block !important;
+      }
+      #chatbox {
+        width: 400px;
+        height: 700px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-left: 20px;
+      }
+      
+      #chatbox .messages {
+        height: 600px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+      
+      #chatbox input {
+        width: 100%;
+        padding: 10px;
+      }
+
+      .map-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 900px;
+    height: 700px;
+    margin-top: 0;
+}
+
+.search-box {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0px;
+    background-color: white; /* Optional: Adds background to make it stand out */
+    z-index: 1;
+}
+
+#map {
+    flex: 1;
+    margin-top: 50px; /* Adjust this if there is any overlap */
+    width: 100%;
+    height: 100%;
+}
+
+
+      .search-box input {
+        flex: 1;
+        padding: 10px;
+      }
+
+      .search-box button {
+        padding: 10px;
+      }
+
+      .saved-coordinates {
+        margin-top: 20px;
+      }
+
+      .container {
+        display: flex;
+        
+      }
+.map_wrap, .map_wrap * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;
+    font-size: 12px;
+}
+
+.map_wrap a, .map_wrap a:hover, .map_wrap a:active {
+    color: #000;
+    text-decoration: none;
+}
+
+.map_wrap {
+    position: relative;
+    width: calc(100% - 80px); /* 메뉴 너비를 뺀 지도 너비 설정 */
+    height: 620px;
+    margin-left: 200px; /* 메뉴와의 간격 확보 */
+}
+
+#menu_wrap {
+    position: absolute;
+    top: 120px;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    height: calc(100% - 150px); /* 상단과 하단 간격 고려 */
+    margin: 10px 0 30px 10px;
+    padding: 5px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 1;
+    font-size: 12px;
+    border-radius: 10px;
+}
+#placesList li {list-style: none;}
+#placesList .item {position:relative;border-bottom:1px solid #888;overflow: hidden;cursor: pointer;min-height: 65px;}
+#placesList .item span {display: block;margin-top:4px;}
+#placesList .item h5, #placesList .item .info {text-overflow: ellipsis;overflow: hidden;white-space: nowrap;}
+#placesList .item .info{padding:10px 0 10px 55px;}
+#placesList .info .gray {color:#8a8a8a;}
+#placesList .info .jibun {padding-left:26px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_jibun.png) no-repeat;}
+#placesList .info .tel {color:#009900;}
+#placesList .info .category {color:#009900;}
+#placesList .item .markerbg {float:left;position:absolute;width:36px; height:37px;margin:10px 0 0 10px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png) no-repeat;}
+#placesList .item .marker_1 {background-position: 0 -10px;}
+#placesList .item .marker_2 {background-position: 0 -56px;}
+#placesList .item .marker_3 {background-position: 0 -102px}
+#placesList .item .marker_4 {background-position: 0 -148px;}
+#placesList .item .marker_5 {background-position: 0 -194px;}
+#placesList .item .marker_6 {background-position: 0 -240px;}
+#placesList .item .marker_7 {background-position: 0 -286px;}
+#placesList .item .marker_8 {background-position: 0 -332px;}
+#placesList .item .marker_9 {background-position: 0 -378px;}
+#placesList .item .marker_10 {background-position: 0 -423px;}
+#placesList .item .marker_11 {background-position: 0 -470px;}
+#placesList .item .marker_12 {background-position: 0 -516px;}
+#placesList .item .marker_13 {background-position: 0 -562px;}
+#placesList .item .marker_14 {background-position: 0 -608px;}
+#placesList .item .marker_15 {background-position: 0 -654px;}
+#pagination {margin:10px auto;text-align: center;}
+#pagination a {display:inline-block;margin-right:10px;}
+#pagination .on {font-weight: bold; cursor: default;color:#777;}
+.wrap {position: absolute;left: 0;bottom: 40px;width: 400px;height: 250px;margin-left: -144px;text-align: left;overflow: hidden;font-size: 12px;font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;line-height: 1.5;}
+    .wrap * {padding: 0;margin: 0;}
+    .wrap .info {width: 400px;height: 250px;border-radius: 5px;border-bottom: 2px solid #ccc;border-right: 1px solid #ccc;overflow: hidden;background: #fff;}
+    .wrap .info:nth-child(1) {border: 0;box-shadow: 0px 1px 2px #888;}
+    .info .title {padding: 5px 0 0 10px;height: 30px;background: #eee;border-bottom: 1px solid #ddd;font-size: 18px;font-weight: bold;}
+    .info .close {position: absolute;top: 5px;right: 10px;color: #888;width: 17px;height: 17px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');}
+    .info .close:hover {cursor: pointer;}
+    .info .body {position: relative;overflow: hidden;}
+    .info .desc {position: relative;margin: 13px 0 0 90px;height: 180px;}
+    .desc .ellipsis {overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+    .desc .jibun {font-size: 11px;color: #888;margin-top: -2px;}
+    .info .img {position: absolute;top: 6px;left: 5px;width: 73px;height: 71px;border: 1px solid #ddd;color: #888;overflow: hidden;}
+    .info:after {content: '';position: absolute;margin-left: -12px;left: 50%;bottom: 0;width: 22px;height: 12px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png')}
+    .info .link {color: #5085BB;}
+.input {
+    width: 300px; /* 원하는 너비로 설정 */
+    height: 20px; /* 원하는 높이로 설정 */
+    padding: 5px; /* 내부 여백 조정 */
+    border: 1px solid #ccc; /* 테두리 설정 */
+    border-radius: 4px; /* 모서리 둥글게 */
+    font-size: 12px; /* 글자 크기 설정 */
+    margin: 2px 0; /* 입력 필드 간의 간격 조정 */
+}
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* 검색창 필드 */
+    .search-container {
+        width: 100%;
+        max-width: 800px; /* 검색창 최대 너비 */
+    }
+
+    .search-input-group {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* 검색창과 버튼 사이의 간격 */
+    }
+
+    #search-input {
+        flex: 1; /* 입력창이 가능한 넓게 차지하도록 설정 */
+    }
+
+    #search-btn {
+        flex-shrink: 0; /* 버튼 크기를 고정 */
+    }
+
+    /* 검색결과 테이블 */
+    .user-table-container {
+        width: 100%; /* 테이블 너비 */
+        max-width: 800px; /* 테이블 최대 너비 */
+        margin-top: 20px; /* 검색창과의 간격 */
+    }
+
+    table {
+        width: 100%; /* 테이블 너비 */
+    }
+    #user-management-title {
+    text-align: left;
+}
+</style>
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+      <symbol id="check2" viewBox="0 0 16 16">
+        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+      </symbol>
+      <symbol id="circle-half" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+      </symbol>
+      <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+        <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+      </symbol>
+      <symbol id="sun-fill" viewBox="0 0 16 16">
+        <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+      </symbol>
+    </svg>
+<body th:data-user-permission="${session.permission}">
+
+<header data-bs-theme="dark">
+  <div class="collapse text-bg-dark" id="navbarHeader">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-8 col-md-7 py-4">
+          <h4>About</h4>
+          <p class="text-body-secondary">우리들의 보물지도에 온 것을 환영합니다!</p>
+        </div>
+        <div class="col-sm-4 offset-md-1 py-4">
+          <h4>Contact</h4>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-white">Follow on Twitter</a></li>
+            <li><a href="#" class="text-white">Like on Facebook</a></li>
+            <li><a href="#" class="text-white">Email me</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container d-flex align-items-center justify-content-between">
+      <!-- 보물 지도 로고를 상단에 고정 -->
+      <a href="/main" class="navbar-brand">
+        <strong>관리자</strong>
+      </a>
+
+      <!-- 로고 아래 가로로 메뉴와 버튼 배치 -->
+      <div class="d-flex justify-content-between w-100 mt-2">
+        <ul class="navbar-nav flex-row">
+
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/board">게시판</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/mymap">나만의 지도</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/groupmap">그룹 지도</a>
+          </li>
+		          <li class="nav-item me-3">
+            <a class="nav-link" href="/groups">그룹 관리</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/vote">장소 투표</a>
+          </li>
+        </ul>
+
+        <!-- 로그인 여부에 따라 버튼 표시 -->
+        <ul class="navbar-nav flex-row">
+ <li th:if="${session.user_id != null}" class="nav-item me-3">
+    <a class="nav-link" th:if="${session.permission == 0}" th:href="@{/user/manage-locations}">관리자님 어서오세요!</a>
+    <a class="nav-link" th:if="${session.permission != 0}" th:href="@{/user/mypage}">마이페이지</a>
+  </li>
+  <li th:if="${session.permission == 0}" class="nav-item me-3">
+  <a id="user-management-title" class="nav-link" th:href="@{/admin/manageuser}">유저 관리</a>
+   </li>
+  <li th:if="${session.permission == 0}" class="nav-item me-3">
+    <a class="nav-link" th:href="@{/user/report}">신고 관리</a>
+  </li>
+  <li th:if="${session.user_id != null}" class="nav-item">
+    <a class="nav-link" th:href="@{/user/logout}">로그아웃</a>
+  </li>
+
+          <!-- 로그인이 되어 있지 않을 때(세션에 user_id가 없을 때) -->
+          <li th:unless="${session.user_id != null}" class="nav-item me-3">
+            <a class="nav-link" th:href="@{/user/login}">로그인</a>
+          </li>
+          <li th:unless="${session.user_id != null}" class="nav-item">
+            <a class="nav-link" th:href="@{/user/signup}">회원가입</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="container mt-5">
+    <!-- 유저 관리 제목 -->
+    <h2 class="text-center mb-4">유저 관리</h2>
+    
+    <!-- 검색창 -->
+    <div class="search-container">
+        <div class="search-input-group">
+            <input
+                type="text"
+                id="search-input"
+                class="form-control"
+                placeholder="아이디, 이름, 이메일로 검색"
+            />
+            <button id="search-btn" class="btn btn-primary">검색</button>
+        </div>
+    </div>
+
+    <!-- 검색결과 테이블 -->
+    <div class="user-table-container">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>이름</th>
+                    <th>이메일</th>
+                    <th>전화번호</th>
+                    <th>주소</th>
+                    <th>정지일</th>
+                    <th>관리</th>
+                </tr>
+            </thead>
+            <tbody id="user-table-body">
+                <!-- 동적으로 유저 데이터가 추가될 영역 -->
+            </tbody>
+        </table>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
+<script>
+    document.getElementById("search-btn").addEventListener("click", async () => {
+        const searchValue = document.getElementById("search-input").value.trim();
+        const userTableBody = document.getElementById("user-table-body");
+        userTableBody.innerHTML = ""; // 기존 내용 초기화
+
+        try {
+            const response = await fetch(`/admin/searchUsers?query=${encodeURIComponent(searchValue)}`);
+            const users = await response.json();
+
+            users.forEach((user) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${user.userId}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone}</td>
+                    <td>${user.address}</td>
+                    <td>${user.date || "깨끗한 유저"}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.userId})">탈퇴</button>
+                        <button class="btn btn-warning btn-sm" onclick="suspendUser(${user.userId})">정지</button>
+                        <button class="btn btn-info btn-sm" onclick="unsuspendUser(${user.userId})">정지 해제</button>
+                    </td>
+                `;
+                userTableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            alert("유저 정보를 가져오는 데 실패했습니다.");
+        }
+    });
+
+    async function deleteUser(userId) {
+        if (!confirm("정말로 탈퇴시키겠습니까?")) return;
+
+        try {
+            const response = await fetch(`/admin/deleteUser?id=${userId}`, { method: "DELETE" });
+            if (response.ok) {
+                alert("유저가 탈퇴되었습니다.");
+                document.getElementById("search-btn").click(); // 목록 새로고침
+            } else {
+                alert("유저 탈퇴에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+        }
+    }
+
+    async function suspendUser(userId) {
+        const days = prompt("정지 기간 (일)을 입력하세요:");
+        if (!days || isNaN(days) || days <= 0) {
+            alert("유효한 정지 기간을 입력하세요.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/suspendUser?id=${userId}&days=${days}`, { method: "POST" });
+            if (response.ok) {
+                alert("유저가 정지되었습니다.");
+                document.getElementById("search-btn").click(); // 목록 새로고침
+            } else {
+                alert("유저 정지에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error("Error suspending user:", error);
+        }
+    }
+    async function unsuspendUser(userId) {
+    if (!confirm("정지를 해제하시겠습니까?")) {
+        return; // 사용자가 확인을 취소하면 함수 종료
+    }
+
+    try {
+        const response = await fetch(`/admin/users/${userId}/unsuspend`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (response.ok) {
+            alert("정지가 해제되었습니다.");
+            // UI 업데이트: 해당 유저의 정지 정보를 제거
+            const userRow = document.querySelector(`#user-row-${userId}`);
+            if (userRow) {
+                const suspendCell = userRow.querySelector(".suspend-date");
+                if (suspendCell) {
+                    suspendCell.textContent = "정지 해제됨";
+                }
+            }
+        } else {
+            const errorMessage = await response.text();
+            alert(`정지 해제 실패: ${errorMessage}`);
+        }
+    } catch (error) {
+        console.error("Error unsuspending user:", error);
+        alert("서버 오류로 정지 해제가 실패했습니다.");
+    }
+}
+</script>
+</body>
+</html>

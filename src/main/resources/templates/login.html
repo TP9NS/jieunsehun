@@ -376,7 +376,11 @@
         <h2>로그인</h2>
         <input type="id" placeholder="아이디" name="username"><br><br>
         <input type="password" placeholder="비밀번호" name="password"><br>
-
+        <!-- 오류 메시지 표시 -->
+        <div th:if="${session.error}" class="alert alert-danger" id="error-message">
+            <p th:text="${session.error}"></p>
+            <button type="button" class="btn btn-secondary" onclick="clearError()">확인</button>
+        </div>
         <!-- 로그인 버튼 -->
         <input type="submit" class="login-button" value="로그인">
 
@@ -470,7 +474,17 @@
     	    .then(data => alert("Your Password is: " + data))
     	    .catch(error => alert(error.message));
     	}
-
+    async function clearError() {
+        try {
+            await fetch('/user/clear-error', { method: 'POST' });
+            const errorDiv = document.getElementById('error-message');
+            if (errorDiv) {
+                errorDiv.style.display = 'none'; // 오류 메시지 숨기기
+            }
+        } catch (error) {
+            console.error('Error clearing session error:', error);
+        }
+    }
     </script>
   </body>
 </main>

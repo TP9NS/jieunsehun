@@ -1,6 +1,7 @@
 package com.example.ourapp.DTO;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.example.ourapp.entity.User;
 
@@ -26,6 +27,7 @@ public class UserDTO { //회원 정보를 필드로 정의
     private String postcode;
     private String address_1;
     private Integer permission;
+    private LocalDateTime stopDate;
     //lombok 어노테이션으로 getter,setter,생성자,toString 메서드 생략 가능
     public UserDTO(Long id, String name, String email) {
         this.User_id = id;
@@ -45,6 +47,7 @@ public class UserDTO { //회원 정보를 필드로 정의
     	UserDTO.setAddress_1(UserEntitiy.getAddress_1());
     	UserDTO.setPhone(UserEntitiy.getPhone());
     	UserDTO.setPermission(UserEntitiy.getPermission());
+    	UserDTO.setStopDate(UserEntitiy.getDate());
         return UserDTO;
     }
     public void updateUserEntity(User userEntity) {

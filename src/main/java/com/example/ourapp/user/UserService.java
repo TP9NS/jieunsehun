@@ -1,7 +1,9 @@
 package com.example.ourapp.user;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -89,6 +91,21 @@ public class UserService {
 
     public Optional<User> findByUsernameAndNameAndBirthdateAndEmail(String username, String name, LocalDate birthdate, String email) {
         return Optional.ofNullable(userRepository.findByUsernameAndNameAndBirthdateAndEmail(username, name, birthdate, email));
+    }
+    
+    public List<User> searchUsers(String query) {
+        return userRepository.findByUsernameContainingOrNameContainingOrEmailContaining(query, query, query);
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public void suspendUser(Long id, int days) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setDate(LocalDateTime.now().plusDays(days));
+        userRepository.save(user);
     }
 }
 

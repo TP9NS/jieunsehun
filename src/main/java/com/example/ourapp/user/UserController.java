@@ -3,6 +3,7 @@ package com.example.ourapp.user;
 import jakarta.servlet.http.HttpSession;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -70,11 +71,21 @@ public class UserController {
         try {
             UserDTO userDTO = userService.login(username, password);
 
+            // 정지 날짜 확인
+            if (userDTO.getStopDate() != null && userDTO.getStopDate().isAfter(LocalDateTime.now())) {
+                // 정지된 경우
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                String formattedStopDate = userDTO.getStopDate().format(formatter);
+                session.setAttribute("error", "계정이 정지되었습니다. 정지 해제 날짜: " + formattedStopDate);
+                return "redirect:/user/login";
+            }
+
+            // 정지가 아닌 경우 로그인 처리
             session.setAttribute("user_id", userDTO.getUser_id());
             session.setAttribute("username", userDTO.getUsername());
             session.setAttribute("permission", userDTO.getPermission()); // permission 값 설정
-            
-         // 세션 정보 출력
+
+            // 세션 정보 출력
             System.out.println("Login successful!");
             System.out.println("User ID: " + session.getAttribute("user_id"));
             System.out.println("Username: " + session.getAttribute("username"));
@@ -369,5 +380,11 @@ public class UserController {
     	userService.save(userDTO);
         session.invalidate(); // 가입 후 세션 초기화
         return "redirect:/main";
+    }
+    @PostMapping("/clear-error")
+    @ResponseBody
+    public ResponseEntity<Void> clearError(HttpSession session) {
+        session.removeAttribute("error");
+        return ResponseEntity.ok().build();
     }
 }

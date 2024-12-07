@@ -5,6 +5,7 @@ import lombok.Setter;
 
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.example.ourapp.DTO.UserDTO;
 
@@ -58,6 +59,9 @@ public class User {
     @Column(name = "permission")
     private Integer permission;
 
+    @Column(name="stopdate")
+    private LocalDateTime date;
+    
     public static User toUser(UserDTO UserDTO){
     	User user = new User();
     	user.setUsername(UserDTO.getUsername());
