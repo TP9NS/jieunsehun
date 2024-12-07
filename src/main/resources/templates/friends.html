@@ -348,6 +348,28 @@
                 <!-- 동적으로 친구 목록이 추가됩니다 -->
             </ul>
         </div>
+        <div id="message-modal" class="modal" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">쪽지 보내기</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeMessageModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="message-form">
+                    <div class="form-group">
+                        <label for="message-content">쪽지 내용</label>
+                        <textarea id="message-content" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">보내기</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+        
 
         <!-- 친구 검색 -->
         <div class="col-md-4">
@@ -384,6 +406,7 @@
 let stompClient = null;
 let sessionId = null; // 세션 ID 저장
 let userId = null; // 사용자 ID 저장
+let currentReceiverId = null;
 
 function connectWebSocket() {
   const socket = new SockJS('/ws');
@@ -611,6 +634,13 @@ function acceptFriendRequest(requestId) {
                     removeButton.className = 'btn btn-sm btn-danger';
                     removeButton.addEventListener('click', () => removeFriend(friend.id));
                     li.appendChild(removeButton);
+                    
+                    const sendButton = document.createElement('button');
+                    sendButton.textContent = '쪽지 보내기';
+                    sendButton.className = 'btn btn-sm btn-primary';
+                    sendButton.addEventListener('click', () => openMessageModal(friend.id, friend.name));
+                    li.appendChild(sendButton);
+
 
                     friendList.appendChild(li);
                 });
@@ -618,6 +648,51 @@ function acceptFriendRequest(requestId) {
         })
         .catch(error => alert(`Error loading friend list: ${error.message}`));
 }
+        function openMessageModal(receiverId, receiverName) {
+            currentReceiverId = receiverId;
+            document.getElementById('message-modal').style.display = 'block';
+            document.querySelector('.modal-title').textContent = `쪽지 보내기: ${receiverName}`;
+        }
+
+        function closeMessageModal() {
+            currentReceiverId = null;
+            document.getElementById('message-modal').style.display = 'none';
+            document.getElementById('message-content').value = ''; // 내용 초기화
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            connectWebSocket(); // WebSocket 연결
+            loadFriendList(); // 친구 목록 로드
+            loadFriendRequests(); // 친구 요청 목록 로드
+
+            // 쪽지 작성 폼 이벤트 리스너 등록
+            document.getElementById('message-form').addEventListener('submit', function (event) {
+                event.preventDefault(); // 기본 동작 방지
+
+                const content = document.getElementById('message-content').value;
+
+                if (!currentReceiverId || !content.trim()) {
+                    alert('쪽지 내용을 입력해주세요.');
+                    return;
+                }
+
+                fetch('/friends/messages/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        senderId: userId, // 현재 로그인한 사용자 ID
+                        receiverId: currentReceiverId,
+                        content: content,
+                    }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        alert(data.message || '쪽지가 전송되었습니다.');
+                        closeMessageModal();
+                    })
+                    .catch((error) => alert(`쪽지 전송 중 오류 발생: ${error.message}`));
+            });
+        });
 
 
         // 친구 삭제

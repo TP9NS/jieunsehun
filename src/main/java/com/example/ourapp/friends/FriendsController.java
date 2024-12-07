@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -54,6 +55,43 @@ public class FriendsController {
     public ResponseEntity<List<Map<String, String>>> getFriendList() {
         return ResponseEntity.ok(friendsService.getFriends());
     }
+    
+    @PostMapping("/messages/send")
+    public ResponseEntity<Map<String, String>> sendMessage(@RequestBody Map<String, String> messageData) {
+        // 입력 데이터 검증
+        String senderId = messageData.get("senderId");
+        String receiverId = messageData.get("receiverId");
+        String messageContent = messageData.get("content");
+
+        System.out.println("Received request data: senderId=" + senderId + ", receiverId=" + receiverId + ", content=" + messageContent);
+
+        if (senderId == null || receiverId == null || messageContent == null || messageContent.trim().isEmpty()) {
+            // JSON 형식으로 반환
+            return ResponseEntity.badRequest().body(Map.of("error", "올바른 입력값이 필요합니다."));
+        }
+
+        try {
+            friendsService.sendMessage(senderId, receiverId, messageContent);
+            System.out.println("Message saved successfully.");
+
+            messagingTemplate.convertAndSend(
+                "/topic/private/messages/" + receiverId,
+                Map.of("senderId", senderId, "content", messageContent)
+            );
+            System.out.println("WebSocket message sent successfully.");
+
+            // 성공 응답도 JSON 형식으로 반환
+            return ResponseEntity.ok(Map.of("message", "쪽지가 성공적으로 전송되었습니다."));
+        } catch (Exception e) {
+            System.out.println("Error occurred while sending message: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "쪽지 전송에 실패했습니다: " + e.getMessage()));
+        }
+    }
+
+
+
+
 
     /**
      * 친구 요청 전송 API
