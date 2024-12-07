@@ -288,13 +288,13 @@
 <div style="display: flex;">
     <!-- 왼쪽: 투표 폼 -->
     <div style="flex: 1;">
-    <form action="/submit-vote" method="post">
-    <ul>
+    <form action="/submit-vote" method="post" style="text-align: center;">
+    <ul style="list-style-type: none; padding: 0;">
         <!-- 장소 데이터 렌더링 -->
-        <li th:each="point : ${all_points}">
+        <li th:each="point : ${all_points}" style="border-bottom: 1px solid #ccc; margin-bottom: 15px; padding-bottom: 15px;">
             <input type="radio" th:name="locationName" th:id="${point.locationName}" th:value="${point.locationName}">
             <label th:for="${point.locationName}" th:text="${point.locationName}"></label>
-            <div>
+            <div style="display: flex; flex-direction: column; align-items: center;">
                 <p th:text="'주소: ' + ${point.address}"></p>
                 <p th:text="'카테고리: ' + ${point.category}"></p>
                 <p th:text="'설명: ' + ${point.locationAlias}"></p>
@@ -305,6 +305,8 @@
     </ul>
     <button type="submit">투표하기</button>
 </form>
+
+
 </div>
 
     <div style="flex: 1; padding-left: 20px; border-left: 1px solid #ccc;">
