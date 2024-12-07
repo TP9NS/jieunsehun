@@ -1,5 +1,10 @@
 package com.example.ourapp.DTO;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ReportDTO {
     private Long id;
     private Long targetId;
@@ -10,9 +15,10 @@ public class ReportDTO {
     private Long reportedBy;
     private boolean isHidden; // 숨김 여부 추가
     private Long postId;
+    private Long userId;
 
     // 생성자
-    public ReportDTO(Long id, Long targetId, String reason, String type, String reportedAt, String username, Long reportedBy, boolean isHidden, Long postId) {
+    public ReportDTO(Long id, Long targetId, String reason, String type, String reportedAt, String username, Long reportedBy, boolean isHidden, Long postId,Long userId) {
         this.id = id;
         this.targetId = targetId;
         this.reason = reason;
@@ -22,6 +28,7 @@ public class ReportDTO {
         this.reportedBy = reportedBy;
         this.isHidden = isHidden; // 숨김 여부 초기화
         this.postId = postId;
+        this.userId = userId;
     }
 
     // Getter와 Setter

@@ -1,7 +1,11 @@
 package com.example.ourapp.entity;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.time.LocalDateTime;
+@Getter
+@Setter
 @Entity
 public class Report {
     @Id
@@ -11,7 +15,7 @@ public class Report {
     private Long targetId; // 신고 대상 ID (게시글 ID 또는 댓글 ID)
     private String reason; // 신고 사유
     private Long postId;
-
+    private Long userId; //신고 당한사람
     @Enumerated(EnumType.STRING)
     private ReportType type; // 신고 타입 (POST 또는 COMMENT)
 
@@ -26,7 +30,7 @@ public class Report {
         this.reportedAt = LocalDateTime.now(); // 기본 신고 시간 설정
     }
 
-    public Report(Long targetId, String reason, ReportType type, Long reportedBy, Long postId) {
+    public Report(Long targetId, String reason, ReportType type, Long reportedBy, Long postId,Long userId) {
         this.targetId = targetId;
         this.reason = reason;
         this.type = type;
@@ -34,6 +38,7 @@ public class Report {
         this.reportedAt = LocalDateTime.now();
         this.isHidden = false; // 기본값 설정
         this.postId = postId;
+        this.userId=userId;
     }
 
 

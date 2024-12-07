@@ -238,6 +238,7 @@
                         </div>
                         <div class="report-item-action">
                             <button th:onclick="'deleteReport(' + ${report.id} + ', \'post\')'">삭제</button>
+                             <button th:onclick="'suspendUser(' + ${report.userId} + ')'" >유저 정지</button>
                         </div>
                     </div>
                 </div>
@@ -275,6 +276,7 @@
                         </div>
                         <div class="report-item-action">
                             <button th:onclick="'deleteReport(' + ${report.id} + ', \'comment\')'">삭제</button>
+                             <button th:onclick="'suspendUser(' + ${report.userId} + ')'" >유저 정지</button>
                         </div>
                     </div>
                 </div>
@@ -303,6 +305,7 @@
     <!-- 실제 글/댓글 삭제 버튼 -->
     <button th:onclick="'deleteHiddenContent(' + ${report.targetId} + ', \'post\')'">삭제</button>
     <!-- 숨김 해제 버튼 -->
+     <button th:onclick="'suspendUser(' + ${report.userId} + ')'" >유저 정지</button>
     <button th:onclick="'unhideContent(' + ${report.targetId} + ', \'post\')'">숨김 해제</button>
 </div>
                     </div>
@@ -333,6 +336,7 @@
     <!-- 실제 글/댓글 삭제 버튼 -->
     <button th:onclick="'deleteHiddenContent(' + ${report.targetId} + ', \'comment\')'">삭제</button>
     <!-- 숨김 해제 버튼 -->
+     <button th:onclick="'suspendUser(' + ${report.userId} + ')'" >유저 정지</button>
     <button th:onclick="'unhideContent(' + ${report.targetId} + ', \'comment\')'">숨김 해제</button>
 </div>
 
@@ -432,7 +436,39 @@ function unhideContent(reportId, type) {
         .catch(error => console.error('Error:', error));
     }
 }
+async function suspendUser(userId) {
+    if (!confirm("이 사용자를 정지하시겠습니까?")) {
+        return; // 사용자가 취소를 누르면 함수 종료
+    }
 
+    const days = prompt("정지 기간(일)을 입력하세요:");
+    if (!days || isNaN(days) || days <= 0) {
+        alert("유효한 정지 기간을 입력하세요.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/users/${userId}/suspend`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ days: parseInt(days) }) // JSON으로 정지 기간 전달
+        });
+
+        if (response.ok) {
+            alert("사용자가 정지되었습니다.");
+            // UI 업데이트 또는 리로드
+            location.reload(); // 페이지 새로고침
+        } else {
+            const error = await response.text();
+            alert(`정지 실패: ${error}`);
+        }
+    } catch (error) {
+        console.error("Error suspending user:", error);
+        alert("서버 오류로 정지가 실패했습니다.");
+    }
+}
 </script>
 
 </body>

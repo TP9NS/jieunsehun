@@ -2,12 +2,16 @@ package com.example.ourapp.post;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.example.ourapp.DTO.ReportDTO;
 import com.example.ourapp.entity.Comment;
+import com.example.ourapp.entity.Post;
 import com.example.ourapp.entity.Report;
+import com.example.ourapp.entity.User;
+import com.example.ourapp.user.UserRepository;
 import com.example.ourapp.user.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,23 +22,28 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final UserService userService;
     private final CommentRepository commentRepository;
-
+    private final UserRepository userRepository;
+    private final PostRepository postRepositoy;
     public void reportPost(Long postId, String reason, Long reportedBy) {
         // 게시글 신고 시, 해당 게시글에 속한 모든 댓글을 가져옵니다.
         List<Comment> comments = commentRepository.findByPostId(postId);
-        
-        // 게시글 신고
-        Report postReport = new Report(postId, reason, Report.ReportType.POST, reportedBy, postId);
+        Optional<Post> post = postRepositoy.findById(postId);
+        String username = post.map(Post::getUsername)
+                .orElseThrow(() -> new RuntimeException("Post or User not found"));
+        Optional<User> user = userRepository.findByUsername(username);
+        Long userId = user.map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
+        Report postReport = new Report(postId, reason, Report.ReportType.POST, reportedBy, postId,userId);
         postReport.setHidden(false); // 기본 숨김 여부는 false로 설정
         reportRepository.save(postReport); // 게시글 신고를 저장
 
         // 게시글에 속한 댓글 신고
-        for (Comment comment : comments) {
+        /*for (Comment comment : comments) {
             // 댓글 신고 시, 댓글 ID와 게시글 ID를 함께 저장
             Report commentReport = new Report(comment.getId(), reason, Report.ReportType.COMMENT, reportedBy, postId);
             commentReport.setHidden(false); // 기본 숨김 여부는 false로 설정
             reportRepository.save(commentReport); // 댓글 신고를 저장
         }
+        */
     }
 
 
@@ -45,9 +54,13 @@ public class ReportService {
 
         // 댓글이 속한 게시글의 ID
         Long postId = comment.getPost().getId(); // 게시글 ID 추출
-
+        
+       
+        String userName=comment.getUsername();
+        Optional<User> user = userRepository.findByUsername(userName);
+        Long userId = user.map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
         // 댓글 신고 시, 댓글 ID와 게시글 ID를 함께 저장
-        Report report = new Report(commentId, reason, Report.ReportType.COMMENT, reportedBy, postId);
+        Report report = new Report(commentId, reason, Report.ReportType.COMMENT, reportedBy, postId,userId);
         report.setHidden(false); // 기본 숨김 여부는 false
 
         // 신고 레포트를 DB에 저장
@@ -84,7 +97,8 @@ public class ReportService {
                             username,
                             report.getReportedBy(),
                             report.isHidden(), // 숨김 여부 매핑
-                            report.getPostId()
+                            report.getPostId(),
+                            report.getUserId()
                     );
                 })
                 .toList();
@@ -106,7 +120,8 @@ public class ReportService {
                             username,
                             report.getReportedBy(),
                             report.isHidden(),
-                            report.getPostId()
+                            report.getPostId(),
+                            report.getUserId()
                     );
                 })
                 .toList();
@@ -176,7 +191,8 @@ public class ReportService {
             username,
             report.getReportedBy(),
             report.isHidden(),
-            report.getPostId()
+            report.getPostId(),
+            report.getUserId()
         );
     }
 }
