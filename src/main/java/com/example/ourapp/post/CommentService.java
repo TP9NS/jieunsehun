@@ -1,7 +1,11 @@
 package com.example.ourapp.post;
 
 import com.example.ourapp.entity.Comment;
+import com.example.ourapp.entity.Report;
 import com.example.ourapp.post.CommentRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,12 +49,17 @@ public class CommentService {
      * 댓글 삭제
      * @param commentId 삭제할 댓글 ID
      */
+    @Transactional
     public void deleteComment(Long commentId) {
-        if (!commentRepository.existsById(commentId)) {
-            throw new IllegalArgumentException("댓글을 찾을 수 없습니다.");
-        }
-        commentRepository.deleteById(commentId);
+        // 연관된 신고 기록 삭제
+        reportRepository.deleteByTargetId(commentId, Report.ReportType.COMMENT);
+
+        // 댓글 삭제
+        Comment comment = commentRepository.findById(commentId)
+            .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다: " + commentId));
+        commentRepository.delete(comment);
     }
+
 
     /**
      * 댓글 수정
@@ -85,5 +94,14 @@ public class CommentService {
         return reportRepository.findPostIdByCommentId(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid comment ID"));
     }
+
+    public void unhideComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+            .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않습니다."));
+        comment.setHidden(false); // 숨김 상태 해제
+        commentRepository.save(comment);
+    }
+
+
 }
 

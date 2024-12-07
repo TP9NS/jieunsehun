@@ -3,8 +3,12 @@ package com.example.ourapp.post;
 import com.example.ourapp.DTO.CategoryDTO;
 import com.example.ourapp.DTO.PostDTO;
 import com.example.ourapp.entity.Post;
+import com.example.ourapp.entity.Report;
 import com.example.ourapp.entity.Category;
 import com.example.ourapp.post.CategoryRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -27,14 +31,17 @@ public class PostService {
 
     @Autowired
     private PostRepository postRepository;
+    @Autowired
+    private ReportRepository reportRepository;
     private final CategoryRepository categoryRepository;
     
     @Value("${image.upload.dir}") // 이미지 저장 경로를 application.properties에서 가져옴
     private String uploadDir;
 
-    public PostService(PostRepository postRepository, CategoryRepository categoryRepository) {
+    public PostService(PostRepository postRepository, CategoryRepository categoryRepository, ReportRepository reportRepository) {
         this.postRepository = postRepository;
         this.categoryRepository = categoryRepository;
+        this.reportRepository = reportRepository;
     }
     
     public Page<PostDTO> getPostsByPage(String parentCategoryName, String search, Pageable pageable) {
@@ -274,15 +281,24 @@ public class PostService {
     }
 
 
-    public void deletePost(Long id) {
-        postRepository.deleteById(id);
-    }
-    
     public List<PostDTO> findPostsByUsername(String username) {
         List<Post> posts = postRepository.findByUsername(username);
         return posts.stream()
                 .map(PostDTO::new) // PostDTO 생성자를 활용
                 .collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public void deletePost(Long postId) {
+        // 게시글과 연관된 신고 기록 삭제
+    	reportRepository.deleteByTargetId(postId, Report.ReportType.POST);
+
+
+        // 게시글 삭제
+        if (!postRepository.existsById(postId)) {
+            throw new IllegalArgumentException("게시글이 존재하지 않습니다: " + postId);
+        }
+        postRepository.deleteById(postId);
     }
     
     public void hidePost(Long postId) {
@@ -291,4 +307,10 @@ public class PostService {
         post.setHidden(true); // 게시글 숨김 처리
         postRepository.save(post); // 변경 사항 저장
     }
+    public void unhidePost(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
+        post.setHidden(false); // 숨김 상태 해제
+        postRepository.save(post);
+    }
+
 }

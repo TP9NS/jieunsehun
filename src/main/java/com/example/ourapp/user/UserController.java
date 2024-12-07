@@ -18,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -243,6 +244,71 @@ public class UserController {
         }
         commentService.hideComment(commentId); // 댓글 숨김 처리 서비스 호출
         return "redirect:/board/view/" + commentService.getPostIdByCommentId(commentId); // 숨긴 후 게시글로 리다이렉트
+    }
+
+    @DeleteMapping("/post/delete/{postId}")
+    public ResponseEntity<String> deletePost(@PathVariable Long postId, HttpSession session) {
+        Integer permission = (Integer) session.getAttribute("permission");
+        if (permission == null || permission != 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("접근 권한이 없습니다."); // 관리자가 아닐 경우
+        }
+        try {
+            postService.deletePost(postId); // 게시글 삭제 서비스 호출
+            return ResponseEntity.ok("게시글이 삭제되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("게시글 삭제 중 오류가 발생했습니다.");
+        }
+    }
+
+    @DeleteMapping("/comment/delete/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId, HttpSession session) {
+        Integer permission = (Integer) session.getAttribute("permission");
+        if (permission == null || permission != 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("접근 권한이 없습니다."); // 관리자가 아닐 경우
+        }
+        try {
+            commentService.deleteComment(commentId); // 댓글 삭제 서비스 호출
+            return ResponseEntity.ok("댓글이 삭제되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("댓글 삭제 중 오류가 발생했습니다.");
+        }
+    }
+
+    
+    @PatchMapping("/post/unhide/{postId}")
+    public ResponseEntity<String> unhidePost(@PathVariable Long postId, HttpSession session) {
+        Integer permission = (Integer) session.getAttribute("permission");
+        if (permission == null || permission != 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("접근 권한이 없습니다."); // 관리자가 아닐 경우
+        }
+        try {
+            postService.unhidePost(postId); // 게시글 숨김 해제
+            return ResponseEntity.ok("게시글 숨김 해제되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("게시글 숨김 해제 중 오류가 발생했습니다.");
+        }
+    }
+
+    @PatchMapping("/comment/unhide/{commentId}")
+    public ResponseEntity<String> unhideComment(@PathVariable Long commentId, HttpSession session) {
+        Integer permission = (Integer) session.getAttribute("permission");
+        if (permission == null || permission != 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("접근 권한이 없습니다."); // 관리자가 아닐 경우
+        }
+        try {
+            commentService.unhideComment(commentId); // 댓글 숨김 해제
+            return ResponseEntity.ok("댓글 숨김 해제되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("댓글 숨김 해제 중 오류가 발생했습니다.");
+        }
     }
 
 

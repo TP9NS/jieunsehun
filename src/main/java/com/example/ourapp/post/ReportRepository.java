@@ -1,6 +1,7 @@
 package com.example.ourapp.post;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -29,6 +30,12 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     @Query("SELECT r FROM Report r JOIN Comment c ON r.targetId = c.id WHERE r.type = :type AND c.hidden = :hidden")
     List<Report> findReportsByCommentHidden(@Param("type") Report.ReportType type, @Param("hidden") boolean hidden);
+
+    
+    @Modifying
+    @Query("DELETE FROM Report r WHERE r.targetId = :targetId AND r.type = :type")
+    void deleteByTargetId(@Param("targetId") Long targetId, @Param("type") Report.ReportType type);
+
 
 
 

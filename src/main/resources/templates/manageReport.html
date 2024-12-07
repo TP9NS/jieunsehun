@@ -300,8 +300,11 @@
                             <p class="text-danger">관리자가 숨김 처리한 게시글입니다.</p>
                         </div>
                         <div class="report-item-action">
-                            <button th:onclick="'deleteReport(' + ${report.id} + ', \'post\')'">삭제</button>
-                        </div>
+    <!-- 실제 글/댓글 삭제 버튼 -->
+    <button th:onclick="'deleteHiddenContent(' + ${report.targetId} + ', \'post\')'">삭제</button>
+    <!-- 숨김 해제 버튼 -->
+    <button th:onclick="'unhideContent(' + ${report.targetId} + ', \'post\')'">숨김 해제</button>
+</div>
                     </div>
                 </div>
             </div>
@@ -327,8 +330,12 @@
                             <p class="text-danger">관리자가 숨김 처리한 댓글입니다.</p>
                         </div>
                         <div class="report-item-action">
-                            <button th:onclick="'deleteReport(' + ${report.id} + ', \'comment\')'">삭제</button>
-                        </div>
+    <!-- 실제 글/댓글 삭제 버튼 -->
+    <button th:onclick="'deleteHiddenContent(' + ${report.targetId} + ', \'comment\')'">삭제</button>
+    <!-- 숨김 해제 버튼 -->
+    <button th:onclick="'unhideContent(' + ${report.targetId} + ', \'comment\')'">숨김 해제</button>
+</div>
+
                     </div>
                 </div>
             </div>
@@ -377,6 +384,49 @@ function deleteReport(reportId, type) {
                 location.reload(); // 페이지 새로고침
             } else {
                 alert("삭제에 실패했습니다. 다시 시도해주세요.");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+}
+function deleteHiddenContent(contentId, type) {
+    if (!['post', 'comment'].includes(type)) {
+        console.error("Invalid type:", type);
+        return;
+    }
+
+    if (confirm("정말 이 글/댓글을 삭제하시겠습니까?")) {
+        fetch(`/user/${type}/delete/${contentId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("삭제되었습니다.");
+                location.reload(); // 페이지 새로고침
+            } else {
+                alert("삭제에 실패했습니다. 다시 시도해주세요.");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+}
+
+function unhideContent(reportId, type) {
+    if (!['post', 'comment'].includes(type)) {
+        console.error("Invalid type:", type);
+        return;
+    }
+
+    if (confirm("숨김을 해제하시겠습니까?")) {
+        fetch(`/user/${type}/unhide/${reportId}`, {
+            method: 'PATCH'
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("숨김 해제되었습니다.");
+                location.reload(); // 페이지 새로고침
+            } else {
+                alert("해제에 실패했습니다. 다시 시도해주세요.");
             }
         })
         .catch(error => console.error('Error:', error));
