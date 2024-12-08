@@ -15,7 +15,7 @@ public class JieunsehunApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(JieunsehunApplication.class, args);
-		System.out.println("안녕 나는 지으니!! 세상에서 가장 귀여운 아기 고양햄스터");
+		System.out.println("안녕하세요 저는 지은고양이 입니다 냐옹~ >< 세훈씨를 사랑해요");
 	}
 
 }

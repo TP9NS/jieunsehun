@@ -621,6 +621,10 @@
 		        currentInfoWindow.close();
 		        currentInfoWindow = null; // 닫았으니 null로 설정
 		    }
+		    if(window.currentOverlay){
+					window.currentOverlay.setMap(null);
+					window.currentOverlay=null;
+				}
 		}
 	        
 	        
@@ -1113,7 +1117,7 @@
 		                    const infowindow = new kakao.maps.InfoWindow({
 		                        content: content
 		                    });
-
+												window.currentInfoWindow = infowindow;
 		                    // 마커 클릭 이벤트
 		                    kakao.maps.event.addListener(marker, 'click', function () {
 		                        // 기존 InfoWindow 닫기
@@ -1198,6 +1202,7 @@
 		                // 마커 클릭 이벤트 추가
 		                kakao.maps.event.addListener(marker, 'click', () => {
 		                    // 기존 Overlay 닫기
+		                    closeInfoWindow();
 		                    if (window.currentOverlay) {
 		                        window.currentOverlay.setMap(null);
 		                    }
@@ -1300,6 +1305,7 @@
 		                // 마커 클릭 이벤트 추가
 		                kakao.maps.event.addListener(marker, 'click', () => {
 		                    // 기존 Overlay 닫기
+		                    closeInfoWindow();
 		                    if (window.currentOverlay) {
 		                        window.currentOverlay.setMap(null);
 		                    }
