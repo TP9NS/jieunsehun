@@ -324,6 +324,7 @@
         </select>
         <textarea class="form-control mt-2" name="additionalReason" rows="1" placeholder="기타 사유(선택)"></textarea>
         <button type="submit" class="btn btn-sm btn-outline-danger">신고</button>
+        </form>
         <!-- 관리자 전용 숨김 처리 버튼 -->
     <span th:if="${session.permission == 0}">
         <form th:action="@{/user/comments/hide}" method="post" class="d-inline">
@@ -331,7 +332,6 @@
             <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('댓글을 숨기시겠습니까?')">숨김 처리</button>
         </form>
     </span>
-    </form>
 
 </div>
 
