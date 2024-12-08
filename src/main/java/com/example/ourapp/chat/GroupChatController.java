@@ -57,7 +57,8 @@ public class GroupChatController {
             String imageUrl = null;
             if (file != null && !file.isEmpty()) {
                 // 파일 저장 경로 설정
-                String uploadDir = "C:\\Users\\pshcc\\eclipse-workspace\\jieunsehun\\src\\main\\resources\\static\\uploads\\";
+                //String uploadDir = "C:\\Users\\pshcc\\eclipse-workspace\\jieunsehun\\src\\main\\resources\\static\\uploads\\";
+                String uploadDir = "C:\\Users\\82104\\git\\jieunsehun\\src\\main\\resources\\static\\uploads\\";
                 String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
                 Path filePath = Paths.get(uploadDir + fileName);
 
@@ -116,8 +117,9 @@ public class GroupChatController {
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             // 파일 저장 경로 설정 (Spring Boot 정적 리소스 경로)
-            String uploadDir = "C:\\Users\\pshcc\\eclipse-workspace\\jieunsehun\\src\\main\\resources\\static\\uploads\\";
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            //String uploadDir = "C:\\Users\\pshcc\\eclipse-workspace\\jieunsehun\\src\\main\\resources\\static\\uploads\\";
+        	String uploadDir = "C:\\Users\\82104\\git\\jieunsehun\\src\\main\\resources\\static\\uploads\\";
+        	String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             Path filePath = Paths.get(uploadDir + fileName);
 
             // 디렉토리 생성
