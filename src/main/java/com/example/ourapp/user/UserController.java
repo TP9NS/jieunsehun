@@ -59,6 +59,8 @@ public class UserController {
     private ReviewService reviewService;
     @Autowired
     private ReportService reportService;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/login")
     public String login() {
@@ -386,5 +388,14 @@ public class UserController {
     public ResponseEntity<Void> clearError(HttpSession session) {
         session.removeAttribute("error");
         return ResponseEntity.ok().build();
+    }
+    
+    // 사용자 이름 조회 API
+    @GetMapping("/{userId}/name")
+    public ResponseEntity<String> getUserName(@PathVariable Long userId) {
+        return userRepository.findById(userId)
+            .map(user -> ResponseEntity.ok(user.getName())) // 이름 반환
+            .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body("사용자를 찾을 수 없습니다."));
     }
 }

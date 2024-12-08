@@ -5,20 +5,22 @@ import java.time.LocalDateTime;
 public class MessageDTO {
     private Long id;
     private String senderId;
+    private String senderName;
     private String receiverId;
     private String content;
     private LocalDateTime timestamp;
+    private String status;
 
-    // Constructor
-    public MessageDTO(Long id, String senderId, String receiverId, String content, LocalDateTime timestamp) {
+    public MessageDTO(Long id, String senderId, String senderName, String receiverId, String content, LocalDateTime timestamp, String status) {
         this.id = id;
         this.senderId = senderId;
+        this.senderName = senderName;
         this.receiverId = receiverId;
         this.content = content;
         this.timestamp = timestamp;
+        this.status = status;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -33,6 +35,14 @@ public class MessageDTO {
 
     public void setSenderId(String senderId) {
         this.senderId = senderId;
+    }
+    
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
     }
 
     public String getReceiverId() {
@@ -57,5 +67,12 @@ public class MessageDTO {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

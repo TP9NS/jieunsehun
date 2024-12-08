@@ -203,5 +203,11 @@ public class FriendsService {
         message.setTimestamp(LocalDateTime.now());
         messageRepository.save(message);
     }
+    public void markAsRead(Long messageId) {
+        Message message = messageRepository.findById(messageId)
+            .orElseThrow(() -> new RuntimeException("Message not found"));
 
+        message.setStatus(Message.MessageStatus.READ); // 상태 업데이트
+        messageRepository.save(message);
+    }
 }

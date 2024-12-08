@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,6 +24,18 @@ public class Message {
     private String content;
 
     private LocalDateTime timestamp;
+
+    @Enumerated(EnumType.STRING) // Store the enum as a string in the database
+    private MessageStatus status;
+    
+    public enum MessageStatus {
+        UNREAD, // 메시지가 아직 읽히지 않은 상태
+        READ    // 메시지가 읽힌 상태
+    }
+ // 기본 생성자
+    public Message() {
+        this.status = MessageStatus.UNREAD; // 기본 상태 설정
+    }
 
     // Getters and Setters
     public Long getId() {
@@ -62,5 +76,12 @@ public class Message {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+    public MessageStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MessageStatus status) {
+        this.status = status;
     }
 }

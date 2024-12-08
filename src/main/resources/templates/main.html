@@ -684,6 +684,10 @@ document.addEventListener("DOMContentLoaded", function () {
             <span id="group-badge" class="badge bg-danger" style="display: none; position: relative; top: -55px; left: 60px;">0</span>
           </li>
           <li class="nav-item me-3">
+            <a class="nav-link" href="/friends/messages/inbox">쪽지함</a>
+            <span id="message-badge" class="badge bg-danger" style="display: none; position: relative; top: -55px; left: 40px;">0</span>
+          </li>
+          <li class="nav-item me-3">
             <a class="nav-link" href="/vote">장소 투표</a>
           </li>
         </ul>
@@ -2079,6 +2083,7 @@ async function checkNotifications() {
         if (response.ok) {
             const friendRequests = data.friendRequests || 0;
             const groupRequests = data.groupRequests || 0;
+            const messageRequests = data.messageRequests || 0;
 
             // 친구 요청 배지 업데이트
             const friendBadge = document.getElementById('friend-badge');
@@ -2089,6 +2094,11 @@ async function checkNotifications() {
             const groupBadge = document.getElementById('group-badge');
             groupBadge.textContent = groupRequests > 0 ? groupRequests : '';
             groupBadge.style.display = groupRequests > 0 ? 'inline' : 'none';
+            
+            // 쪽지 배지 업데이트
+            const messageBadge = document.getElementById('message-badge');
+            messageBadge.textContent = messageRequests > 0 ? messageRequests : '';
+            messageBadge.style.display = messageRequests > 0 ? 'inline' : 'none';
         } else {
             console.error('Error fetching notifications:', data);
         }
