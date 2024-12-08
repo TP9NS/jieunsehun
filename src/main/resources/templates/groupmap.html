@@ -590,6 +590,10 @@ function closeInfoWindow() {
         currentInfoWindow.close();
         currentInfoWindow = null; // 닫았으니 null로 설정
     }
+    if(window.currentInfoWindow){
+			window.currentInfoWindow.close();
+      window.currentInfoWindow = null;
+		}
 }
 
 function deleteLocation(id) {
@@ -1440,8 +1444,10 @@ function filterMarkers_category() {
 	                // 마커 클릭 시 InfoWindow 열기/닫기
 	                kakao.maps.event.addListener(marker, 'click', function() {
 	                    if (infowindow.getMap()) {
+	                        closeInfoWindow();
 	                        infowindow.close();
 	                    } else {
+												closeInfoWindow();
 	                        infowindow.open(map, marker);
 	                        window.currentInfoWindow = infowindow;
 	                    }
