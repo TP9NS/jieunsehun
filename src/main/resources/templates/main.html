@@ -768,7 +768,8 @@ document.addEventListener("DOMContentLoaded", function () {
   <div class="map_wrap">
     <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
     <div class="container mt-3 d-flex justify-content-center" style="position: absolute; top: 10px; width: 100%; z-index: 1;">
-      <button class="btn btn-primary me-2" onclick="searchCategory('음식점')">음식점</button>
+			<button class="btn btn-primary me-2" onclick="findmyLocation('')">내 위치</button>
+			<button class="btn btn-primary me-2" onclick="searchCategory('음식점')">음식점</button>
       <button class="btn btn-primary me-2" onclick="searchCategory('카페')">카페</button>
       <button class="btn btn-primary me-2" onclick="searchCategory('은행')">은행</button>
       <button class="btn btn-primary me-2" onclick="searchCategory('약국')">약국</button>
@@ -776,7 +777,9 @@ document.addEventListener("DOMContentLoaded", function () {
       <button class="btn btn-primary me-2" onclick="searchCategory('편의점')">편의점</button>
       <button class="btn btn-primary me-2" onclick="searchCategory('마트')">마트</button>
       <button class="btn btn-primary" onclick="searchCategory('패션')">쇼핑몰</button>
+      
     </div>
+   
   </div>
 
   <!-- GPT 채팅 박스 -->
@@ -2106,7 +2109,41 @@ async function checkNotifications() {
         console.error('Error fetching notifications:', error);
     }
 }
+function findmyLocation() {
+    if (!navigator.geolocation) {
+        alert("Geolocation을 지원하지 않는 브라우저입니다.");
+        return;
+    }
 
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // 지도 중심 이동
+            const coords = new kakao.maps.LatLng(latitude, longitude);
+            map.setCenter(coords);
+
+            // 마커 추가
+            const marker = new kakao.maps.Marker({
+                position: coords,
+                map: map
+            });
+
+            // 마커 클릭 시 표시할 인포윈도우
+            const infowindow = new kakao.maps.InfoWindow({
+                content: `<div style="padding:5px;">내 위치</div>`,
+            });
+            infowindow.open(map, marker);
+
+            alert("현재 위치를 지도에 표시했습니다.");
+        },
+        (error) => {
+            console.error("Error getting location:", error);
+            alert("위치 정보를 가져오지 못했습니다.");
+        }
+    );
+}
 // 페이지 로드 시 알림 체크
 document.addEventListener('DOMContentLoaded', checkNotifications);
 setInterval(checkNotifications, 10000);
