@@ -92,64 +92,7 @@
       .bd-mode-toggle .dropdown-menu .active .bi {
         display: block !important;
       }
-      #chatbox {
-        width: 400px;
-        height: 700px;
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin-left: 20px;
-      }
       
-      #chatbox .messages {
-        height: 600px;
-        overflow-y: auto;
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin-bottom: 10px;
-      }
-      
-      #chatbox input {
-        width: 100%;
-        padding: 10px;
-      }
-
-      .map-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 900px;
-    height: 700px;
-    margin-top: 0;
-}
-
-.search-box {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: 0px;
-    background-color: white; /* Optional: Adds background to make it stand out */
-    z-index: 1;
-}
-
-#map {
-    flex: 1;
-    margin-top: 50px; /* Adjust this if there is any overlap */
-    width: 100%;
-    height: 100%;
-}
-
-
-      .search-box input {
-        flex: 1;
-        padding: 10px;
-      }
-
-      .search-box button {
-        padding: 10px;
-      }
-
       .saved-coordinates {
         margin-top: 20px;
       }
@@ -158,82 +101,58 @@
         display: flex;
         
       }
-.map_wrap, .map_wrap * {
-    margin: 0;
-    padding: 0;
-    font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;
-    font-size: 12px;
+      .container h2 {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+      /* 버튼 기본 스타일 */
+.list-group-item .btn {
+width: 120px;
+    margin-left: 10px; /* 버튼 간의 간격 */
+    margin-top: 5px; /* 위아래 간격 */
+    padding: 5px 10px; /* 버튼 내부 패딩 */
+    border-radius: 5px; /* 둥근 모서리 */
+    font-size: 0.85rem; /* 버튼 텍스트 크기 */
+    transition: all 0.2s ease-in-out; /* 호버 시 부드러운 애니메이션 */
 }
 
-.map_wrap a, .map_wrap a:hover, .map_wrap a:active {
-    color: #000;
-    text-decoration: none;
+/* 삭제 버튼 스타일 */
+.list-group-item .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
 }
 
-.map_wrap {
-    position: relative;
-    width: calc(100% - 80px); /* 메뉴 너비를 뺀 지도 너비 설정 */
-    height: 620px;
-    margin-left: 200px; /* 메뉴와의 간격 확보 */
+.list-group-item .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
 }
 
-#menu_wrap {
-    position: absolute;
-    top: 120px;
-    left: 0;
-    bottom: 0;
-    width: 300px;
-    height: calc(100% - 150px); /* 상단과 하단 간격 고려 */
-    margin: 10px 0 30px 10px;
-    padding: 5px;
-    overflow-y: auto;
-    background: rgba(255, 255, 255, 0.7);
-    z-index: 1;
-    font-size: 12px;
-    border-radius: 10px;
+/* 쪽지 보내기 버튼 스타일 */
+.list-group-item .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
 }
-#placesList li {list-style: none;}
-#placesList .item {position:relative;border-bottom:1px solid #888;overflow: hidden;cursor: pointer;min-height: 65px;}
-#placesList .item span {display: block;margin-top:4px;}
-#placesList .item h5, #placesList .item .info {text-overflow: ellipsis;overflow: hidden;white-space: nowrap;}
-#placesList .item .info{padding:10px 0 10px 55px;}
-#placesList .info .gray {color:#8a8a8a;}
-#placesList .info .jibun {padding-left:26px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_jibun.png) no-repeat;}
-#placesList .info .tel {color:#009900;}
-#placesList .info .category {color:#009900;}
-#placesList .item .markerbg {float:left;position:absolute;width:36px; height:37px;margin:10px 0 0 10px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png) no-repeat;}
-#placesList .item .marker_1 {background-position: 0 -10px;}
-#placesList .item .marker_2 {background-position: 0 -56px;}
-#placesList .item .marker_3 {background-position: 0 -102px}
-#placesList .item .marker_4 {background-position: 0 -148px;}
-#placesList .item .marker_5 {background-position: 0 -194px;}
-#placesList .item .marker_6 {background-position: 0 -240px;}
-#placesList .item .marker_7 {background-position: 0 -286px;}
-#placesList .item .marker_8 {background-position: 0 -332px;}
-#placesList .item .marker_9 {background-position: 0 -378px;}
-#placesList .item .marker_10 {background-position: 0 -423px;}
-#placesList .item .marker_11 {background-position: 0 -470px;}
-#placesList .item .marker_12 {background-position: 0 -516px;}
-#placesList .item .marker_13 {background-position: 0 -562px;}
-#placesList .item .marker_14 {background-position: 0 -608px;}
-#placesList .item .marker_15 {background-position: 0 -654px;}
-#pagination {margin:10px auto;text-align: center;}
-#pagination a {display:inline-block;margin-right:10px;}
-#pagination .on {font-weight: bold; cursor: default;color:#777;}
-.wrap {position: absolute;left: 0;bottom: 40px;width: 400px;height: 250px;margin-left: -144px;text-align: left;overflow: hidden;font-size: 12px;font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;line-height: 1.5;}
-    .wrap * {padding: 0;margin: 0;}
-    .wrap .info {width: 400px;height: 250px;border-radius: 5px;border-bottom: 2px solid #ccc;border-right: 1px solid #ccc;overflow: hidden;background: #fff;}
-    .wrap .info:nth-child(1) {border: 0;box-shadow: 0px 1px 2px #888;}
-    .info .title {padding: 5px 0 0 10px;height: 30px;background: #eee;border-bottom: 1px solid #ddd;font-size: 18px;font-weight: bold;}
-    .info .close {position: absolute;top: 5px;right: 10px;color: #888;width: 17px;height: 17px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');}
-    .info .close:hover {cursor: pointer;}
-    .info .body {position: relative;overflow: hidden;}
-    .info .desc {position: relative;margin: 13px 0 0 90px;height: 180px;}
-    .desc .ellipsis {overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
-    .desc .jibun {font-size: 11px;color: #888;margin-top: -2px;}
-    .info .img {position: absolute;top: 6px;left: 5px;width: 73px;height: 71px;border: 1px solid #ddd;color: #888;overflow: hidden;}
-    .info:after {content: '';position: absolute;margin-left: -12px;left: 50%;bottom: 0;width: 22px;height: 12px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png')}
-    .info .link {color: #5085BB;}
+
+.list-group-item .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+/* 버튼 정렬 */
+.list-group-item {
+    display: flex;
+    justify-content: space-between; /* 텍스트와 버튼 간 간격 확보 */
+    align-items: center; /* 버튼과 텍스트를 세로로 정렬 */
+}
+
+.list-group-item .btn-group {
+    display: flex;
+    gap: 10px; /* 버튼 간격 */
+}
+
 .input {
     width: 300px; /* 원하는 너비로 설정 */
     height: 20px; /* 원하는 높이로 설정 */
@@ -243,6 +162,15 @@
     font-size: 12px; /* 글자 크기 설정 */
     margin: 2px 0; /* 입력 필드 간의 간격 조정 */
 }
+ .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            font-size: 1.5rem;
+            margin: 10px;
+        }
     
 </style>
 </head>
@@ -286,9 +214,10 @@
   
   <div class="navbar navbar-dark bg-dark shadow-sm">
     <div class="container d-flex align-items-center justify-content-between">
-      <!-- 보물 지도 로고를 상단에 고정 -->
+       <!-- 보물 지도 로고를 상단에 고정 -->
       <a href="/main" class="navbar-brand">
         <strong>보물 지도-친구 목록</strong>
+        <img src=/images/보물지도로고.png alt="보물 지도 로고" width="50" height="50" class="me-2">
       </a>
 
       <!-- 로고 아래 가로로 메뉴와 버튼 배치 -->
@@ -346,10 +275,12 @@
     <div class="row">
         <!-- 친구 목록 -->
         <div class="col-md-4">
-            <h2 class="mb-4">친구 목록</h2>
+           <div class="card p-3">
+                <h2>친구 목록</h2>
             <ul id="friend-list" class="list-group">
                 <!-- 동적으로 친구 목록이 추가됩니다 -->
             </ul>
+        </div>
         </div>
         <div id="message-modal" class="modal" tabindex="-1" role="dialog" style="display: none;">
     <div class="modal-dialog" role="document">
@@ -372,11 +303,10 @@
         </div>
     </div>
 </div>
-        
-
         <!-- 친구 검색 -->
         <div class="col-md-4">
-            <h2 class="mb-4">친구 검색</h2>
+            <div class="card p-3">
+                <h2>친구 검색</h2>
             <form id="search-form" class="mb-4">
                 <div class="input-group">
                     <input type="text" id="search-input" class="form-control" placeholder="친구 이름 또는 이메일 검색">
@@ -388,14 +318,17 @@
                 <!-- 동적으로 검색 결과가 추가됩니다 -->
             </ul>
         </div>
+        </div>
 
         <!-- 친구 요청 -->
         <div class="col-md-4">
-            <h2 class="mb-4">친구 요청</h2>
+            <div class="card p-3">
+                <h2>친구 요청</h2>
             <ul id="friend-requests" class="list-group">
                 <!-- 동적으로 친구 요청 목록이 추가됩니다 -->
             </ul>
         </div>
+    </div>
     </div>
 </div>
 <input type="hidden" id="user-id" th:value="${session.user_id}" />

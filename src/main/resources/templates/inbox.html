@@ -202,9 +202,10 @@
   
   <div class="navbar navbar-dark bg-dark shadow-sm">
     <div class="container d-flex align-items-center justify-content-between">
-      <!-- 보물 지도 로고를 상단에 고정 -->
+       <!-- 보물 지도 로고를 상단에 고정 -->
       <a href="/main" class="navbar-brand">
         <strong>보물 지도-쪽지함</strong>
+        <img src=/images/보물지도로고.png alt="보물 지도 로고" width="50" height="50" class="me-2">
       </a>
 
       <!-- 로고 아래 가로로 메뉴와 버튼 배치 -->
@@ -247,37 +248,88 @@
     </div>
   </div>
 </header>
-<main class="container">
-    <table class="table table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>보낸 사람</th> <!-- 이름과 ID를 합쳐 표시 -->
-                <th>내용</th>
-                <th>날짜</th>
-                <th>상태</th>
-                <th>열람</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- 서버에서 전달된 메시지 목록을 렌더링 -->
-            <tr th:each="message : ${messages}">
-                <td>
-                    <span th:text="${message.senderName}"></span>
-                    <small class="text-muted" th:text="'(ID: ' + ${message.senderId} + ')'"></small>
-                </td>
-                <td th:text="${#strings.abbreviate(message.content, 30)}"></td>
-                <td th:text="${#temporals.format(message.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                <td th:text="${message.status == 'READ' ? '읽음' : '안읽음'}"></td>
-                <td>
-                    <button class="btn btn-primary btn-sm" 
-                            th:onclick="'viewMessage(' + ${message.id} + ')'">열람</button>
-                    <button class="btn btn-success btn-sm" 
-        th:onclick="'openReplyModal(' + ${message.id} + ')'">답장</button>
+<main class="container d-flex justify-content-center align-items-center mt-4">
+    <style>
+        .table {
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead {
+            background-color: #f8f9fa;
+        }
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #f1f3f5;
+        }
+        .btn-sm {
+            margin-right: 5px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .table tbody tr td {
+            vertical-align: middle;
+        }
+    </style>
 
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">쪽지함</h2>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>보낸 사람</th> <!-- 이름과 ID를 합쳐 표시 -->
+                        <th>내용</th>
+                        <th>날짜</th>
+                        <th>상태</th>
+                        <th>열람</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 서버에서 전달된 메시지 목록을 렌더링 -->
+                    <tr th:each="message : ${messages}">
+                        <td>
+                            <span th:text="${message.senderName}"></span>
+                            <small class="text-muted" th:text="'(ID: ' + ${message.senderId} + ')'"></small>
+                        </td>
+                        <td th:text="${#strings.abbreviate(message.content, 30)}"></td>
+                        <td th:text="${#temporals.format(message.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td>
+                            <span class="badge" 
+                                  th:classappend="${message.status == 'READ' ? 'bg-success' : 'bg-danger'}"
+                                  th:text="${message.status == 'READ' ? '읽음' : '안읽음'}">
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" 
+                                    th:onclick="'viewMessage(' + ${message.id} + ')'">열람</button>
+                            <button class="btn btn-success btn-sm" 
+                                    th:onclick="'openReplyModal(' + ${message.id} + ')'">답장</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+            </div>
 
     <!-- 열람 모달 -->
     <div class="modal fade" id="viewMessageModal" tabindex="-1" aria-labelledby="viewMessageModalLabel" aria-hidden="true">

@@ -128,6 +128,34 @@
     .btn-outline-primary {
         font-size: 0.9rem;
     }
+    .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .card input, .card textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .card button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
 
 </style>
 <script>
@@ -181,9 +209,10 @@
   
   <div class="navbar navbar-dark bg-dark shadow-sm">
     <div class="container d-flex align-items-center justify-content-between">
-      <!-- 보물 지도 로고를 상단에 고정 -->
+       <!-- 보물 지도 로고를 상단에 고정 -->
       <a href="/main" class="navbar-brand">
         <strong>보물 지도-그룹 관리</strong>
+        <img src=/images/보물지도로고.png alt="보물 지도 로고" width="50" height="50" class="me-2">
       </a>
 
       <!-- 로고 아래 가로로 메뉴와 버튼 배치 -->
@@ -245,44 +274,89 @@
 
     <main class="container mt-4">
         <!-- 그룹 생성 섹션 -->
-<div id="createGroupSection" class="section active-section">
-    <h2>그룹을 생성하세요!</h2>
-    <form id="create-group-form">
-        <label for="group-name">그룹 명:</label>
-        <input type="text" id="group-name" name="groupName" required>
-        <br>
-        <label for="group-description">그룹 설명:</label>
-        <textarea id="group-description" name="description" rows="3" required></textarea>
-        <br>
-        <button type="button" class="btn btn-primary" onclick="submitGroupForm()">그룹 생성하기</button>
-    </form>
-</div>
-
-        <!-- 그룹 관리 섹션 -->
-        <div id="manageGroupSection" class="section">
-            <h2>그룹 관리</h2>
-            <ul id="my-groups" class="list-group">
-                <!-- JavaScript로 동적으로 추가 -->
-            </ul>
+    <div id="createGroupSection" class="section active-section">
+        <div class="card">
+            <div class="card-body">
+                <h2>그룹을 생성하세요!</h2>
+                <form id="create-group-form">
+                    <label for="group-name">그룹 명:</label>
+                    <input type="text" id="group-name" name="groupName" placeholder="그룹 이름을 입력하세요" required>
+                    
+                    <label for="group-description">그룹 설명:</label>
+                    <textarea id="group-description" name="description" rows="3" placeholder="그룹에 대한 설명을 입력하세요" required></textarea>
+                    
+                    <button type="button" class="btn btn-primary" onclick="submitGroupForm()">그룹 생성하기</button>
+                </form>
+            </div>
         </div>
+    </div>
 
-<div id="applyGroupSection" class="section">
-    <h2>그룹 신청</h2>
-    <form id="search-group-form" onsubmit="searchGroups(event);">
-        <label for="search-keyword">그룹 명:</label>
-        <input type="text" id="search-keyword" placeholder="그룹 명을 입력하세요!" required>
-        <button type="submit" class="btn btn-primary">검색하기</button>
-    </form>
-    <ul id="group-results" class="list-group">
-        <!-- 검색 결과 표시 -->
-    </ul>
+    <!-- 그룹 관리 섹션 -->
+    <div id="manageGroupSection" class="section">
+        <h2>그룹 관리</h2>
+        <ul id="my-groups" class="list-group">
+            <!-- JavaScript로 동적으로 추가 -->
+        </ul>
+    </div>
 
-    <h3 class="mt-4">내가 신청한 그룹</h3>
-    <ul id="my-requests" class="list-group">
-        <!-- 내가 신청한 그룹 요청 표시 -->
-    </ul>
-</div>
-    </main>
+   <div id="applyGroupSection" class="section">
+    <style>
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .card h2, .card h3 {
+            text-align: center;
+            font-weight: bold;
+        }
+        .card input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+        .card button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .list-group-item {
+            transition: transform 0.2s ease-in-out;
+        }
+        .list-group-item:hover {
+            transform: scale(1.02);
+            background-color: #f8f9fa;
+        }
+    </style>
+
+    <!-- 카드 시작 -->
+    <div class="card">
+        <div class="card-body">
+            <!-- 그룹 검색 -->
+            <h2>그룹 신청</h2>
+            <form id="search-group-form" onsubmit="searchGroups(event);" class="mb-4">
+                <label for="search-keyword">그룹 명:</label>
+                <input type="text" id="search-keyword" placeholder="그룹 명을 입력하세요!" required>
+                <button type="submit" class="btn btn-primary">검색하기</button>
+            </form>
+        <ul id="group-results" class="list-group">
+            <!-- 검색 결과 표시 -->
+        </ul>
+
+        <h3 class="mt-4">내가 신청한 그룹</h3>
+        <ul id="my-requests" class="list-group">
+            <!-- 내가 신청한 그룹 요청 표시 -->
+        </ul>
+    </div>
+    </div>
+</main>
 <script>
 async function fetchMyRequests() {
     try {
