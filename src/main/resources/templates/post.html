@@ -69,6 +69,56 @@
       font-weight: bold;
       text-align: center;
     }
+    
+    .form-label {
+  font-weight: 600;
+  color: #333;
+}
+/* 입력 필드 너비 줄이기 */
+.form-control {
+  max-width: 600px; /* 최대 너비 제한 */
+  width: 100%; /* 부모 요소에 맞춤 */
+  margin: 0 auto; /* 가운데 정렬 */
+}
+/* 텍스트 영역 너비 */
+textarea.form-control {
+  max-width: 600px;
+}
+
+/* 전체 폼 가운데 정렬 */
+form {
+  max-width: 650px; /* 폼 전체 너비 제한 */
+  margin: 0 auto;
+}
+
+input.form-control,
+textarea.form-control,
+select.form-control {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+input.form-control:focus,
+textarea.form-control:focus,
+select.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+main.container {
+  max-width: 800px; /* 최대 너비 제한 */
+  width: 90%; /* 부모 요소 기준 상대 너비 */
+  margin: 0 auto; /* 중앙 정렬 */
+  padding: 20px; /* 내부 여백 */
+}
+
 </style>
 </head>
 <body>
@@ -149,93 +199,99 @@
   </div>
 </header>
   <body>
-   <main class="container">
-  <h1>새 글 작성</h1>
+ <main class="container my-5 shadow-lg p-4 rounded bg-light">
+  <h1 class="text-center mb-4 text-primary">새 글 작성</h1>
   <form th:action="@{/post/save}" method="post" enctype="multipart/form-data">
+    
+    <!-- 제목 입력 -->
     <div class="mb-3">
-        <label for="title" class="form-label">제목</label>
-        <input type="text" class="form-control" id="title" name="title" required>
+      <label for="title" class="form-label fw-bold">제목</label>
+      <input type="text" class="form-control shadow-sm" id="title" name="title" required placeholder="제목을 입력하세요">
     </div>
 
+    <!-- 작성자 -->
     <div class="mb-3">
-        <label for="username" class="form-label">작성자</label>
-        <input type="text" class="form-control" id="username" name="username" th:value="${session.username}" readonly>
+      <label for="username" class="form-label fw-bold">작성자</label>
+      <input type="text" class="form-control shadow-sm bg-light" id="username" name="username" th:value="${session.username}" readonly>
     </div>
 
+    <!-- 내용 입력 -->
     <div class="mb-3">
-        <label for="content" class="form-label">내용</label>
-        <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+      <label for="content" class="form-label fw-bold">내용</label>
+      <textarea class="form-control shadow-sm" id="content" name="content" rows="5" required placeholder="내용을 입력하세요"></textarea>
     </div>
 
+    <!-- 상위 카테고리 -->
     <div class="mb-3">
-        <label for="parentCategory" class="form-label">상위 카테고리</label>
-        <select class="form-control" id="parentCategory" name="parentCategory" onchange="updateSubCategory(); updateCategoryId();" required>
-            <option value="">상위 카테고리를 선택하세요</option>
-            <option value="1">음식</option>
-            <option value="2">위치</option>
-        </select>
+      <label for="parentCategory" class="form-label fw-bold">상위 카테고리</label>
+      <select class="form-control shadow-sm" id="parentCategory" name="parentCategory" onchange="updateSubCategory(); updateCategoryId();" required>
+        <option value="">상위 카테고리를 선택하세요</option>
+        <option value="1">음식</option>
+        <option value="2">위치</option>
+      </select>
     </div>
 
+    <!-- 하위 카테고리 -->
     <div class="mb-3" id="subCategoryContainer" style="display: none;">
-        <label for="subCategory" class="form-label">하위 카테고리</label>
-        <select class="form-control" id="subCategory" name="subCategory" onchange="updateCategoryId();">
-            <option value="">하위 카테고리를 선택하세요</option>
-        </select>
+      <label for="subCategory" class="form-label fw-bold">하위 카테고리</label>
+      <select class="form-control shadow-sm" id="subCategory" name="subCategory" onchange="updateCategoryId();">
+        <option value="">하위 카테고리를 선택하세요</option>
+      </select>
     </div>
 
+    <!-- 상세 카테고리 -->
     <div class="mb-3">
-        <label for="detailedCategory" class="form-label">상세 카테고리</label>
-        <input type="text" class="form-control" id="detailedCategory" name="detailedCategory" placeholder="상세 카테고리를 입력하세요">
+      <label for="detailedCategory" class="form-label fw-bold">상세 카테고리</label>
+      <input type="text" class="form-control shadow-sm" id="detailedCategory" name="detailedCategory" placeholder="상세 카테고리를 입력하세요">
     </div>
 
-    <input type="hidden" id="categoryId" name="categoryId">
-    <input type="hidden" id="parentCategoryName" name="parentCategoryName">
-    <input type="hidden" id="categoryName" name="categoryName">
-
+    <!-- 이미지 첨부 -->
     <div class="mb-3">
-        <label for="image" class="form-label">이미지 첨부</label>
-        <input type="file" class="form-control" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+      <label for="image" class="form-label fw-bold">이미지 첨부</label>
+      <input type="file" class="form-control shadow-sm" id="image" name="image" accept="image/*" onchange="previewImage(event)">
     </div>
 
-    <!-- 미리보기 영역 -->
+    <!-- 미리보기 -->
     <div class="mb-3" id="imagePreviewContainer" style="display: none;">
-        <label class="form-label"><b>미리보기:</b></label>
-        <img id="imagePreview" src="#" alt="이미지 미리보기" style="max-width: 200px; max-height: 200px; display: block;">
+      <label class="form-label"><b>미리보기:</b></label>
+      <img id="imagePreview" src="#" alt="이미지 미리보기" class="img-thumbnail">
     </div>
 
-    <!-- 지도 및 장소 검색 UI -->
+    <!-- 지도 -->
     <div class="mb-3">
-        <label for="location" class="form-label">위치 정보</label>
-        <input type="text" class="form-control" id="location" name="location" placeholder="위치 입력 (선택)">
+      <label for="location" class="form-label fw-bold">위치 정보</label>
+      <input type="text" class="form-control shadow-sm" id="location" name="location" placeholder="위치 입력 (선택)">
     </div>
 
-    <div id="menu_wrap" class="bg_white">
-        <div class="option">
-            <div>
-                키워드 :
-                <input type="text" id="keyword" size="15" placeholder="장소를 입력하세요">
-                <button type="button" onclick="searchPlaces()">검색하기</button>
-            </div>
+    <div id="menu_wrap" class="bg-white p-3 rounded shadow-sm">
+      <div class="option">
+        <label for="keyword" class="form-label">키워드:</label>
+        <div class="input-group">
+          <input type="text" id="keyword" class="form-control shadow-sm" size="15" placeholder="장소를 입력하세요">
+          <button type="button" class="btn btn-primary" onclick="searchPlaces()">검색하기</button>
         </div>
-        <hr>
-        <ul id="placesList"></ul>
-        <div id="pagination"></div>
+      </div>
+      <hr>
+      <ul id="placesList"></ul>
+      <div id="pagination"></div>
     </div>
 
     <div class="map_wrap">
-        <div id="map" style="width:100%; height:400px; position:relative; overflow:hidden;"></div>
+      <div id="map" style="width:100%; height:400px; position:relative; overflow:hidden;"></div>
     </div>
 
-    <!-- 숨겨진 위치 필드 -->
+    <!-- 숨겨진 필드 -->
     <input type="hidden" id="latitude" name="latitude">
     <input type="hidden" id="longitude" name="longitude">
     <input type="hidden" id="address" name="address">
     <input type="hidden" id="placeName" name="placeName">
 
-    <button type="submit" class="btn btn-primary">작성하기</button>
-</form>
+    <!-- 제출 버튼 -->
+    <button class="btn btn-primary btn-sm mt-4 shadow-sm">작성하기</button>
 
+  </form>
 </main>
+
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
 <script>
     var markers = [];

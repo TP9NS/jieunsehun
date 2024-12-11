@@ -16,6 +16,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
 <style>
+
     .bd-placeholder-img {
       font-size: 1.125rem;
       text-anchor: middle;
@@ -62,6 +63,7 @@
     .table-bordered td {
       padding: 5px;
       border: 1px solid #dee2e6;
+      
     }
 
     .table-bordered th {
@@ -69,6 +71,27 @@
       font-weight: bold;
       text-align: center;
     }
+    .board-container {
+  background-color: #6e99c4;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+    
+.table-container {
+  overflow-x: auto; /* 테이블이 화면을 넘치지 않도록 스크롤 */
+}
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1; /* 행 위에 마우스를 올리면 배경색 변경 */
+}
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
 </style>
 </head>
 <body>
@@ -168,84 +191,92 @@
   </div>
 </header>
 <body>
-    <main class="container board-container">
-        <h1>게시판</h1>
-         <script th:if="${alertMessage != null}">
-    alert("[[${alertMessage}]]");
-</script>
+<main class="container board-container my-5 p-4 bg-light rounded shadow-lg">
+  <h1 class="text-center text-primary mb-4">게시판</h1>
 
-        <div class="d-flex justify-content-between mb-3">
-            <div class="mb-3">
-    <label for="parentCategoryFilter" class="form-label">상위 카테고리</label>
-    <select class="form-control" id="parentCategoryFilter" name="parentCategory">
+  <script th:if="${alertMessage != null}">
+    alert("[[${alertMessage}]]");
+  </script>
+
+  <!-- 상단 검색과 필터 -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- 카테고리 필터 -->
+    <div>
+      <label for="parentCategoryFilter" class="form-label fw-bold">상위 카테고리</label>
+      <select class="form-control shadow-sm" id="parentCategoryFilter" name="parentCategory">
         <option value="" th:selected="${#strings.isEmpty(parentCategoryName)}">전체</option>
         <option th:each="category : ${categories}" 
                 th:value="${category.name}" 
                 th:text="${category.name}" 
                 th:selected="${category.name == parentCategoryName}">
         </option>
-    </select>
-</div>
-            <div class="input-group w-50">
-    <input type="text" id="searchInput" class="form-control" placeholder="검색어를 입력하세요" style="height: 50px;">
-    <button class="btn btn-primary" onclick="filterBySearch()" style="height: 50px;">검색</button>
-</div>
+      </select>
+    </div>
 
-        </div>
-        <div class="table-container">
-            <table class="table table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>제목</th>
-                        <th>작성자</th>
-                        <th>카테고리 구조</th>
-                        <th>작성일</th>
-                        <th>댓글 수</th>
-                    </tr>
-                </thead>
-                <tbody id="postTable">
-                    <tr th:each="post : ${posts}">
-        <td><a th:href="@{/board/view/{id}(id=${post.id})}" th:text="${post.title}"></a></td>
-        <td th:text="${post.username}"></td>
-        <td>
-    <span th:text="${post.parentCategoryName != null ? post.parentCategoryName : ''}"></span>
-    <span th:text="${post.categoryName != null ? ' - ' + post.categoryName : ''}"></span>
-    <span th:text="${post.detailedCategory != null ? ' - ' + post.detailedCategory : ''}"></span>
-				</td>
-        <td th:text="${post.formattedCreatedAt}"></td>
-        <td th:text="${post.commentCount}">0</td>
-    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-<!-- 페이지 네이션 -->
-<nav aria-label="Page navigation">
+    <!-- 검색창 -->
+    <div class="input-group w-50">
+      <input type="text" id="searchInput" class="form-control shadow-sm" placeholder="검색어를 입력하세요" style="height: 50px;">
+      <button class="btn btn-primary" onclick="filterBySearch()" style="height: 50px;">검색</button>
+    </div>
+  </div>
+
+  <!-- 게시판 테이블 -->
+  <div class="table-container">
+    <table class="table table-hover shadow-sm">
+      <thead class="table-dark">
+        <tr>
+          <th>제목</th>
+          <th>작성자</th>
+          <th>카테고리 구조</th>
+          <th>작성일</th>
+          <th>댓글 수</th>
+        </tr>
+      </thead>
+      <tbody id="postTable">
+        <tr th:each="post : ${posts}">
+          <td>
+            <a th:href="@{/board/view/{id}(id=${post.id})}" th:text="${post.title}" class="text-decoration-none"></a>
+          </td>
+          <td th:text="${post.username}"></td>
+          <td>
+            <span th:text="${post.parentCategoryName != null ? post.parentCategoryName : ''}"></span>
+            <span th:text="${post.categoryName != null ? ' - ' + post.categoryName : ''}"></span>
+            <span th:text="${post.detailedCategory != null ? ' - ' + post.detailedCategory : ''}"></span>
+          </td>
+          <td th:text="${post.formattedCreatedAt}"></td>
+          <td th:text="${post.commentCount}">0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 페이지네이션 -->
+  <nav aria-label="Page navigation" class="mt-4">
     <ul class="pagination justify-content-center">
-        <!-- 이전 버튼 -->
-        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-            <a class="page-link" th:href="@{/board(page=${currentPage - 1}, size=${size})}" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-            </a>
-        </li>
-        <!-- 페이지 번호 -->
-        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
-            <a class="page-link" th:href="@{/board(page=${i}, size=${size})}" th:text="${i + 1}"></a>
-        </li>
-        <!-- 다음 버튼 -->
-        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-            <a class="page-link" th:href="@{/board(page=${currentPage + 1}, size=${size})}" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>
+      <!-- 이전 버튼 -->
+      <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+        <a class="page-link" th:href="@{/board(page=${currentPage - 1}, size=${size})}" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <!-- 페이지 번호 -->
+      <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
+        <a class="page-link" th:href="@{/board(page=${i}, size=${size})}" th:text="${i + 1}"></a>
+      </li>
+      <!-- 다음 버튼 -->
+      <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+        <a class="page-link" th:href="@{/board(page=${currentPage + 1}, size=${size})}" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
     </ul>
-</nav>
+  </nav>
 
-
-        <div class="d-flex justify-content-end">
-            <a href="/post" class="btn btn-bd-primary">새 글 작성</a>
-        </div>
-    </main>
+  <!-- 새 글 작성 버튼 -->
+  <div class="d-flex justify-content-end mt-4">
+    <a href="/post" class="btn btn-primary btn-lg shadow-sm ">새 글 작성</a>
+  </div>
+</main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 

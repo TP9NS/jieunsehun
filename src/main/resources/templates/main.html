@@ -93,20 +93,39 @@
         display: block !important;
       }
       #chatbox {
-        width: 400px;
+        width: 300px;
         height: 670px;
-        border: 1px solid #ccc;
+        border-radius: 10px; /* 모서리를 둥글게 */
+  border: 1px solid #e0e0e0; /* 연한 회색 테두리 */
         padding: 10px;
-        margin-left: 20px;
       }
       
       #chatbox .messages {
-        height: 600px;
-        overflow-y: auto;
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin-bottom: 10px;
-      }
+      color: white;
+  height: 560px;
+  overflow-y: auto;
+  background-color: #f9f9f9; /* 연한 회색 배경 */
+  border-radius: 5px; /* 메시지 박스 둥근 모서리 */
+  border: 1px solid #ddd; /* 메시지 박스 테두리 */
+  padding: 10px;
+  margin-bottom: 10px;
+
+  /* GPT 이미지 추가 */
+  background-image: url('/images/gpt.png'); /* gpt.png를 배경 이미지로 설정 */
+  background-size: contain; /* 이미지 크기를 컨테이너에 맞춤 */
+  background-position: center; /* 이미지 중앙 정렬 */
+  background-repeat: no-repeat; /* 이미지를 반복하지 않음 */
+}
+
+      /* 사용자 입력창 스타일 */
+#user-input {
+  padding: 10px; /* 텍스트 입력 공간 내부 여백 */
+  font-size: 16px; /* 입력 텍스트 크기 */
+  border: 1px solid #ddd; /* 입력창 테두리 */
+  border-radius: 5px; /* 둥근 모서리 */
+  outline: none; /* 포커스 시 테두리 제거 */
+  transition: border-color 0.3s ease; /* 포커스 애니메이션 효과 */
+}
       
       #chatbox input {
         width: 100%;
@@ -156,7 +175,10 @@
 
       .container {
         display: flex;
-        
+      }
+      .container2 {
+        display: block;
+        max-width: 2000px;
       }
 .map_wrap, .map_wrap * {
     margin: 0;
@@ -172,9 +194,10 @@
 
 .map_wrap {
     position: relative;
-    width: calc(100% - 80px); /* 메뉴 너비를 뺀 지도 너비 설정 */
+    width: 1200px; 
     height: 620px;
-    margin-left: 200px; /* 메뉴와의 간격 확보 */
+    float: none; /* 나란히 배치하지 않음 */
+  display: block;
 }
 
 #menu_wrap {
@@ -184,11 +207,11 @@
     bottom: 0;
     margin-bottom: 20px;
     width: 300px;
-    height: calc(100% - 150px); /* 상단과 하단 간격 고려 */
+    height: calc(100% - 70px); /* 상단과 하단 간격 고려 */
     margin: 10px 0 30px 10px;
     padding: 5px;
     overflow-y: auto;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.9);
     z-index: 1;
     font-size: 12px;
     border-radius: 10px;
@@ -550,6 +573,119 @@
     border-radius: 50%;
     position: absolute;
 }
+#admin-places {
+  padding: 20px;
+  background-color: #f9f9f9; /* 배경색 */
+  border-radius: 10px; /* 둥근 모서리 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 그림자 */
+}
+#admin-places h3 {
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+}
+#admin-places .form-select {
+  max-width: 300px; /* 드롭다운 크기 제한 */
+  margin: 0 auto;
+}
+.card {
+ height: 100%; /* 카드의 높이를 고정 */
+ display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-img-top {
+height: 200px; /* 이미지 고정 높이 */
+width: 309px;
+  object-fit: cover; /* 이미지 비율 유지하며 자르기 */
+  border-top-left-radius: 10px; /* 이미지 모서리를 둥글게 */
+  border-top-right-radius: 10px;
+}
+
+.card-body {
+
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.card-text {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+#place-list {
+  margin-top: 30px; /* 장소 리스트와 드롭다운 사이 간격 */
+}
+
+#place-list .col {
+  min-height: 400px; /* 카드 최소 높이 설정 */
+  display: flex;
+  justify-content: center;
+  align-items: stretch; /* 카드 높이 균일화 */
+}
+
+.layout-container {
+  display: flex; /* 나란히 배치 */
+  flex-direction: row; /* 수평 정렬 */
+  width: 100%; /* 전체 너비 */
+  height: 100vh; /* 화면 전체 높이 */
+  gap: 20px; /* 요소 사이 간격 */
+  box-sizing: border-box;
+}
+.button-icon {
+  width: 35px; /* 아이콘 크기 */
+  height: 35px; /* 아이콘 크기 */
+  vertical-align: middle; /* 이미지와 텍스트의 세로 정렬 */
+  border-radius: 5px;
+}
+
+
+
+/* 기본 버튼 스타일 */
+.btn-primary {
+  background-color: #4a90e2; /* 버튼 배경색 */
+  color: white; /* 버튼 텍스트 색상 */
+  border: 1px solid #4a90e2; /* 버튼 테두리 색상 */
+  border-radius: 8px; /* 둥근 모서리 */
+  font-size: 16px; /* 텍스트 크기 */
+  font-weight: 600; /* 텍스트 굵기 */
+  padding: 10px 20px; /* 내부 여백 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* 애니메이션 */
+}
+
+/* 버튼 호버 효과 */
+.btn-primary:hover {
+  background-color: #3a78c1; /* 호버 시 배경색 */
+  border-color: #3a78c1; /* 호버 시 테두리 색상 */
+  transform: translateY(-2px); /* 약간 위로 이동 */
+}
+
+/* 버튼 클릭(활성화) 상태 */
+.btn-primary:active {
+  background-color: #336699; /* 클릭 시 배경색 */
+  border-color: #336699; /* 클릭 시 테두리 색상 */
+  transform: translateY(2px); /* 클릭 시 아래로 눌린 효과 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 눌린 상태의 그림자 */
+}
+
+/* 버튼 간 간격 */
+.me-2 {
+  margin-right: 8px; /* 오른쪽 간격 */
+}
+
+
 </style>
 </head>
 <body>
@@ -660,7 +796,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <!-- 보물 지도 로고를 상단에 고정 -->
       <a href="/main" class="navbar-brand">
         <strong>보물 지도</strong>
-        <img src=/images/보물지도로고.png alt="보물 지도 로고" width="50" height="50" class="me-2">
+        <img src=/images/보물지도로고.png alt="보물 지도 로고" width="55" height="55" class="me-2">
       </a>
 
       <!-- 로고 아래 가로로 메뉴와 버튼 배치 -->
@@ -722,81 +858,72 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
   </div>
 </header>
-<main class="container">
-  <div id="menu_wrap" class="bg_white">
-    <div class="option">
-      <div>
-        <form onsubmit="searchPlaces(); return false;">
-          키워드 : <input type="text" value="이태원 맛집" id="keyword" size="15"> 
-          <button type="submit">검색하기</button> 
-        </form>
-      </div>
-    </div>
-    <hr>
-    <ul id="placesList"></ul>
-    <div id="pagination"></div>
-   <!-- 리뷰 섹션 -->
-  <div class="review-section mt-4">
-    <!-- 저장된 장소 드롭다운 -->
-    <div class="form-group">
-      <label for="savedLocations">저장된 장소 선택:</label>
-      <select id="savedLocations" class="form-select">
-        <option value="" disabled selected>장소를 선택하세요</option>
-        <!-- 사용자 저장 장소 목록 -->
-        <th:block th:each="location : ${userSavedLocations}">
-          <option th:value="${location.locationName}" th:text="${location.locationName}"></option>
-        </th:block>
-      </select>
-    </div>
-
-    <!-- 리뷰 작성 폼 -->
-    <div class="review-form">
-      <div class="rating-stars">
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
-</div>
-
-      <textarea id="reviewText" placeholder="리뷰를 작성하세요..."></textarea>
-      <button onclick="submitReview()">리뷰 등록</button>
-    </div>
-  </div>
-</div>
-
+<main class="container2">
+<div class="layout-container" style="margin-bottom: 10px;">
+  <!-- 지도 섹션 -->
   <div class="map_wrap">
     <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
-    <div class="container mt-3 d-flex justify-content-center" style="position: absolute; top: 10px; width: 100%; z-index: 1;">
-			<button class="btn btn-primary me-2" onclick="findmyLocation('')">내 위치</button>
-			<button class="btn btn-primary me-2" onclick="searchCategory('음식점')">음식점</button>
-      <button class="btn btn-primary me-2" onclick="searchCategory('카페')">카페</button>
-      <button class="btn btn-primary me-2" onclick="searchCategory('은행')">은행</button>
-      <button class="btn btn-primary me-2" onclick="searchCategory('약국')">약국</button>
-      <button class="btn btn-primary me-2" onclick="searchCategory('주유소')">주유소</button>
-      <button class="btn btn-primary me-2" onclick="searchCategory('편의점')">편의점</button>
-      <button class="btn btn-primary me-2" onclick="searchCategory('마트')">마트</button>
-      <button class="btn btn-primary" onclick="searchCategory('패션')">쇼핑몰</button>
-      
+    <div class="container mt-3 d-flex justify-content-center" style="position: absolute; top: -10px; width: 100%; z-index: 1;">
+      <button class="btn btn-primary me-2" onclick="findmyLocation('')">
+<img src="/images/내위치.png" alt="내위치 아이콘" class="button-icon"> 내 위치
+</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('음식점')">
+  <img src="/images/음식점.png" alt="음식점 아이콘" class="button-icon"> 음식점
+</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('카페')">
+       <img src="/images/카페.png" alt="카페 아이콘" class="button-icon"> 카페
+</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('은행')">
+<img src="/images/은행.png" alt="은행 아이콘" class="button-icon"> 은행
+</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('약국')">
+      <img src="/images/약국.png" alt="약국 아이콘" class="button-icon"> 약국
+</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('주유소')">
+<img src="/images/주유소.png" alt="주유소 아이콘" class="button-icon"> 주유소
+</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('편의점')">
+<img src="/images/편의점.png" alt="편의점 아이콘" class="button-icon"> 편의점
+</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('마트')">
+      <img src="/images/마트.png" alt="마트 아이콘" class="button-icon"> 마트
+</button>
+      <button class="btn btn-primary" onclick="searchCategory('패션')">
+      <img src="/images/쇼핑몰.png" alt="쇼핑몰 아이콘" class="button-icon"> 쇼핑몰
+</button>
     </div>
-   
+
+    <div id="menu_wrap" class="bg_white" style="position: absolute; top: 70px; left: 10px; z-index: 2;">
+      <div class="option">
+        <form onsubmit="searchPlaces(); return false;">
+          키워드 : <input type="text" value="이태원 맛집" id="keyword" size="15">
+          <button type="submit">검색하기</button>
+        </form>
+      </div>
+      <hr>
+      <ul id="placesList"></ul>
+      <div id="pagination"></div>
+    </div>
   </div>
 
   <!-- GPT 채팅 박스 -->
   <div id="chatbox">
+   <h6>궁금한 것을 ChatGPT에게 물어보세요!</h6>
     <div class="messages" id="messages">
       <!-- 대화 기록이 여기에 추가됩니다 -->
     </div>
     <input type="text" id="user-input" placeholder="GPT와 대화하세요..." onkeypress="sendMessage(event)">
   </div>
-  
-  <div id="admin-places">
-    <h3>관리자가 저장한 장소들</h3>
+</div>
 
-    <!-- 주제 선택 드롭다운 -->
-    <div class="mb-3">
-      <label for="topicFilter" class="form-label">주제를 선택하세요:</label>
-      <select id="topicFilter" class="form-select">
+
+<div id="admin-places" class="container my-3">
+  <!-- 상단 제목 및 드롭다운 컨테이너 -->
+  <div id="admin-header" class="text-center mb-3">
+    <h5 class="text-primary">📍 관리자가 추천하는 장소 📍</h5>
+    <div class="mt-3">
+      <label for="topicFilter" class="form-label fw-bold">주제를 선택하세요:</label>
+      <select id="topicFilter" class="form-select d-inline-block w-50">
         <option value="ALL">전체</option>
         <th:block th:each="topic : ${distinctTopics}">
           <option th:value="${topic}" th:text="${topic}"></option>
@@ -804,31 +931,35 @@ document.addEventListener("DOMContentLoaded", function () {
         <option value="NONE">없음</option>
       </select>
     </div>
+  </div>
 
-    <!-- 장소 리스트 -->
-    <div id="place-list" class="list-group">
+  <!-- 장소 리스트 -->
+  <div id="place-list" class="container mt-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
       <th:block th:each="point : ${adminMapPoints}">
-        <div class="list-group-item mb-3" th:attr="data-topic-th=${point.topic}">
-          <h4 th:text="${point.topic}"></h4>
-          <h5>
-            <a href="javascript:void(0);" 
-              class="location-link" 
-              th:text="${point.locationName}"
-              th:data-lat="${point.latitude}"
-              th:data-lng="${point.longitude}"
-              th:data-name="${point.locationName}">
-            </a>
-          </h5>
-          <p th:text="'Alias: ' + ${point.locationAlias}"></p>
-          <p th:text="'Address: ' + ${point.address}"></p>
-          <p th:text="'Phone: ' + ${point.phone}"></p>
-          <img th:src="${point.imageUrl}" alt="Image" class="img-thumbnail" style="max-width: 200px;">
+        <div class="col" th:attr="data-topic-th=${point.topic}">
+          <div class="card shadow-sm h-100">
+            <img th:src="${point.imageUrl}" alt="Image" class="card-img-top" style="height: 200px; object-fit: cover;">
+            <div class="card-body text-center">
+              <h5 class="card-title" th:text="${point.locationName}">장소 이름</h5>
+              <p class="card-text text-muted" th:text="'주제: ' + ${point.topic}">주제</p>
+              <p class="card-text text-muted" th:text="'설명: ' + ${point.locationAlias}">설명</p>
+              <p class="card-text text-muted" th:text="'주소: ' + ${point.address}">주소</p>
+              <p class="card-text text-muted" th:text="'전화번호: ' + ${point.phone}">전화번호</p>
+              <a href="javascript:void(0);" 
+                 class="btn btn-primary btn-sm mt-2 location-link"
+                 th:data-lat="${point.latitude}"
+                 th:data-lng="${point.longitude}"
+                 th:data-name="${point.locationName}">지도에서 보기</a>
+            </div>
+          </div>
         </div>
       </th:block>
     </div>
   </div>
-</main>
+</div>
 
+</main>
 <script type="text/javascript">
 //JavaScript to retrieve user permission dynamically
 const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
@@ -1519,19 +1650,20 @@ document.addEventListener("DOMContentLoaded", function () {
         const selectedTopic = topicFilter.value;
 
         // 장소 리스트의 각 항목을 확인
-        const places = placeList.querySelectorAll(".list-group-item");
+        const places = placeList.querySelectorAll(".col"); // `.col` 요소로 선택
         places.forEach(place => {
-            const placeTopic = place.getAttribute("data-topic-th");
+            const placeTopic = place.getAttribute("data-topic-th"); // `data-topic-th` 속성 읽기
 
             // 전체 보기(ALL) 또는 주제가 일치하는 경우에만 표시
             if (selectedTopic === "ALL" || placeTopic === selectedTopic) {
-                place.style.display = "block";
+                place.style.display = "block"; // 보이기
             } else {
-                place.style.display = "none";
+                place.style.display = "none"; // 숨기기
             }
         });
     });
 });
+
 
 
 
