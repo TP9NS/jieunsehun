@@ -288,58 +288,67 @@
   </div>
 </header>
 <body>
-    <h2>가장 마음에 드는 장소에 투표하세요!</h2>
-<div style="display: flex;">
-    <!-- 왼쪽: 투표 폼 -->
-    <div style="flex: 1;">
-    <form action="/submit-vote" method="post" style="text-align: center;">
-    <ul style="list-style-type: none; padding: 0;">
-        <!-- 장소 데이터 렌더링 -->
-        <li th:each="point : ${all_points}" style="border-bottom: 1px solid #ccc; margin-bottom: 15px; padding-bottom: 15px;">
-            <input type="radio" th:name="locationName" th:id="${point.locationName}" th:value="${point.locationName}">
-            <label th:for="${point.locationName}" th:text="${point.locationName}"></label>
-            <div style="display: flex; flex-direction: column; align-items: center;">
-                <p th:text="'주소: ' + ${point.address}"></p>
-                <p th:text="'카테고리: ' + ${point.category}"></p>
-                <p th:text="'설명: ' + ${point.locationAlias}"></p>
-                <!-- 이미지 렌더링 -->
-                <img th:src="@{'/images/' + ${point.imageName}}" alt="장소 이미지" style="max-width: 200px; max-height: 150px;">
+    <h2 class="text-center my-4">가장 마음에 드는 장소에 투표하세요!</h2>
+    <div class="container d-flex justify-content-center align-items-start">
+        <div class="row w-100" style="max-width: 1200px;">
+            <!-- 왼쪽: 투표 폼 -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">투표하기</h3>
+                    </div>
+                    <div class="card-body">
+                        <form action="/submit-vote" method="post">
+                            <ul class="list-unstyled">
+                                <!-- 장소 데이터 렌더링 -->
+                                <li th:each="point : ${all_points}" class="mb-4 pb-3 border-bottom d-flex flex-column align-items-center text-center">
+    <div class="form-check">
+        <input type="radio" th:name="locationName" th:id="${point.locationName}" th:value="${point.locationName}" class="form-check-input">
+        <label th:for="${point.locationName}" class="form-check-label" th:text="${point.locationName}"></label>
+    </div>
+    <div class="mt-2">
+        <p th:text="'주소: ' + ${point.address}"></p>
+        <p th:text="'카테고리: ' + ${point.category}"></p>
+        <p th:text="'설명: ' + ${point.locationAlias}"></p>
+        <!-- 이미지 렌더링 -->
+        <img th:src="@{'/images/' + ${point.imageName}}" alt="장소 이미지" class="img-fluid rounded" style="max-width: 200px; max-height: 150px;">
+    </div>
+</li>
+
+                            </ul>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary w-100">투표하기</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </li>
-    </ul>
-    <button type="submit">투표하기</button>
-</form>
 
-
-</div>
-
-    <div style="flex: 1; padding-left: 20px; border-left: 1px solid #ccc;">
-    <h1>투표 결과</h1><br>
-<ol class="result-list">
-    <li th:each="result : ${voteResults}" class="result-item">
-        <!-- 순위별 이모티콘 -->
-        <span th:text="${result.rank == 1 ? '🥇' : (result.rank == 2 ? '🥈' : (result.rank == 3 ? '🥉' : ''))}" 
-              class="rank-icon" 
-              style="font-size: 2em; margin-right: 20px;"></span>
-        <!-- 이미지 -->
-        <img th:src="@{'/images/' + ${result.imageName}}" 
-             alt="결과 이미지" 
-             style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; margin-right: 20px;">
-        <!-- 텍스트 -->
-        <div>
-            <span th:text="${result.locationName}" 
-                  class="location-name" 
-                  style="font-weight: bold; font-size: 1.5em; display: block;"></span>
-            <span th:text="' (' + ${result.voteCount} + '표)'" 
-                  class="vote-count" 
-                  style="font-size: 1.2em; color: gray;"></span>
+            <!-- 오른쪽: 투표 결과 -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">투표 결과</h3>
+                    </div>
+                    <div class="card-body">
+                        <ol class="list-unstyled">
+                            <li th:each="result : ${voteResults}" class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                                <!-- 순위별 이모티콘 -->
+                                <span th:text="${result.rank == 1 ? '🥇' : (result.rank == 2 ? '🥈' : (result.rank == 3 ? '🥉' : ''))}" class="rank-icon me-3" style="font-size: 2em;"></span>
+                                <!-- 이미지 -->
+                                <img th:src="@{'/images/' + ${result.imageName}}" alt="결과 이미지" class="rounded-circle me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                <!-- 텍스트 -->
+                                <div>
+                                    <span th:text="${result.locationName}" class="location-name d-block" style="font-weight: bold; font-size: 1.2em;"></span>
+                                    <span th:text="'(' + ${result.voteCount} + '표)'" class="vote-count text-muted"></span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
         </div>
-    </li>
-</ol>
-
-
-
-
-
+    </div>
 </body>
+
 </html>
