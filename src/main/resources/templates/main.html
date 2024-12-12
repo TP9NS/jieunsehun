@@ -968,6 +968,13 @@ console.log("User Permission:", userPermission);
 </script>
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
 <script>
+	
+	document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded 이벤트 호출됨');
+    checkNotifications();
+});
+setInterval(checkNotifications, 10000);
+ 
 // 마커를 담을 배열입니다
 var markers = [];
 
@@ -2006,7 +2013,7 @@ function removeMarkersAndOverlays() {
 
 document.addEventListener("DOMContentLoaded", function () {
     // 저장된 장소 데이터 로드
-    fetch("/api/mySavedLocations")
+    fetch("/api/mymap")
         .then((response) => response.json())
         .then((data) => {
             const savedLocations = document.getElementById("savedLocations");
@@ -2276,10 +2283,6 @@ function findmyLocation() {
         }
     );
 }
-// 페이지 로드 시 알림 체크
-document.addEventListener('DOMContentLoaded', checkNotifications);
-setInterval(checkNotifications, 10000);
-
 </script>
 </body>
 </html>
