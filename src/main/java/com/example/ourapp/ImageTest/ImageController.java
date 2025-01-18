@@ -49,7 +49,8 @@ public String getViewPage(Model model) {
 @ResponseBody
 @GetMapping("/images/{filename}")
 public ResponseEntity<Resource> showImage(@PathVariable String filename) throws MalformedURLException {
-    String path = "C:/Users/82104/git/jieunsehun/src/main/resources/static/images/";
+    //String path = "C:/Users/82104/git/jieunsehun/src/main/resources/static/images/";
+    String path = "C:\\Users\\pshcc\\eclipse-workspace\\jieunsehun\\src\\main\\resources\\static\\images\\";
     UrlResource resource = new UrlResource("file:" + path + filename);
 
     HttpHeaders headers = new HttpHeaders();

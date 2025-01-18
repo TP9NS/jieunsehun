@@ -1,0 +1,1975 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" data-bs-theme="auto">
+  <head>
+    <script src="/docs/5.3/assets/js/color-modes.js"></script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.118.2">
+    <title>우리의 보물 지도와 GPT 대화</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/album/">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      .b-example-divider {
+        width: 100%;
+        height: 3rem;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 1px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+      }
+
+      .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+      }
+
+      .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+      }
+
+      .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+      }
+
+      .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .btn-bd-primary {
+        --bd-violet-bg: #712cf9;
+        --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
+
+        --bs-btn-font-weight: 600;
+        --bs-btn-color: var(--bs-white);
+        --bs-btn-bg: var(--bd-violet-bg);
+        --bs-btn-border-color: var(--bd-violet-bg);
+        --bs-btn-hover-color: var(--bs-white);
+        --bs-btn-hover-bg: #6528e0;
+        --bs-btn-hover-border-color: #6528e0;
+        --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
+        --bs-btn-active-color: var(--bs-btn-hover-color);
+        --bs-btn-active-bg: #5a23c8;
+        --bs-btn-active-border-color: #5a23c8;
+      }
+
+      .bd-mode-toggle {
+        z-index: 1500;
+      }
+
+      .bd-mode-toggle .dropdown-menu .active .bi {
+        display: block !important;
+      }
+      #chatbox {
+        width: 400px;
+        height: 670px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-left: 20px;
+      }
+      
+      #chatbox .messages {
+        height: 600px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+      
+      #chatbox input {
+        width: 100%;
+        padding: 10px;
+      }
+
+      .map-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 900px;
+    height: 700px;
+    margin-top: 0;
+}
+
+.search-box {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0px;
+    background-color: white; /* Optional: Adds background to make it stand out */
+    z-index: 1;
+}
+
+#map {
+    flex: 1;
+    margin-top: 50px; /* Adjust this if there is any overlap */
+    width: 100%;
+    height: 100%;
+}
+
+
+      .search-box input {
+        flex: 1;
+        padding: 10px;
+      }
+
+      .search-box button {
+        padding: 10px;
+      }
+
+      .saved-coordinates {
+        margin-top: 20px;
+      }
+
+      .container {
+        display: flex;
+        
+      }
+.map_wrap, .map_wrap * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;
+    font-size: 12px;
+}
+
+.map_wrap a, .map_wrap a:hover, .map_wrap a:active {
+    color: #000;
+    text-decoration: none;
+}
+
+.map_wrap {
+    position: relative;
+    width: calc(100% - 80px); /* 메뉴 너비를 뺀 지도 너비 설정 */
+    height: 620px;
+    margin-left: 200px; /* 메뉴와의 간격 확보 */
+}
+
+#menu_wrap {
+    position: absolute;
+    top: 120px;
+    left: 0;
+    bottom: 0;
+    margin-bottom: 20px;
+    width: 300px;
+    height: calc(100% - 150px); /* 상단과 하단 간격 고려 */
+    margin: 10px 0 30px 10px;
+    padding: 5px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 1;
+    font-size: 12px;
+    border-radius: 10px;
+}
+
+.overlaybox {
+    padding: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.overlaybox ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.overlaybox li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.overlaybox img {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+#placesList li {list-style: none;}
+#placesList .item {position:relative;border-bottom:1px solid #888;overflow: hidden;cursor: pointer;min-height: 65px;}
+#placesList .item span {display: block;margin-top:4px;}
+#placesList .item h5, #placesList .item .info {text-overflow: ellipsis;overflow: hidden;white-space: nowrap;}
+#placesList .item .info{padding:10px 0 10px 55px;}
+#placesList .info .gray {color:#8a8a8a;}
+#placesList .info .jibun {padding-left:26px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_jibun.png) no-repeat;}
+#placesList .info .tel {color:#009900;}
+#placesList .info .category {color:#009900;}
+#placesList .item .markerbg {float:left;position:absolute;width:36px; height:37px;margin:10px 0 0 10px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png) no-repeat;}
+#placesList .item .marker_1 {background-position: 0 -10px;}
+#placesList .item .marker_2 {background-position: 0 -56px;}
+#placesList .item .marker_3 {background-position: 0 -102px}
+#placesList .item .marker_4 {background-position: 0 -148px;}
+#placesList .item .marker_5 {background-position: 0 -194px;}
+#placesList .item .marker_6 {background-position: 0 -240px;}
+#placesList .item .marker_7 {background-position: 0 -286px;}
+#placesList .item .marker_8 {background-position: 0 -332px;}
+#placesList .item .marker_9 {background-position: 0 -378px;}
+#placesList .item .marker_10 {background-position: 0 -423px;}
+#placesList .item .marker_11 {background-position: 0 -470px;}
+#placesList .item .marker_12 {background-position: 0 -516px;}
+#placesList .item .marker_13 {background-position: 0 -562px;}
+#placesList .item .marker_14 {background-position: 0 -608px;}
+#placesList .item .marker_15 {background-position: 0 -654px;}
+#pagination {margin:10px auto;text-align: center;}
+#pagination a {display:inline-block;margin-right:10px;}
+#pagination .on {font-weight: bold; cursor: default;color:#777;}
+.wrap {
+    position: absolute;
+    left: 0;
+    bottom: 40px;
+    width: 400px;
+    height: 450px; /* 높이 증가 */
+    margin-left: -144px;
+    text-align: left;
+    overflow: auto; /* 내부 요소가 넘치면 스크롤 추가 */
+    font-size: 12px;
+    font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;
+    line-height: 1.5;
+}
+
+.wrap * {
+    padding: 0;
+    margin: 0;
+}
+
+.wrap .info {
+    width: 100%; /* 부모 요소 크기와 동일하게 */
+    height: auto; /* 내부 요소에 따라 높이 자동 조정 */
+    border-radius: 5px;
+    border-bottom: 2px solid #ccc;
+    border-right: 1px solid #ccc;
+    overflow: visible; /* 버튼과 다른 요소가 숨겨지지 않도록 설정 */
+    background: #fff;
+    padding: 10px; /* 내부 여백 추가 */
+    box-sizing: border-box; /* 패딩 포함 크기 계산 */
+}
+
+.wrap .info:nth-child(1) {
+    border: 0;
+    box-shadow: 0px 1px 2px #888;
+}
+
+.info .title {
+    padding: 5px 10px; /* 좌우 여백 추가 */
+    height: auto; /* 제목 높이 자동 조정 */
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.info .close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    color: #888;
+    width: 17px;
+    height: 17px;
+    background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');
+    cursor: pointer; /* 마우스 포인터 */
+}
+
+.info .close:hover {
+    color: #000; /* 호버 시 색상 변경 */
+}
+
+.info .body {
+    position: relative;
+    overflow: auto; /* 스크롤 추가 */
+}
+
+.info .desc {
+    position: relative;
+    margin: 10px 0; /* 상단 여백 */
+    height: auto; /* 높이 자동 조정 */
+    line-height: 1.5;
+}
+
+.desc .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.desc .jibun {
+    font-size: 11px;
+    color: #888;
+    margin-top: -2px;
+}
+
+.info .img {
+    position: absolute;
+    top: 6px;
+    left: 5px;
+    width: 73px;
+    height: 71px;
+    border: 1px solid #ddd;
+    color: #888;
+    overflow: hidden;
+}
+
+.info:after {
+    content: '';
+    position: absolute;
+    margin-left: -12px;
+    left: 50%;
+    bottom: 0;
+    width: 22px;
+    height: 12px;
+    background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png');
+}
+
+.info .link {
+    color: #5085BB;
+}
+
+.wrap .info button {
+    display: block;
+    width: 100px; /* 버튼이 입력 필드와 동일한 너비 */
+    margin-top: 10px; /* 버튼 상단 여백 */
+    padding: 10px;
+    background-color: #007bff; /* 파란색 배경 */
+    color: white; /* 흰색 글자 */
+    border: none; /* 테두리 제거 */
+    border-radius: 5px; /* 모서리 둥글게 */
+    font-size: 14px;
+    cursor: pointer; /* 클릭 가능한 포인터 */
+    text-align: center;
+}
+
+.wrap .info button:hover {
+    background-color: #0056b3; /* 호버 시 색상 변경 */
+}
+
+.input {
+    width: 300px; /* 원하는 너비로 설정 */
+    height: 20px; /* 원하는 높이로 설정 */
+    padding: 5px; /* 내부 여백 조정 */
+    border: 1px solid #ccc; /* 테두리 설정 */
+    border-radius: 4px; /* 모서리 둥글게 */
+    font-size: 12px; /* 글자 크기 설정 */
+    margin: 2px 0; /* 입력 필드 간의 간격 조정 */
+}
+.review-section {
+    margin-top: 20px; /* 위와의 간격 */
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+/* 리뷰 작성 섹션 */
+.review-form {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+}
+
+.review-form .rating-stars {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+    justify-content: start;
+    align-items: center;
+}
+
+.review-form .rating-stars span {
+    font-size: 30px; /* 별 크기 */
+    cursor: pointer;
+    color: #ffc107; /* 선택된 별 색상 */
+    transition: all 0.3s ease-in-out;
+}
+
+/* 선택되지 않은 별은 '☆' */
+.review-form .rating-stars span::before {
+    content: '☆'; /* 기본 빈 별 */
+}
+
+/* 선택된 별은 '★' */
+.review-form .rating-stars span.selected::before {
+    content: '★'; /* 채워진 별 */
+}
+
+
+
+.review-form textarea {
+    width: 100%;
+    height: 80px;
+    resize: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+
+.review-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.review-form button:hover {
+    background-color: #0056b3;
+}
+
+/* 리뷰 리스트 섹션 */
+.review-list {
+    margin-top: 20px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.review-list .review-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.review-list .review-item:last-child {
+    border-bottom: none;
+}
+
+.review-list .review-author {
+    font-weight: bold;
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.review-list .review-rating {
+    color: #ffc107; /* 별점 색상 */
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.review-list .review-text {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* 별점 평균 */
+.average-rating {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.average-rating .stars {
+    margin-right: 10px;
+    color: #ffc107; /* 별점 색상 */
+    font-size: 20px;
+}
+
+.average-rating .value {
+    font-weight: bold;
+    font-size: 18px;
+}
+.rating-stars {
+    display: inline-flex;
+    gap: 5px; /* 별 사이 간격 */
+}
+
+.rating-stars span {
+    font-size: 24px; /* 별 크기 */
+    color: #ffc107; /* 채워진 별 색상 */
+}
+
+.rating-stars span::before {
+    content: '☆'; /* 기본 빈 별 */
+}
+
+.rating-stars span.filled::before {
+    content: '★'; /* 채워진 별 */
+}
+
+.rating-stars span.half::before {
+    content: '★'; /* 반쪽 별도 동일하게 표시 */
+    color: #ffc107;
+    clip-path: inset(0 50% 0 0); /* 왼쪽 절반만 채우기 */
+}
+
+.badge {
+    font-size: 10px;
+    color: white;
+    padding: 5px 7px;
+    border-radius: 50%;
+    position: absolute;
+}
+</style>
+</head>
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+      <symbol id="check2" viewBox="0 0 16 16">
+        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+      </symbol>
+      <symbol id="circle-half" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+      </symbol>
+      <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+        <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+      </symbol>
+      <symbol id="sun-fill" viewBox="0 0 16 16">
+        <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+      </symbol>
+    </svg>
+<body th:data-user-permission="${session.permission}">
+<body th:data-user-id="${userId}" th:data-user-permission="${userPermission}">
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const userId = document.body.getAttribute("data-user-id"); // userId를 가져옵니다
+    const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10); // userPermission 값을 가져옵니다
+
+    console.log("User ID:", userId);
+    console.log("User Permission:", userPermission);
+
+    // 비로그인 상태 확인
+    if (!userId || isNaN(userPermission)) {
+        console.log("User is not logged in. Restricting access to protected links.");
+
+        // 제한할 링크(로그인 및 회원가입 제외)
+        const restrictedLinks = document.querySelectorAll('a.nav-link:not([href="/user/login"]):not([href="/user/signup"])');
+        restrictedLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault(); // 기본 동작 차단
+                alert("로그인 후 이용할 수 있습니다."); // 알림 표시
+            });
+        });
+
+        // 제한할 버튼들 비활성화
+        const restrictedButtons = document.querySelectorAll('button:not(.always-active)');
+        restrictedButtons.forEach(button => {
+            button.disabled = true; // 버튼 비활성화
+            button.addEventListener('click', function () {
+                alert("로그인 후 이용할 수 있습니다."); // 클릭 시 알림 표시
+            });
+        });
+
+        console.log("Unrestricted login and signup buttons.");
+    } else if (userPermission === 1 || userPermission === 0) {
+        console.log("User is logged in with permission:", userPermission);
+
+        // 로그인한 사용자와 관리자는 제한 없음. 모든 버튼 활성화.
+        const restrictedButtons = document.querySelectorAll('button');
+        restrictedButtons.forEach(button => {
+            button.disabled = false; // 버튼 활성화
+        });
+
+        console.log("All buttons are active.");
+    } else {
+        console.error("Unexpected user permission value:", userPermission);
+    }
+});
+
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
+    const chatbox = document.getElementById("chatbox");
+    const adminMapPointsForm = document.getElementById("adminMapPointsForm");
+
+    // chatbox는 관리자일 경우 숨기고, 장소 리스트(adminMapPointsForm)는 항상 표시
+    if (chatbox && userPermission === 0) {
+        chatbox.style.display = "none"; // 관리자인 경우 chatbox 숨김
+    }
+    
+    if (adminMapPointsForm) {
+        adminMapPointsForm.style.display = "block"; // 장소 리스트는 항상 표시
+    }
+});
+</script>
+
+<header data-bs-theme="dark">
+  <div class="collapse text-bg-dark" id="navbarHeader">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-8 col-md-7 py-4">
+          <h4>About</h4>
+          <p class="text-body-secondary">우리들의 보물지도에 온 것을 환영합니다!</p>
+        </div>
+        <div class="col-sm-4 offset-md-1 py-4">
+          <h4>Contact</h4>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-white">Follow on Twitter</a></li>
+            <li><a href="#" class="text-white">Like on Facebook</a></li>
+            <li><a href="#" class="text-white">Email me</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="navbar navbar-dark bg-dark shadow-sm">
+    <div class="container d-flex align-items-center justify-content-between">
+      <!-- 보물 지도 로고를 상단에 고정 -->
+      <a href="/main" class="navbar-brand">
+        <strong>보물 지도</strong>
+        <img src=/images/보물지도로고.png alt="보물 지도 로고" width="50" height="50" class="me-2">
+      </a>
+
+      <!-- 로고 아래 가로로 메뉴와 버튼 배치 -->
+      <div class="d-flex justify-content-between w-100 mt-2">
+        <ul class="navbar-nav flex-row">
+
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/board">게시판</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/mymap">나만의 지도</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/groupmap">그룹 지도</a>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/friends">친구 목록</a>
+            <span id="friend-badge" class="badge bg-danger" style="display: none; position: relative; top: -55px; left: 60px;">0</span>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/groups">그룹 관리</a>
+            <span id="group-badge" class="badge bg-danger" style="display: none; position: relative; top: -55px; left: 60px;">0</span>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/friends/messages/inbox">쪽지함</a>
+            <span id="message-badge" class="badge bg-danger" style="display: none; position: relative; top: -55px; left: 40px;">0</span>
+          </li>
+          <li class="nav-item me-3">
+            <a class="nav-link" href="/vote">장소 투표</a>
+          </li>
+        </ul>
+
+        <!-- 로그인 여부에 따라 버튼 표시 -->
+        <ul class="navbar-nav flex-row">
+  <!-- 로그인이 되어 있을 때 -->
+  <li th:if="${session.user_id != null}" class="nav-item me-3">
+    <a class="nav-link" th:if="${session.permission == 0}" th:href="@{/user/manage-locations}">관리자님 어서오세요!</a>
+    <a class="nav-link" th:if="${session.permission != 0}" th:href="@{/user/mypage}">마이페이지</a>
+  </li>
+        <li th:if="${session.permission == 0}" class="nav-item me-3">
+        <a class="nav-link" th:href="@{/admin/manageuser}">유저 관리</a>
+        </li>
+  <li th:if="${session.permission == 0}" class="nav-item me-3">
+    <a class="nav-link" th:href="@{/user/report}">신고 관리</a>
+  </li>
+  <li th:if="${session.user_id != null}" class="nav-item">
+    <a class="nav-link" th:href="@{/user/logout}">로그아웃</a>
+  </li>
+
+  <!-- 로그인이 되어 있지 않을 때 -->
+  <li th:unless="${session.user_id != null}" class="nav-item me-3">
+    <a class="nav-link" th:href="@{/user/login}">로그인</a>
+  </li>
+  <li th:unless="${session.user_id != null}" class="nav-item">
+    <a class="nav-link" th:href="@{/user/signup}">회원가입</a>
+  </li>
+</ul>
+      </div>
+    </div>
+  </div>
+</header>
+<main class="container">
+  <div id="menu_wrap" class="bg_white">
+    <div class="option">
+      <div>
+        <form onsubmit="searchPlaces(); return false;">
+          키워드 : <input type="text" value="이태원 맛집" id="keyword" size="15"> 
+          <button type="submit">검색하기</button> 
+        </form>
+      </div>
+    </div>
+    <hr>
+    <ul id="placesList"></ul>
+    <div id="pagination"></div>
+   <!-- 리뷰 섹션 -->
+  <div class="review-section mt-4">
+    <!-- 저장된 장소 드롭다운 -->
+    <div class="form-group">
+      <label for="savedLocations">저장된 장소 선택:</label>
+      <select id="savedLocations" class="form-select">
+        <option value="" disabled selected>장소를 선택하세요</option>
+        <!-- 사용자 저장 장소 목록 -->
+        <th:block th:each="location : ${userSavedLocations}">
+          <option th:value="${location.locationName}" th:text="${location.locationName}"></option>
+        </th:block>
+      </select>
+    </div>
+
+    <!-- 리뷰 작성 폼 -->
+    <div class="review-form">
+      <div class="rating-stars">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+      <textarea id="reviewText" placeholder="리뷰를 작성하세요..."></textarea>
+      <button onclick="submitReview()">리뷰 등록</button>
+    </div>
+  </div>
+</div>
+
+  <div class="map_wrap">
+    <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
+    <div class="container mt-3 d-flex justify-content-center" style="position: absolute; top: 10px; width: 100%; z-index: 1;">
+         <button class="btn btn-primary me-2" onclick="findmyLocation('')">내 위치</button>
+         <button class="btn btn-primary me-2" onclick="searchCategory('음식점')">음식점</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('카페')">카페</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('은행')">은행</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('약국')">약국</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('주유소')">주유소</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('편의점')">편의점</button>
+      <button class="btn btn-primary me-2" onclick="searchCategory('마트')">마트</button>
+      <button class="btn btn-primary" onclick="searchCategory('패션')">쇼핑몰</button>
+      
+    </div>
+   
+  </div>
+
+  <!-- GPT 채팅 박스 -->
+  <div id="chatbox">
+    <div class="messages" id="messages">
+      <!-- 대화 기록이 여기에 추가됩니다 -->
+    </div>
+    <input type="text" id="user-input" placeholder="GPT와 대화하세요..." onkeypress="sendMessage(event)">
+  </div>
+  
+  <div id="admin-places">
+    <h3>관리자가 저장한 장소들</h3>
+
+    <!-- 주제 선택 드롭다운 -->
+    <div class="mb-3">
+      <label for="topicFilter" class="form-label">주제를 선택하세요:</label>
+      <select id="topicFilter" class="form-select">
+        <option value="ALL">전체</option>
+        <th:block th:each="topic : ${distinctTopics}">
+          <option th:value="${topic}" th:text="${topic}"></option>
+        </th:block>
+        <option value="NONE">없음</option>
+      </select>
+    </div>
+
+    <!-- 장소 리스트 -->
+    <div id="place-list" class="list-group">
+      <th:block th:each="point : ${adminMapPoints}">
+        <div class="list-group-item mb-3" th:attr="data-topic-th=${point.topic}">
+          <h4 th:text="${point.topic}"></h4>
+          <h5>
+            <a href="javascript:void(0);" 
+              class="location-link" 
+              th:text="${point.locationName}"
+              th:data-lat="${point.latitude}"
+              th:data-lng="${point.longitude}"
+              th:data-name="${point.locationName}">
+            </a>
+          </h5>
+          <p th:text="'Alias: ' + ${point.locationAlias}"></p>
+          <p th:text="'Address: ' + ${point.address}"></p>
+          <p th:text="'Phone: ' + ${point.phone}"></p>
+          <img th:src="${point.imageUrl}" alt="Image" class="img-thumbnail" style="max-width: 200px;">
+        </div>
+      </th:block>
+    </div>
+  </div>
+</main>
+
+<script type="text/javascript">
+//JavaScript to retrieve user permission dynamically
+const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
+console.log("User Permission:", userPermission);
+
+</script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5e206128c9bbc2a5a6512679610c9ef8&libraries=services"></script>
+<script>
+// 마커를 담을 배열입니다
+var markers = [];
+
+var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+    mapOption = {
+        center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
+        level: 3 // 지도의 확대 레벨
+    };  
+
+// 지도를 생성합니다    
+var map = new kakao.maps.Map(mapContainer, mapOption); 
+
+// 장소 검색 객체를 생성합니다
+var ps = new kakao.maps.services.Places();  
+
+// 검색 결과 목록이나 마커를 클릭했을 때 장소명을 표출할 인포윈도우를 생성합니다
+var infowindow = new kakao.maps.InfoWindow({zIndex:1});
+
+var currentInfowindow = null;
+
+var currentOverlay = null;
+
+//카테고리 코드 매핑
+const categoryCodes = {
+    "음식점": "FD6",
+    "카페": "CE7",
+    "은행": "BK9",
+    "약국": "PM9",
+    "주유소": "OL7",
+    "편의점": "CS2",
+    "마트": "MT1",
+    "패션": "SM1"
+};
+
+//카테고리로 장소 검색 함수
+function searchCategory(categoryName) {
+    const categoryCode = categoryCodes[categoryName];
+    if (!categoryCode) {
+        alert("잘못된 카테고리입니다.");
+        return;
+    }
+
+    var center = map.getCenter(); // 검색 전 현재 지도 중심 좌표를 저장
+    var radius = 3000; // 검색 반경
+
+    // 카테고리 코드로 장소 검색 요청
+    ps.categorySearch(categoryCode, categorySearchCB, {
+        location: center,
+        radius: radius
+    });
+
+    // 검색이 완료된 직후에 지도 중심을 다시 설정하는 딜레이 추가
+    setTimeout(() => {
+        map.setCenter(center);
+    }, 10); // 100ms 지연 후 지도 중심 재설정
+}
+
+// 키워드로 장소를 검색합니다
+searchPlaces();
+
+// 키워드 검색을 요청하는 함수입니다
+function searchPlaces() {
+
+    var keyword = document.getElementById('keyword').value;
+
+    if (!keyword.replace(/^\s+|\s+$/g, '')) {
+        alert('키워드를 입력해주세요!');
+        return false;
+    }
+
+    // 장소검색 객체를 통해 키워드로 장소검색을 요청합니다
+    ps.keywordSearch( keyword, placesSearchCB); 
+}
+
+// 장소검색이 완료됐을 때 호출되는 콜백함수 입니다
+function placesSearchCB(data, status, pagination) {
+    if (status === kakao.maps.services.Status.OK) {
+
+        // 정상적으로 검색이 완료됐으면
+        // 검색 목록과 마커를 표출합니다
+        displayPlaces(data);
+
+        // 페이지 번호를 표출합니다
+        displayPagination(pagination);
+
+    } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+
+        alert('검색 결과가 존재하지 않습니다.');
+        return;
+
+    } else if (status === kakao.maps.services.Status.ERROR) {
+
+        alert('검색 결과 중 오류가 발생했습니다.');
+        return;
+
+    }
+}
+
+// 검색 결과 목록과 마커를 표출하는 함수입니다
+function displayPlaces(places) {
+
+    var listEl = document.getElementById('placesList'), 
+    menuEl = document.getElementById('menu_wrap'),
+    fragment = document.createDocumentFragment(), 
+    bounds = new kakao.maps.LatLngBounds(), 
+    listStr = '';
+    
+    // 검색 결과 목록에 추가된 항목들을 제거합니다
+    removeAllChildNods(listEl);
+
+    // 지도에 표시되고 있는 마커를 제거합니다
+    removeMarker();
+    
+    for (var i = 0; i < places.length; i++) {
+        // 마커를 생성하고 지도에 표시합니다
+        var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x),
+            marker = addMarker(placePosition, i, places[i].place_name, places[i]), // 변경된 부분
+            itemEl = getListItem(i, places[i]);
+
+        // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
+        // LatLngBounds 객체에 좌표를 추가합니다
+        bounds.extend(placePosition);
+
+        // 마커와 검색결과 항목에 mouseover 했을때
+        // 해당 장소에 인포윈도우에 장소명을 표시합니다
+        // mouseout 했을 때는 인포윈도우를 닫습니다
+        (function(marker, title) {
+            kakao.maps.event.addListener(marker, 'mouseover', function() {
+                displayInfowindow(marker, title);
+            });
+
+            kakao.maps.event.addListener(marker, 'mouseout', function() {
+                infowindow.close();
+            });
+
+            itemEl.onmouseover =  function () {
+                displayInfowindow(marker, title);
+            };
+
+            itemEl.onmouseout =  function () {
+                infowindow.close();
+            };
+        })(marker, places[i].place_name);
+
+        fragment.appendChild(itemEl);
+    }
+
+    // 검색결과 항목들을 검색결과 목록 Element에 추가합니다
+    listEl.appendChild(fragment);
+    menuEl.scrollTop = 0;
+
+    // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+    map.setBounds(bounds);
+}
+
+// 검색결과 항목을 Element로 반환하는 함수입니다
+function getListItem(index, places) {
+    var el = document.createElement('li');
+    el.className = 'item';
+
+    // 기본 정보 HTML
+    var itemStr = `
+        <span class="markerbg marker_${index + 1}"></span>
+        <div class="info">
+            <h5>${places.place_name}</h5>
+            ${places.category_name ? `<span class="category">${places.category_name}</span><br>` : ''}
+            ${places.road_address_name 
+                ? `<span>${places.road_address_name}</span><br><span class="jibun gray">${places.address_name}</span>` 
+                : `<span>${places.address_name}</span>`
+            }
+            <span class="tel">${places.phone || '전화번호 없음'}</span>
+        </div>
+    `;
+
+    // 별점 평균 섹션 추가 (초기값은 로딩 중으로 표시)
+    itemStr += `
+        <div class="average-rating mt-3">
+            <span class="stars">⭐⭐⭐⭐⭐</span> <!-- 기본 별점 예시 -->
+            <span class="value">평균 별점 계산 중...</span> <!-- 기본 평균값 -->
+        </div>
+    `;
+
+    // 리뷰 리스트 섹션 추가 (빈 상태로 생성)
+    itemStr += `
+        <div class="review-list">
+            <p>리뷰를 불러오는 중...</p> <!-- 로딩 메시지 -->
+        </div>
+    `;
+
+    el.innerHTML = itemStr;
+
+    // 장소 이름을 이용해 리뷰를 로드하고 업데이트
+    loadReviews(places.place_name, el);
+
+    return el;
+}
+
+
+//카테고리 검색 결과를 처리하는 콜백 함수
+function categorySearchCB(data, status, pagination) {
+    if (status === kakao.maps.services.Status.OK) {
+        // 카테고리 검색 결과가 있으면 마커와 결과를 표시
+        console.log("카테고리 검색 결과:", data);
+
+        // 기존 마커 제거
+        removeMarker();
+
+        // 지도에 표시할 새로운 마커 추가
+        data.forEach((place, idx) => {
+            const position = new kakao.maps.LatLng(place.y, place.x);
+            addCategoryMarker(position, idx, place.place_name, place);
+        });
+
+        // 페이지 번호 표시 (옵션으로 추가 가능)
+        if (pagination) {
+            displayPagination(pagination);
+        }
+    } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+        alert('카테고리 검색 결과가 없습니다.');
+    } else if (status === kakao.maps.services.Status.ERROR) {
+        alert('카테고리 검색 중 오류가 발생했습니다.');
+    }
+}
+
+
+function addCategoryMarker(position, idx, title, place) {
+    var imageSrc;
+
+    // 카테고리 분리
+    var categories = place.category_name.split(' > ');
+    var topCategory = categories[0];
+
+    // 카테고리별로 다른 이미지 파일을 설정
+    if (place.category_name.includes('카페')) {
+        imageSrc = 'https://i.ibb.co/7WYRffx/2.png';
+    } else if (topCategory === '음식점') {
+        imageSrc = 'https://i.ibb.co/KVfTjZ3/1.png';
+    } else if (place.category_name.includes('은행')) {
+        imageSrc = 'https://i.ibb.co/QXw7w9s/6.png';
+    } else if (place.category_name.includes('약국')) {
+        imageSrc = 'https://i.ibb.co/LzqYJc2/4.png';
+    } else if (place.category_name.includes('주유소')) {
+        imageSrc = 'https://i.ibb.co/dD0NB2J/3.png';
+    } else if (place.category_name.includes('편의점')) {
+        imageSrc = 'https://i.ibb.co/pPCth4L/9.png';
+    } else if (place.category_name.includes('대형마트') || place.category_name.includes('슈퍼마켓')) {
+        imageSrc = 'https://i.ibb.co/yp4crvZ/8.png';
+    } else if (place.category_name.includes('패션')) {
+        imageSrc = 'https://i.ibb.co/3YnxZyk/7.png';
+    } else {
+        imageSrc = 'https://i.pinimg.com/564x/86/89/4b/86894b48abbc5bd42b5f317be9b52934.jpg';
+    }
+
+    var imageSize = new kakao.maps.Size(34, 45),
+        markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize),
+        marker = new kakao.maps.Marker({
+            position: position,
+            image: markerImage
+        });
+
+    marker.setMap(map);
+    markers.push(marker);
+ // 마커 클릭 이벤트 리스너 추가
+    kakao.maps.event.addListener(marker, 'click', function () {
+       // 기존 overlay 닫기
+        if (currentOverlay) {
+            currentOverlay.setMap(null);
+        }
+        var latitude = position.getLat();
+        var longitude = position.getLng();
+        
+     // 마커 색상 이미지 리스트
+        const markerColorImages = {
+            red: 'https://i.ibb.co/JKQhd5F/red.png',
+            orange: 'https://i.ibb.co/5GBR3by/orange.png',
+            yellow: 'https://i.ibb.co/M26n9tG/yellow.png',
+            green: 'https://i.ibb.co/hfBPHYB/green.png',
+            blue: 'https://i.ibb.co/6N7BwZ6/blue.png',
+        };
+
+        // 마커 선택 UI 생성
+        let markerSelectionUI = '<div style="display: flex; gap: 30px; justify-content: center; margin-top: 10px;">';
+        for (const [color, url] of Object.entries(markerColorImages)) {
+            markerSelectionUI += `
+                <img src="${url}" alt="${color}" 
+                    style="width: 30px; height: 50px; cursor: pointer;" 
+                    data-color="${color}"
+                    onclick="document.getElementById('selected-marker-color').value='${color}'; document.getElementById('color-feedback').textContent='현재 선택된 색상: ${color}';">
+            `;
+        }
+        markerSelectionUI += '</div>';
+
+        // 오버레이 내용을 구성합니다
+        var overlayContent = '<div class="wrap">' +
+            '    <div class="info">' +
+            '        <div class="title">' + title +
+            '            <div class="close" onclick="closeOverlay()"></div>' +
+            '        </div>' +
+            '        <div class="body">' +
+            '            <div class="desc">' +
+            '                <span>' + (place.road_address_name ? '주소: ' + place.road_address_name : place.address_name) + '</span><br>' +
+            '                <span class="tel">' + (place.phone ? '전화: ' + place.phone : '') + '</span><br>' +
+            '                <span class="category">' + '카테고리: ' + (place.category_name ? place.category_name : '') + '</span><br>' +
+            '                <span>위도: ' + latitude + '</span><br>' +
+            '                <span>경도: ' + longitude + '</span><br>' +
+            '                <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>' +
+            '                <input type="text" placeholder="메모" id="note" class="input"><br>' +
+            '                <label>마커 색상 선택:</label>' +
+            '                <input type="hidden" id="selected-marker-color" value="red">' + // 기본값은 빨강
+            markerSelectionUI +
+            '<p id="color-feedback" style="margin-top: 10px; font-weight: bold; color: #333;">현재 선택된 색상: 빨강</p>' +
+            '                <select id="mapType">' +
+            '                    <option value="MY_MAP">나만의 지도</option>' +
+            '                    <option value="GROUP1_MAP">그룹1 지도</option>' +
+            '                    <option value="GROUP2_MAP">그룹2 지도</option>' +
+            '                </select><br>' +
+            '                <button onclick="saveLocation(\'' + title + '\', ' + latitude + ', ' + longitude + ', \'' + (place.address_name || '') + '\', \'' + (place.road_address_name || '') + '\', \'' + (place.phone || '') + '\', \'' + (place.category_name || '') + '\')">저장</button>' +
+            '            </div>' +
+            '        </div>' +
+            '    </div>' +
+            '</div>';
+
+     // 커스텀 오버레이를 생성하고 표시합니다
+        currentOverlay = new kakao.maps.CustomOverlay({
+            position: position,
+            content: overlayContent,
+            xAnchor: 0.5,
+            yAnchor: 1
+        });
+
+        currentOverlay.setMap(map);
+    });
+}
+
+function addMarker(position, idx, title, place) {
+    var markerImage = new kakao.maps.MarkerImage(
+        'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png',
+        new kakao.maps.Size(36, 37),
+        { spriteSize: new kakao.maps.Size(36, 691), spriteOrigin: new kakao.maps.Point(0, idx * 46 + 10), offset: new kakao.maps.Point(13, 37) }
+    );
+
+    var marker = new kakao.maps.Marker({
+        position: position,
+        image: markerImage
+    });
+    marker.setMap(map);
+    markers.push(marker);
+// 가입된 그룹 목록을 서버에서 가져오는 함수
+async function fetchUserGroups() {
+    try {
+        const response = await fetch('/user/groups');
+        if (response.ok) {
+            return await response.json();
+        } else {
+            console.error("Failed to fetch user groups.");
+            return [];
+        }
+    } catch (error) {
+        console.error("Error fetching user groups:", error);
+        return [];
+    }
+}
+
+kakao.maps.event.addListener(marker, 'click', async function () {
+   // 기존 overlay 닫기
+    if (currentOverlay) {
+        currentOverlay.setMap(null);
+    }
+    console.log("Marker clicked:", title); // 디버깅용
+    var latitude = position.getLat();
+    var longitude = position.getLng();
+
+    var userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
+    console.log("User Permission (converted):", userPermission); // 디버깅용
+
+    // 마커 색상 이미지 리스트
+    const markerColorImages = {
+        red: 'https://i.ibb.co/JKQhd5F/red.png',
+        orange: 'https://i.ibb.co/5GBR3by/orange.png',
+        yellow: 'https://i.ibb.co/M26n9tG/yellow.png',
+        green: 'https://i.ibb.co/hfBPHYB/green.png',
+        blue: 'https://i.ibb.co/6N7BwZ6/blue.png',
+    };
+
+    // 마커 선택 UI 생성
+    let markerSelectionUI = '<div style="display: flex; gap: 30px; justify-content: center; margin-top: 10px;">';
+    for (const [color, url] of Object.entries(markerColorImages)) {
+        markerSelectionUI += `
+            <img src="${url}" alt="${color}" 
+                style="width: 30px; height: 50px; cursor: pointer;" 
+                data-color="${color}"
+                onclick="document.getElementById('selected-marker-color').value='${color}'; document.getElementById('color-feedback').textContent='현재 선택된 색상: ${color}';">
+        `;
+    }
+    markerSelectionUI += '</div>';
+
+    // 오버레이 내용 생성
+    var overlayContent =
+    '<div class="wrap">' +
+    '    <div class="info">' +
+    '        <div class="title">' + title +
+    '            <div class="close" onclick="closeOverlay()"></div>' +
+    '        </div>' +
+    '        <div class="body">' +
+    '            <div class="desc">' +
+    '                <div class="average-rating">평균 별점: ' +
+    '                    <div id="average-stars" class="rating-stars" style="display: inline-flex; gap: 5px;"></div>' +
+    '                    <span id="average-rating" style="margin-left: 5px;">로딩 중...</span>' +
+    '                </div>' +
+    '                <span>' + (place.road_address_name ? '주소: ' + place.road_address_name : place.address_name) + '</span><br>' +
+    '                <span class="tel">' + (place.phone ? '전화: ' + place.phone : '전화번호 없음') + '</span><br>' +
+    '                <span class="category">' + '카테고리: ' + (place.category_name ? place.category_name : '카테고리 정보 없음') + '</span><br>' +
+    '                <span>위도: ' + latitude + '</span><br>' +
+    '                <span>경도: ' + longitude + '</span><br>' +
+    '                <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>' +
+    '                <input type="text" placeholder="메모" id="note" class="input"><br>' +
+    '                <label>마커 색상 선택:</label>' +
+    '                <input type="hidden" id="selected-marker-color" value="red">' + // 기본값은 빨강
+    markerSelectionUI +
+    '<p id="color-feedback" style="margin-top: 10px; font-weight: bold; color: #333;">현재 선택된 색상: 빨강</p>'
+
+    if (userPermission === 0) {
+        console.log("관리자 권한: topic 필드 추가"); // 디버깅용
+        overlayContent += '<input type="text" id="topic" placeholder="주제 입력" class="input"><br>';
+    } else {
+        console.log("일반 사용자 권한: 그룹 목록 필드 추가"); // 디버깅용
+        const groups = await fetchUserGroups(); // 가입된 그룹 목록 가져오기
+        overlayContent += '<select id="mapType">';
+        overlayContent += '<option value="MY_MAP">나만의 지도</option>';
+        groups.forEach(group => {
+            overlayContent += `<option value="${group.groupId}"> 그룹명:${group.groupName}</option>`;
+        });
+        overlayContent += '</select><br>';
+    }
+
+    overlayContent += '<button onclick="saveLocation(\'' + title + '\', ' + latitude + ', ' + longitude + ', \'' + (place.address_name || '') + '\', \'' + (place.road_address_name || '') + '\', \'' + (place.phone || '') + '\', \'' + (place.category_name || '') + '\')">저장</button>' +
+        '            </div>' +
+        '        </div>' +
+        '    </div>' +
+        '</div>';
+
+    // 커스텀 오버레이를 생성하고 표시합니다
+    currentOverlay = new kakao.maps.CustomOverlay({
+        position: position,
+        content: overlayContent,
+        xAnchor: 0.5,
+        yAnchor: 1
+    });
+
+    currentOverlay.setMap(map);
+    fetchAverageRating(title);
+});
+
+    return marker;
+}
+
+//오버레이를 닫는 함수
+function closeOverlay() {
+    if (currentOverlay) {
+        currentOverlay.setMap(null); // 기존 오버레이 닫기
+        currentOverlay = null; // 추적 변수 초기화
+    }
+}
+
+
+// 지도 위에 표시되고 있는 마커를 모두 제거합니다
+function removeMarker() {
+    // 지도에서 모든 마커 제거
+    for (var i = 0; i < markers.length; i++) {
+        markers[i].setMap(null);
+    }
+    markers = []; // 마커 배열 초기화
+
+    // 지도에서 모든 오버레이 제거
+    currentOverlays.forEach(function (overlay) {
+        overlay.setMap(null);
+    });
+    currentOverlays = []; // 오버레이 배열 초기화
+
+    // 현재 오버레이도 닫기
+    if (window.currentOverlay) {
+        window.currentOverlay.setMap(null);
+        window.currentOverlay = null;
+    }
+}
+
+
+// 검색결과 목록 하단에 페이지번호를 표시는 함수입니다
+function displayPagination(pagination) {
+    var paginationEl = document.getElementById('pagination'),
+        fragment = document.createDocumentFragment(),
+        i; 
+
+    // 기존에 추가된 페이지번호를 삭제합니다
+    while (paginationEl.hasChildNodes()) {
+        paginationEl.removeChild (paginationEl.lastChild);
+    }
+
+    for (i=1; i<=pagination.last; i++) {
+        var el = document.createElement('a');
+        el.href = "#";
+        el.innerHTML = i;
+
+        if (i===pagination.current) {
+            el.className = 'on';
+        } else {
+            el.onclick = (function(i) {
+                return function() {
+                    pagination.gotoPage(i);
+                }
+            })(i);
+        }
+
+        fragment.appendChild(el);
+    }
+    paginationEl.appendChild(fragment);
+}
+
+// 검색결과 목록 또는 마커를 클릭했을 때 호출되는 함수입니다
+// 인포윈도우에 장소명을 표시합니다
+function displayInfowindow(marker, title) {
+    var content = '<div style="padding:5px;z-index:1;">' + title + '</div>';
+
+    // 기존 infowindow 닫기
+    if (currentInfowindow) {
+        currentInfowindow.close();
+    }
+
+    infowindow.setContent(content);
+    infowindow.open(map, marker);
+
+    // 현재 infowindow를 추적
+    currentInfowindow = infowindow;
+}
+
+ // 검색결과 목록의 자식 Element를 제거하는 함수입니다
+function removeAllChildNods(el) {   
+    while (el.hasChildNodes()) {
+        el.removeChild (el.lastChild);
+    }
+}
+ 
+//커스텀 오버레이를 정의하는 클래스입니다
+function CustomOverlay(position, content) {
+    this.position = position;
+    this.content = content;
+    this.overlay = new kakao.maps.CustomOverlay({
+        position: this.position,
+        content: this.content,
+        xAnchor: 0.5,
+        yAnchor: 1,
+    });
+}
+
+// 오버레이를 보여주는 메서드
+CustomOverlay.prototype.setMap = function(map) {
+    this.overlay.setMap(map);
+};
+
+// 오버레이를 숨기는 메서드
+CustomOverlay.prototype.setVisible = function(visible) {
+    this.overlay.setMap(visible ? map : null);
+};
+
+async function sendMessage(event) {
+    if (event.key === 'Enter') {
+      const userInput = document.getElementById('user-input').value;
+      if (userInput.trim() === '') return;
+
+      const messagesContainer = document.getElementById('messages');
+      
+      // 사용자 메시지 추가
+      const userMessage = document.createElement('div');
+      userMessage.textContent = 'You: ' + userInput;
+      messagesContainer.appendChild(userMessage);
+
+      // 입력 창 비우기
+      document.getElementById('user-input').value = '';
+
+      // 서버로 요청 전송
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: userInput })
+      });
+
+      const data = await response.json();
+      const gptMessage = data.response;
+
+      // GPT 응답 추가
+      const gptResponse = document.createElement('div');
+      gptResponse.textContent = 'GPT: ' + gptMessage;
+      messagesContainer.appendChild(gptResponse);
+
+      // 자동 스크롤
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }
+
+//장소 저장 함수 수정
+function saveLocation(title, latitude, longitude, address_name, road_address_name, phone, category_name) {
+    const alias = document.getElementById("alias") ? document.getElementById("alias").value : "";
+    const note = document.getElementById("note") ? document.getElementById("note").value : "";
+    const markerColor = document.getElementById("selected-marker-color").value; // 여기서 null로 전달되는지 확인
+
+    console.log("Marker Color to be saved:", markerColor); // 디버깅용
+
+    const userPermission = parseInt(document.body.getAttribute("data-user-permission"), 10);
+
+    let topic = null;
+    let mapType = null;
+
+    if (userPermission === 0) {
+        topic = document.getElementById("topic") ? document.getElementById("topic").value : "";
+    } else {
+        mapType = document.getElementById("mapType") ? document.getElementById("mapType").value : "MY_MAP";
+    }
+
+    const requestData = {
+        category: category_name || '',
+        locationName: title,
+        locationAlias: alias,
+        locationDesc: note,
+        latitude: latitude,
+        longitude: longitude,
+        address: road_address_name || address_name,
+        phone: phone || '',
+        topic: topic,
+        groupId: mapType !== "MY_MAP" ? parseInt(mapType, 10) : null,
+        markerColor: markerColor // null이 아닌 값을 전달
+    };
+
+    console.log("Request Data:", requestData); // 디버깅용
+
+    const url = mapType === "MY_MAP" ? '/saveMyMapPoint' : '/saveGroupMapPoint';
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || data.error);
+            closeOverlay();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('저장 중 오류가 발생했습니다.');
+        });
+}
+
+
+
+//페이지가 로드된 후 이벤트 리스너를 추가합니다
+document.addEventListener("DOMContentLoaded", function () {
+    // 모든 장소 링크에 클릭 이벤트 리스너를 추가합니다
+    const locationLinks = document.querySelectorAll(".location-link");
+    locationLinks.forEach(link => {
+        link.addEventListener("click", function () {
+            // data-* 속성에서 데이터 가져오기
+            const latitude = parseFloat(this.dataset.lat);
+            const longitude = parseFloat(this.dataset.lng);
+            const locationName = this.dataset.name;
+
+            // 마커 표시 함수 호출
+            showMarker(latitude, longitude, locationName);
+        });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const topicFilter = document.getElementById("topicFilter");
+    const placeList = document.getElementById("place-list");
+
+    // 드롭다운 변경 이벤트 리스너 추가
+    topicFilter.addEventListener("change", function () {
+        const selectedTopic = topicFilter.value;
+
+        // 장소 리스트의 각 항목을 확인
+        const places = placeList.querySelectorAll(".list-group-item");
+        places.forEach(place => {
+            const placeTopic = place.getAttribute("data-topic-th");
+
+            // 전체 보기(ALL) 또는 주제가 일치하는 경우에만 표시
+            if (selectedTopic === "ALL" || placeTopic === selectedTopic) {
+                place.style.display = "block";
+            } else {
+                place.style.display = "none";
+            }
+        });
+    });
+});
+
+
+
+function showMarker(latitude, longitude, locationName) {
+    // 기존 마커와 오버레이 제거
+    removeMarkersAndOverlays();
+
+    // 마커 위치 생성
+    var position = new kakao.maps.LatLng(latitude, longitude);
+
+    // 새로운 마커 생성
+    var marker = new kakao.maps.Marker({
+        position: position
+    });
+
+    // 지도에 마커 표시
+    marker.setMap(map);
+    currentMarkers.push(marker);
+
+    // 지도 중심을 해당 위치로 이동
+    map.setCenter(position);
+
+    // 인포윈도우 생성 및 표시
+    var content = '<div style="padding:5px;z-index:1;">' + locationName + '</div>';
+    infowindow.setContent(content);
+    infowindow.open(map, marker);
+    currentInfowindow = infowindow; // 현재 infowindow 추적
+
+    // 마커 클릭 이벤트 추가
+    kakao.maps.event.addListener(marker, 'click', function () {
+        console.log("Marker clicked:", { latitude, longitude, locationName });
+
+        // overlayData에서 클릭된 마커의 데이터를 찾음
+        const data = findOverlayDataByName(locationName);
+
+        if (!data) {
+            console.error("No data found for the clicked marker.");
+            return;
+        }
+
+        // 저장용 오버레이 생성
+        const saveOverlay = createSaveOverlay(data);
+
+        // 기존 infowindow 닫기
+        infowindow.close();
+
+        // 저장용 오버레이 지도에 표시
+        saveOverlay.setMap(map);
+        window.currentOverlay = saveOverlay; // 활성 오버레이 추적
+    });
+}
+
+// 데이터 검색 함수
+function findOverlayDataByName(name) {
+    // overlayData에서 이름으로 데이터를 검색
+    for (const category in overlayData) {
+        const items = overlayData[category];
+        const match = items.find(item => item.name === name);
+        if (match) return match; // 해당 데이터 반환
+    }
+    return null; // 데이터가 없으면 null 반환
+}
+
+
+
+// 기존 마커를 모두 제거하는 함수
+function removeMarker() {
+    markers.forEach(function (marker) {
+        marker.setMap(null); // 지도에서 마커 제거
+    });
+    markers = []; // 마커 배열 초기화
+}
+
+
+//주제에 따른 커스텀 오버레이 데이터를 정의합니다
+var overlayData = {
+    "데이트 맛집 추천": [
+        {
+            position: new kakao.maps.LatLng(37.400789535230956, 126.91795222023141),
+            name: "얼룩말식당",
+            image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20230725_31%2F1690231419104OgSJL_JPEG%2F146A8BA9-A99E-4C0F-8B6A-F0F61222FAFB.jpeg",
+            address: "경기 안양시 만안구 안양로329번길 23",
+            phone: "031-443-0783",
+            category: "음식점 > 한식"
+        },
+        {
+            position: new kakao.maps.LatLng(37.3937549617236, 126.961593701651),
+            name: "엔우",
+            image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20231023_110%2F1698058451464WVLXo_JPEG%2FKakaoTalk_20230711_185038597_12.jpg",
+            address: "경기 안양시 동안구 관평로182번길 23",
+            phone: "010-7181-7385",
+            category: "음식점 > 술집 > 일본식주점"
+        },
+        {
+            position: new kakao.maps.LatLng(37.3923379453819, 126.95719589159),
+            name: "산타루치아",
+            image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20231027_97%2F1698381447243XGXRJ_JPEG%2FKakaoTalk_20231026_222157546_26.jpg",
+            address: "경기 안양시 동안구 시민대로 230",
+            phone: "031-444-7000",
+            category: "음식점 > 양식 > 이탈리안"
+        },
+        {
+            position: new kakao.maps.LatLng(37.4002025514072, 126.91864969660887),
+            name: "우화",
+            image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20220417_113%2F1650205159350SIXEL_JPEG%2FIMG_20220412_193221_941.jpg",
+            address: "경기 안양시 만안구 양화로72번길 83-21",
+            phone: "010-4376-4260",
+            category: "음식점 > 술집 > 호프,요리주점"
+        },
+        {
+            position: new kakao.maps.LatLng(37.4009378966552, 126.91496703958032),
+            name: "백억한우식당",
+            image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20190709_197%2F1562634758740sS53p_JPEG%2FD0VdgUgirT5MWOHvIgjRQAqi.JPG.jpg",
+            address: "경기 안양시 만안구 박달로560번길 35",
+            phone: "031-447-1252",
+            category: "음식점 > 한식 > 육류,고기"
+        }
+    ],
+    "분위기 좋은 카페 추천": [
+        {
+            position: new kakao.maps.LatLng(37.400036098996196, 126.9216687415007),
+            name: "소사이어티카페",
+            image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20221222_21%2F16716350961528cMzP_JPEG%2FIMG_1694.JPG",
+            address: "경기 안양시 만안구 장내로139번길 56-6",
+            phone: "031-464-9901",
+            category: "음식점 > 카페 > 커피전문점"
+        },
+        {
+            position: new kakao.maps.LatLng(37.394518453298, 126.921987302323),
+            name: "시아케이크",
+            image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20211115_171%2F1636949178361Lwbby_JPEG%2FKakaoTalk_20211115_130503069_04.jpg",
+            address: "경기 안양시 만안구 냉천로 158",
+            phone: "031-443-0512",
+            category: "음식점 > 카페 > 테마카페 > 디저트카페"
+        },
+        {
+            position: new kakao.maps.LatLng(37.3996811596529, 126.919086203476),
+            name: "스태그커피",
+            image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20231128_51%2F1701138594719Tctjq_JPEG%2FIMG_4315.jpeg",
+            address: "경기 안양시 만안구 안양로319번길 22",
+            phone: "010-9253-8714",
+            category: "음식점 > 카페 > 커피전문점"
+        }
+    ]
+};
+//현재 표시 중인 마커 및 오버레이 배열
+var currentMarkers = [];
+var currentOverlays = [];
+
+// 선택된 주제에 따라 마커와 오버레이를 동시에 표시합니다
+// 선택된 주제에 따라 마커와 오버레이를 동시에 표시합니다
+document.getElementById('topicFilter').addEventListener('change', function () {
+    var selectedTopic = this.value;
+
+    // 기존 마커와 오버레이 제거
+    removeMarkersAndOverlays();
+
+    if (selectedTopic === "NONE") {
+        // "없음"이 선택된 경우 아무것도 표시하지 않음
+        return;
+    }
+
+    if (selectedTopic === "ALL") {
+        // "전체(ALL)"이 선택된 경우 모든 주제의 장소를 표시
+        Object.keys(overlayData).forEach(function (topic) {
+            overlayData[topic].forEach(function (location) {
+                createMarkerAndOverlay(location);
+            });
+        });
+    } else if (overlayData[selectedTopic]) {
+        // 특정 주제가 선택된 경우 해당 주제의 장소를 표시
+        overlayData[selectedTopic].forEach(function (location) {
+            createMarkerAndOverlay(location);
+        });
+
+        // 지도 중심을 첫 번째 장소로 설정
+        if (overlayData[selectedTopic].length > 0) {
+            map.setCenter(overlayData[selectedTopic][0].position);
+        }
+    }
+});
+
+function createMarkerAndOverlay(data) {
+    // 마커 생성
+    var marker = new kakao.maps.Marker({
+        position: data.position
+    });
+
+    // 지도에 마커 표시
+    marker.setMap(map);
+    currentMarkers.push(marker); // 마커 배열에 추가
+
+    // 기본 오버레이 콘텐츠 생성
+    var overlayContent = `
+        <div class="overlaybox" style="padding: 10px; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="display: flex; align-items: center;">
+                <img src="${data.image}" alt="${data.name}" style="width: 40px; height: 40px; border-radius: 4px; margin-right: 10px;">
+                <span>${data.name}</span>
+            </div>
+        </div>
+    `;
+
+    // 기본 오버레이 생성
+    var overlay = new kakao.maps.CustomOverlay({
+        position: data.position,
+        content: overlayContent,
+        xAnchor: 0.5,
+        yAnchor: 1.1,
+        zIndex: 3
+    });
+
+    overlay.setMap(map);
+    currentOverlays.push(overlay); // 오버레이 배열에 추가
+
+    // 마커 클릭 이벤트 리스너 추가
+    kakao.maps.event.addListener(marker, 'click', function () {
+        // 기존 오버레이 닫기
+        if (currentOverlay) {
+            currentOverlay.setMap(null);
+        }
+
+        // 저장용 오버레이 생성 및 표시
+        currentOverlay = createSaveOverlay(data);
+        currentOverlay.setMap(map);
+    });
+}
+
+// 저장용 오버레이 생성 함수
+function createSaveOverlay(data) {
+   console.log("Clicked Marker Data:", data);
+    var latitude = data.position.getLat();
+    var longitude = data.position.getLng();
+    var address = data.address || "주소 정보 없음";
+    var phone = data.phone || "전화번호 없음";
+    var category = data.category || "카테고리 정보 없음";
+
+
+    // 마커 색상 선택 UI 생성
+    const markerColorImages = {
+        red: 'https://i.ibb.co/JKQhd5F/red.png',
+        orange: 'https://i.ibb.co/5GBR3by/orange.png',
+        yellow: 'https://i.ibb.co/M26n9tG/yellow.png',
+        green: 'https://i.ibb.co/hfBPHYB/green.png',
+        blue: 'https://i.ibb.co/6N7BwZ6/blue.png',
+    };
+
+    let markerSelectionUI = '<div style="display: flex; gap: 30px; justify-content: center; margin-top: 10px;">';
+    for (const [color, url] of Object.entries(markerColorImages)) {
+        markerSelectionUI += `
+            <img src="${url}" alt="${color}" 
+                style="width: 30px; height: 50px; cursor: pointer;" 
+                data-color="${color}"
+                onclick="document.getElementById('selected-marker-color').value='${color}'; document.getElementById('color-feedback').textContent='현재 선택된 색상: ${color}';">
+        `;
+    }
+    markerSelectionUI += '</div>';
+
+    // 오버레이 내용 구성
+    var overlayContent = `
+        <div class="wrap">
+            <div class="info">
+                <div class="title" style="display: flex; justify-content: space-between; align-items: center;">
+                    ${data.name}
+                    <div class="close" onclick="closeOverlay()" style="cursor: pointer;">X</div>
+                </div>
+                <div class="body">
+                    <div class="desc">
+                        <span>주소: ${address}</span><br>
+                        <span>전화: ${phone}</span><br>
+                        <span>카테고리: ${category}</span><br>
+                        <span>위도: ${latitude}</span><br>
+                        <span>경도: ${longitude}</span><br>
+                        <input type="text" placeholder="저장할 별칭" id="alias" class="input"><br>
+                        <input type="text" placeholder="메모" id="note" class="input"><br>
+                        <label>마커 색상 선택:</label>
+                        <input type="hidden" id="selected-marker-color" value="red"> ${markerSelectionUI}
+                        <p id="color-feedback" style="margin-top: 10px; font-weight: bold; color: #333;">현재 선택된 색상: 빨강</p>
+                        <button onclick="saveLocation('${data.name}', ${latitude}, ${longitude}, '${data.address_name}', '${data.road_address_name}', '${data.phone}', '${data.category_name}')">
+                            저장
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return new kakao.maps.CustomOverlay({
+        position: data.position,
+        content: overlayContent,
+        xAnchor: 0.5,
+        yAnchor: 0.2,
+        zIndex: 4
+    });
+}
+
+
+//오버레이를 닫는 함수
+function closeOverlay() {
+    if (window.currentOverlay) {
+        window.currentOverlay.setMap(null); // 저장용 오버레이 지도에서 제거
+        window.currentOverlay = null;
+    }
+
+    // 모든 현재 오버레이 닫기
+    currentOverlays.forEach(function (overlay) {
+        overlay.setMap(null);
+    });
+    currentOverlays = [];
+}
+
+function removeMarkersAndOverlays() {
+    // 모든 마커 제거
+    if (currentMarkers.length > 0) {
+        currentMarkers.forEach(function (marker) {
+            marker.setMap(null); // 지도에서 마커 제거
+        });
+        currentMarkers = []; // 마커 배열 초기화
+    }
+
+    // 모든 오버레이 제거
+    if (currentOverlays.length > 0) {
+        currentOverlays.forEach(function (overlay) {
+            overlay.setMap(null); // 지도에서 오버레이 제거
+        });
+        currentOverlays = []; // 오버레이 배열 초기화
+    }
+
+    // 현재 활성 오버레이 제거
+    if (window.currentOverlay) {
+        window.currentOverlay.setMap(null);
+        window.currentOverlay = null;
+    }
+
+    // 현재 활성 infowindow 닫기
+    if (currentInfowindow) {
+        currentInfowindow.close();
+        currentInfowindow = null;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // 저장된 장소 데이터 로드
+    fetch("/api/mySavedLocations")
+        .then((response) => response.json())
+        .then((data) => {
+            const savedLocations = document.getElementById("savedLocations");
+            data.forEach((location) => {
+                const option = document.createElement("option");
+                option.value = location.locationName; // 장소 이름
+                option.textContent = location.locationName; // 표시 텍스트
+                savedLocations.appendChild(option);
+            });
+        })
+        .catch((error) => console.error("Error fetching locations:", error));
+
+    // 별점 선택 이벤트 추가
+    const stars = document.querySelectorAll(".rating-stars span");
+    stars.forEach((star, index) => {
+        star.addEventListener("click", function () {
+            console.log(`Star clicked: ${index + 1}`); // 디버깅 로그
+            selectStars(index + 1); // 클릭한 별까지 선택
+        });
+    });
+});
+
+// 별점 선택 함수
+function selectStars(rating) {
+    const stars = document.querySelectorAll(".rating-stars span");
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add("selected"); // 선택된 별 표시
+        } else {
+            star.classList.remove("selected"); // 선택되지 않은 별 표시
+        }
+    });
+}
+
+//리뷰 등록 함수
+function submitReview() {
+    const selectedLocation = document.getElementById("savedLocations").value;
+    const reviewText = document.getElementById("reviewText").value;
+    const ratingStars = document.querySelectorAll(".rating-stars span.selected").length;
+
+    if (!selectedLocation) {
+        alert("장소를 선택해주세요.");
+        return;
+    }
+
+    if (!reviewText) {
+        alert("리뷰 내용을 입력해주세요.");
+        return;
+    }
+
+    if (ratingStars === 0) {
+        alert("별점을 선택해주세요.");
+        return;
+    }
+
+    // 리뷰 데이터를 서버로 전송
+    fetch("/api/saveReview", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            locationName: selectedLocation,
+            reviewText: reviewText,
+            rating: ratingStars,
+        }),
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("리뷰 저장 중 오류 발생");
+            }
+            return response.json(); // JSON 응답 처리
+        })
+        .then((data) => {
+            alert(data.message); // 서버 응답 메시지를 알림으로 표시
+            loadReviews(selectedLocation); // 리뷰 리스트 갱신
+        })
+        .catch((error) => console.error("Error submitting review:", error));
+}
+
+document.getElementById("savedLocations").addEventListener("change", function () {
+    const selectedLocation = this.value;
+    if (selectedLocation) {
+        loadReviews(selectedLocation); // 선택된 장소의 리뷰 가져오기
+    }
+});
+
+
+function loadReviews(locationName, listItem) {
+    console.log("Loading reviews for location:", locationName);
+
+    fetch(`/api/reviews?locationName=${encodeURIComponent(locationName)}`)
+        .then((response) => response.json())
+        .then((reviews) => {
+            console.log("Received reviews:", reviews);
+
+            const reviewList = listItem.querySelector(".review-list");
+            reviewList.innerHTML
