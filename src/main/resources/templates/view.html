@@ -260,7 +260,13 @@
       <div class="d-flex justify-content-between">
         <a href="/board" class="btn btn-secondary">뒤로 가기</a>
         <div>
-          <button class="btn btn-outline-danger me-2" th:if="${session.permission == 1}" data-bs-toggle="modal" data-bs-target="#reportPostModal">글 신고</button>
+          <!-- 게시글 신고 버튼 -->
+<form th:if="${session.permission == 1}" th:action="@{/posts/report}" method="post" class="d-inline">
+  <input type="hidden" name="postId" th:value="${post.id}">
+  <button type="button" class="btn btn-outline-danger me-2" data-bs-toggle="modal" 
+          data-bs-target="#reportPostModal" th:attr="data-post-id=${post.id}">글 신고</button>
+</form>
+
           <span th:if="${session.username == post.username}">
             <a th:href="@{/post/edit/{id}(id=${post.id})}" class="btn btn-warning">수정</a>
             <form th:action="@{/post/delete}" method="post" class="d-inline">
@@ -330,11 +336,11 @@
           <small class="text-muted ms-2" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">작성 시간</small>
         </div>
         <!-- 신고 버튼 -->
-        <form th:if="${session.permission == 1}" th:action="@{/comments/report}" method="post" class="d-inline">
-          <input type="hidden" name="commentId" th:value="${comment.id}">
-          <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" 
-                  data-bs-target="#reportCommentModal" th:attr="data-comment-id=${comment.id}">신고</button>
-        </form>
+<form th:if="${session.permission == 1}" th:action="@{/comments/report}" method="post" class="d-inline">
+  <input type="hidden" name="commentId" th:value="${comment.id}">
+  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" 
+          data-bs-target="#reportCommentModal" th:attr="data-comment-id=${comment.id}">신고</button>
+</form>
         <!-- 관리자 전용 숨김 처리 버튼 -->
         <span th:if="${session.permission == 0}">
           <form th:action="@{/user/comments/hide}" method="post" class="d-inline">
@@ -492,6 +498,23 @@ editCommentModal.addEventListener('show.bs.modal', function (event) {
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    const reportPostModal = document.getElementById("reportPostModal");
+    if (reportPostModal) {
+        reportPostModal.addEventListener("show.bs.modal", function (event) {
+            const button = event.relatedTarget; // 모달을 열었던 버튼
+            const postId = button.getAttribute("data-post-id"); // 버튼의 data-post-id
+            const postIdInput = reportPostModal.querySelector("input[name='postId']");
+
+            if (postId && postIdInput) {
+                postIdInput.value = postId; // hidden input에 postId 설정
+            } else {
+                console.error("Post ID is missing or input field not found.");
+            }
+        });
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
     // 게시글 신고 모달 처리
     const reportPostModal = document.getElementById("reportPostModal");
     if (reportPostModal) {
@@ -545,12 +568,42 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         console.error("Report post modal not found.");
     }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const reportCommentModal = document.getElementById('reportCommentModal');
+      const commentIdInput = document.getElementById('commentId');
 
+      // 모달이 열릴 때 실행
+      reportCommentModal.addEventListener('show.bs.modal', (event) => {
+        // 이벤트 트리거(버튼)에서 comment-id 값을 가져오기
+        const button = event.relatedTarget;
+        const commentId = button.getAttribute('data-comment-id');
+
+        // hidden input에 값 설정
+        commentIdInput.value = commentId;
+      });
+    });
+  </script>
+  <script>
     document.addEventListener("DOMContentLoaded", function () {
         // 댓글 신고 처리 스크립트
         const reportCommentForms = document.querySelectorAll('form[action="/comments/report"]');
+        const reportCommentModal = document.getElementById('reportCommentModal');
+        const commentIdInput = document.getElementById('commentId'); // Hidden input for commentId
 
         if (reportCommentForms.length > 0) {
+            // 모달이 열릴 때 commentId를 설정
+            reportCommentModal.addEventListener("show.bs.modal", function (event) {
+                const triggerButton = event.relatedTarget; // 모달을 연 버튼
+                const commentId = triggerButton.getAttribute("data-comment-id"); // 버튼의 data-comment-id 속성 값
+                if (commentId) {
+                    commentIdInput.value = commentId; // Hidden input에 commentId 설정
+                } else {
+                    console.warn("⚠️ commentId is missing on the button.");
+                }
+            });
+
             reportCommentForms.forEach((form) => {
                 form.addEventListener("submit", function (event) {
                     event.preventDefault(); // 기본 동작 중지
@@ -588,8 +641,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         console.log("✅ 댓글 신고 스크립트 초기화 완료.");
     });
-
-
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
